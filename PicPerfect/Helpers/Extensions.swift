@@ -89,3 +89,43 @@ extension UIImage {
         return self.imageOrientation == .left || self.imageOrientation  == .leftMirrored || self.imageOrientation  == .right || self.imageOrientation  == .rightMirrored
     }
 }
+
+
+extension DetectedOrientation {
+    func reversed(interactions: Int) -> DetectedOrientation {
+        switch self {
+        case .up:
+            switch interactions {
+            case 1: return .up
+            case 2: return .rotatedLeft
+            case 3: return .upsideDown
+            case 4: return .rotatedRight
+            default: return .up
+            }
+        case .rotatedRight:
+            switch interactions {
+            case 1: return .rotatedRight
+            case 2: return .up
+            case 3: return .rotatedLeft
+            case 4: return .upsideDown
+            default: return .up
+            }
+        case .upsideDown:
+            switch interactions {
+            case 1: return .upsideDown
+            case 2: return .rotatedRight
+            case 3: return .up
+            case 4: return .rotatedLeft
+            default: return .up
+            }
+        case .rotatedLeft:
+            switch interactions {
+            case 1: return .rotatedLeft
+            case 2: return .upsideDown
+            case 3: return .rotatedRight
+            case 4: return .up
+            default: return .up
+            }
+        }
+    }
+}

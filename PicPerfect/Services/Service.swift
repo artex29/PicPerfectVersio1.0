@@ -11,7 +11,7 @@ import MobileCoreServices
 
 class Service {
    
-    private static func exifOrientation(for orientation: UIImage.Orientation) -> Int {
+    static func exifOrientation(for orientation: UIImage.Orientation) -> Int {
         switch orientation {
         case .up: return 1
         case .down: return 3
@@ -25,7 +25,7 @@ class Service {
         }
     }
 
-    static func saveAndReplace(results: [ImageOrientationResult], completion: @escaping (Bool) -> Void) {
+    static func saveAndReplace(results: [ImageOrientationResult], deleteOriginals: Bool, completion: @escaping (Bool) -> Void) {
         PHPhotoLibrary.shared().performChanges({
             for result in results {
                 guard let cgImage = result.image.cgImage else { continue }
@@ -57,8 +57,10 @@ class Service {
             }
 
             // Borrar las fotos originales
-            let assetsToDelete = results.map { $0.asset }
-            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSArray)
+            if deleteOriginals {
+                let assetsToDelete = results.map { $0.asset }
+                PHAssetChangeRequest.deleteAssets(assetsToDelete as NSArray)
+            }
 
         }) { success, error in
             if success {

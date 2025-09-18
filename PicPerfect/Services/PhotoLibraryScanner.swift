@@ -10,7 +10,7 @@ import Photos
 import UIKit
 import Vision
 
-struct ImageOrientationResult {
+struct ImageOrientationResult: Hashable {
     var isIncorrect: Bool
     var image: UIImage
     var asset: PHAsset
@@ -35,9 +35,19 @@ class PhotoLibraryScanner {
         options.isSynchronous = false
 
         for i in 0..<assets.count {
+            
+            let asset: PHAsset = assets.object(at: i)
+            
+            guard PhotoAnalysisCloudCache.isAnalyzed(asset) == false else {
+                if let record = PhotoAnalysisCloudCache.record(for: asset) {
+                    print("⏭️ Skipping: \(asset.localIdentifier), analyzed on \(record.date), orientation: \(record.orientation ?? -1)")
+                }
+                continue
+            }
+            
             if results.count >= limit { break }
 
-            let asset: PHAsset = assets.object(at: i)
+            
             let targetSize = CGSize(width: 1024, height: 1024)
 
             if let lowResImage = await requestImage(for: asset, size: targetSize, manager: imageManager, options: options) {
@@ -48,6 +58,11 @@ class PhotoLibraryScanner {
                     if let highResImage = await requestHighResImage(for: asset) {
                         
                         let result = ImageOrientationResult(isIncorrect: true, image: highResImage, asset: asset)
+                        
+                        let orientationValue = Service.exifOrientation(for: highResImage.imageOrientation)
+                        
+                        PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
+                        
                         results.append(result)
                     }
                 }
@@ -86,3 +101,4 @@ class PhotoLibraryScanner {
         }
     }
 }
+

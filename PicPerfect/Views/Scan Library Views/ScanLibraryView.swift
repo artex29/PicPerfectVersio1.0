@@ -34,12 +34,14 @@ struct ScanLibraryView: View {
         }
         .padding()
         .onAppear {
+            
+            
             Service.requestPhotoLibraryAccessIfNeeded { granted in
                 photoAccessGranted = granted
             }
         }
         .fullScreenCover(isPresented: $showingReviewScreen) {
-            ReviewCorrectedImagesView(images: scannedImages)
+            ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
         }
         .alert("Permission Required", isPresented: $permisionAlertPresented) {
             

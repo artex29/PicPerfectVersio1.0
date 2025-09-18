@@ -9,9 +9,10 @@ import PhotosUI
 import SwiftUI
 import Vision
 import CoreML
+import Playgrounds
 
 enum DetectedOrientation: String, CaseIterable {
-    case up, rotatedLeft, rotatedRight, upsideDown
+    case up, rotatedRight, upsideDown, rotatedLeft
 }
 
 struct PredictedResult: Identifiable {
@@ -149,12 +150,15 @@ class OrientationService {
         
         await withCheckedContinuation { continuation in
             
-            guard let cgImage = image.cgImage else { continuation.resume(returning: nil); return }
+//            guard let cgImage = image.cgImage else { continuation.resume(returning: nil); return }
+            
+            var results: [DetectedOrientation: Float] = [:]
+            var interactions = 0
             
             let request = VNCoreMLRequest(model: model) { request, error in
                 guard
-                    let results = request.results as? [VNClassificationObservation],
-                    let top = results.first
+                    let observations = request.results as? [VNClassificationObservation],
+                    let top = observations.first
                 else {
                     continuation.resume(returning: nil)
                     return
@@ -165,6 +169,7 @@ class OrientationService {
                 let label = top.identifier.replacingOccurrences(of: "_", with: "").lowercased()
                 
                 var orientation: DetectedOrientation = .up
+                let confidence:Float = top.confidence
                 
                 switch label {
                 case "up":
@@ -179,12 +184,26 @@ class OrientationService {
                     orientation = .up
                 }
                 
-                continuation.resume(returning: orientation)
+                
+                
+                let reversedOrientation = orientation.reversed(interactions: interactions)
+                
+                results[reversedOrientation] = results[reversedOrientation, default: 0.0] < confidence ? confidence : results[reversedOrientation, default: 0.0]
                 
             }
             
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            try? handler.perform([request])
+            for orientation in DetectedOrientation.allCases {
+                
+                interactions += 1
+                
+                let rotatedImage = rotate(image: image, angle: 0, rotateTo: orientation)
+                
+                guard let cgImage = rotatedImage.cgImage else { continue }
+                let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+                try? handler.perform([request])
+            }
+            
+            continuation.resume(returning: results.max(by: { $0.value < $1.value })?.key)
         }
     }
     
@@ -229,6 +248,9 @@ class OrientationService {
             if text.topCandidates(1).isEmpty == false {
                 print("📝 Detected text in image")
                 return false
+            }
+            else {
+                return true
             }
         }
         

@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FF4A5A802E7209E000B755CF /* PicPerfectOrientationClassifier.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = FF4A5A7F2E7209E000B755CF /* PicPerfectOrientationClassifier.mlmodel */; };
+		FF4E7C192E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */; };
+		FF4E7C1E2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = FF4E7C1D2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel */; };
 		FF6739DC2E6B82C600C7C95A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6739DB2E6B82C000C7C95A /* Extensions.swift */; };
+		FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */; };
 		FFCBB3D72E68CFFA00928FA7 /* ReviewAndSaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */; };
 		FFD22CEA2E510C0B00071915 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD22CE72E510C0B00071915 /* ContentView.swift */; };
 		FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */; };
@@ -26,8 +28,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FF4A5A7F2E7209E000B755CF /* PicPerfectOrientationClassifier.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = PicPerfectOrientationClassifier.mlmodel; sourceTree = "<group>"; };
+		FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAnalysisCloudCache.swift; sourceTree = "<group>"; };
+		FF4E7C1A2E789B6A00ABF2B4 /* PicPerfect.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PicPerfect.entitlements; sourceTree = "<group>"; };
+		FF4E7C1D2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = PicPerfectOrientationClassifier.mlmodel; sourceTree = "<group>"; };
 		FF6739DB2E6B82C000C7C95A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligence.swift; sourceTree = "<group>"; };
 		FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewAndSaveView.swift; sourceTree = "<group>"; };
 		FFD22CD82E51072300071915 /* PicPerfect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicPerfect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFD22CE62E510C0B00071915 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -84,6 +89,7 @@
 		FFD22CE92E510C0B00071915 /* PicPerfect */ = {
 			isa = PBXGroup;
 			children = (
+				FF4E7C1A2E789B6A00ABF2B4 /* PicPerfect.entitlements */,
 				FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */,
 				FFD22CF02E510C5600071915 /* Views */,
 				FFD22CF62E5127E200071915 /* Models */,
@@ -98,7 +104,7 @@
 		FFD22CED2E510C1A00071915 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				FF4A5A7F2E7209E000B755CF /* PicPerfectOrientationClassifier.mlmodel */,
+				FF4E7C1D2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -117,6 +123,7 @@
 		FFD22CF32E511F7C00071915 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */,
 				FFD355112E6F61C500BEB236 /* Service.swift */,
 				FFD355082E6F473A00BEB236 /* PhotoLibraryScanner.swift */,
 				FFD22CF72E5127FB00071915 /* OrientationService.swift */,
@@ -128,6 +135,7 @@
 		FFD22CF62E5127E200071915 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */,
 				FFD22CF92E51293400071915 /* CorrectedPhoto.swift */,
 			);
 			path = Models;
@@ -218,11 +226,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				FFCBB3D72E68CFFA00928FA7 /* ReviewAndSaveView.swift in Sources */,
-				FF4A5A802E7209E000B755CF /* PicPerfectOrientationClassifier.mlmodel in Sources */,
 				FFD355122E6F61C900BEB236 /* Service.swift in Sources */,
+				FF4E7C1E2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel in Sources */,
+				FF4E7C192E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift in Sources */,
 				FFD355092E6F474800BEB236 /* PhotoLibraryScanner.swift in Sources */,
 				FFD3550F2E6F4DA600BEB236 /* FinalSaveView.swift in Sources */,
 				FFD22CFA2E51293400071915 /* CorrectedPhoto.swift in Sources */,
+				FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */,
 				FFD22CEA2E510C0B00071915 /* ContentView.swift in Sources */,
 				FFD3550D2E6F4D7100BEB236 /* ReviewCorrectedImagesView.swift in Sources */,
 				FF6739DC2E6B82C600C7C95A /* Extensions.swift in Sources */,
@@ -360,6 +370,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PicPerfect/PicPerfect.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CRM5WB54PG;
@@ -406,6 +417,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PicPerfect/PicPerfect.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CRM5WB54PG;

@@ -16,6 +16,8 @@ struct ReviewCorrectedImagesView: View {
     @State private var showConfirmation = false
     @State private var processedImages: [ImageOrientationResult] = []
 
+    @Binding var showingReviewScreen: Bool
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -56,6 +58,17 @@ struct ReviewCorrectedImagesView: View {
                         .cornerRadius(10)
                 }
                 .disabled(selectedIndices.isEmpty || isProcessing)
+                
+                Button {
+                    showingReviewScreen = false
+                } label: {
+                    Text("Skip these photos")
+                        .foregroundColor(.red)
+                        .font(.title3)
+                        
+                }
+                .picPerfectButton()
+
 
                 Spacer()
             }
@@ -102,5 +115,5 @@ struct ReviewCorrectedImagesView: View {
 
 
 #Preview {
-    ReviewAndSaveView(correctedPhotos: .constant([]))
+    ReviewCorrectedImagesView(images: [], showingReviewScreen: .constant(false))
 }
