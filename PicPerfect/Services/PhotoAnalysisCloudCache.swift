@@ -16,7 +16,8 @@ struct PhotoAnalysisRecord: Codable {
 }
 
 struct PhotoAnalysisCloudCache {
-    private static let key = "analyzedPhotoRecords"
+    private static let analyzedPhotoRecordsKey = "analyzedPhotoRecords"
+    private static let processedPhotosKey = "processedPhotos"
 
     // MARK: - Guardar un nuevo análisis
     static func markAsAnalyzed(_ asset: PHAsset, orientation: Int?) {
@@ -29,6 +30,26 @@ struct PhotoAnalysisCloudCache {
         records[asset.localIdentifier] = record
         saveRecords(records)
     }
+    
+    static func retrieveProcessedPhotos() -> [String] {
+        guard let data = NSUbiquitousKeyValueStore.default.data(forKey: processedPhotosKey) else {return []}
+        
+        let decoder = JSONDecoder()
+        
+        return (try? decoder.decode([String].self, from: data)) ?? []
+    }
+    
+    static func saveProcessedPhotos(_ photoIDs: [String]) {
+        let encoder = JSONEncoder()
+        
+        let existing = retrieveProcessedPhotos()
+        let updated = existing + photoIDs
+        
+        guard let data = try? encoder.encode(updated) else { return }
+        NSUbiquitousKeyValueStore.default.set(data, forKey: processedPhotosKey)
+        NSUbiquitousKeyValueStore.default.synchronize()
+    }
+    
 
     // MARK: - Consultar si ya está analizado
     static func isAnalyzed(_ asset: PHAsset) -> Bool {
@@ -41,8 +62,8 @@ struct PhotoAnalysisCloudCache {
     }
 
     // MARK: - Helpers
-    private static func loadRecords() -> [String: PhotoAnalysisRecord] {
-        guard let data = NSUbiquitousKeyValueStore.default.data(forKey: key) else {
+     static func loadRecords() -> [String: PhotoAnalysisRecord] {
+        guard let data = NSUbiquitousKeyValueStore.default.data(forKey: analyzedPhotoRecordsKey) else {
             return [:]
         }
         let decoder = JSONDecoder()
@@ -52,15 +73,16 @@ struct PhotoAnalysisCloudCache {
     private static func saveRecords(_ records: [String: PhotoAnalysisRecord]) {
         let encoder = JSONEncoder()
         guard let data = try? encoder.encode(records) else { return }
-        NSUbiquitousKeyValueStore.default.set(data, forKey: key)
+        NSUbiquitousKeyValueStore.default.set(data, forKey: analyzedPhotoRecordsKey)
         NSUbiquitousKeyValueStore.default.synchronize()
     }
     
     static func clearPhotoAnalysisRecords() {
         let store = NSUbiquitousKeyValueStore.default
-        let prefix = "analyzedPhotoRecords" // 👈 prefijo o clave base que uses
+        let prefix1 = analyzedPhotoRecordsKey// 👈 prefijo o clave base que uses
+        let prefix2 = processedPhotosKey
         for (key, _) in store.dictionaryRepresentation {
-            if key.hasPrefix(prefix) {
+            if key.hasPrefix(prefix1) || key.hasPrefix(prefix2) {
                 store.removeObject(forKey: key)
                 print("🗑️ Deleted record: \(key)")
             }

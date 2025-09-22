@@ -17,6 +17,7 @@ struct FinalSaveView: View {
     @State private var deleteOriginals = false
     @State private var selectedIndices: Set<Int> = []
    
+    @Environment(ContentModel.self) var model
     
     var body: some View {
         NavigationView {
@@ -107,4 +108,5 @@ struct FinalSaveView: View {
 
 #Preview {
     FinalSaveView(results: [])
+        .environment(ContentModel())
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 extension UIImage {
     func fixedOrientation() -> UIImage {
@@ -126,6 +127,18 @@ extension DetectedOrientation {
             case 4: return .up
             default: return .up
             }
+        }
+    }
+}
+
+
+extension View {
+    @ViewBuilder
+    func isPresent(_ flag: Bool) -> some View {
+        if flag {
+            self
+        } else {
+            self.hidden()
         }
     }
 }

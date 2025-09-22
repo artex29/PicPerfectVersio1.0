@@ -17,44 +17,60 @@ struct ScanLibraryView: View {
     
     @State private var permisionAlertPresented = false
     
+    @State private var showProcessedPhotos = false
+    
     var body: some View {
-        VStack(spacing: 20) {
-            if isScanning {
-                ProgressView("Scanning Library…")
-            } else {
-                Button(action: scanLibrary) {
-                    Text("🔍 Scan Library")
-                        .font(.title2)
-                        .padding()
-                        .background(Color.blue.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
+        ZStack {
+            
+            PicPerfectTheme.Colors.background.ignoresSafeArea()
+            
+            MainViewMarquee(showProcessedPhotos: $showProcessedPhotos)
+            
+            VStack(spacing: 20) {
+                
+                if isScanning {
+                    ProgressView("Scanning Library…")
+                        .tint(.white)
+                        .foregroundStyle(.white)
+                } else {
+                    
+                    ProcessedPhotos(showPhotos: $showProcessedPhotos)
+                    
+                    Spacer()
+                    
+                    Button(action: scanLibrary) {
+                        Text("🔍 Scan Library")
+                            .font(PicPerfectTheme.Fonts.minimalist)
+                        
+                    }
+                    .ifAvailableGlassButtonStyle()
+                    
                 }
             }
-        }
-        .padding()
-        .onAppear {
-            
-            
-            Service.requestPhotoLibraryAccessIfNeeded { granted in
-                photoAccessGranted = granted
-            }
-        }
-        .fullScreenCover(isPresented: $showingReviewScreen) {
-            ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
-        }
-        .alert("Permission Required", isPresented: $permisionAlertPresented) {
-            
-            Button("Open Settings") {
-                if let appSettings = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(appSettings)
+            .padding()
+            .onAppear {
+                
+                
+                Service.requestPhotoLibraryAccessIfNeeded { granted in
+                    photoAccessGranted = granted
                 }
             }
-            
-            Button("Cancel", role: .cancel) {}
-            
-        } message: {
-            Text("Please grant photo access in Settings to continue.")
+            .fullScreenCover(isPresented: $showingReviewScreen) {
+                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
+            }
+            .alert("Permission Required", isPresented: $permisionAlertPresented) {
+                
+                Button("Open Settings") {
+                    if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(appSettings)
+                    }
+                }
+                
+                Button("Cancel", role: .cancel) {}
+                
+            } message: {
+                Text("Please grant photo access in Settings to continue.")
+            }
         }
 
     }

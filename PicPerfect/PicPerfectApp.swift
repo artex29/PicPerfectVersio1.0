@@ -27,6 +27,7 @@ struct PicPerfectApp: App {
     var body: some Scene {
         WindowGroup {
             ScanLibraryView()
+                .environment(ContentModel())
                 .onAppear {
                     // Sincronizar al volver al foreground
                     NSUbiquitousKeyValueStore.default.synchronize()

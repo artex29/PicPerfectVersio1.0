@@ -26,6 +26,9 @@ class Service {
     }
 
     static func saveAndReplace(results: [ImageOrientationResult], deleteOriginals: Bool, completion: @escaping (Bool) -> Void) {
+        
+        var newIdentifiers: [String] = []
+        
         PHPhotoLibrary.shared().performChanges({
             for result in results {
                 guard let cgImage = result.image.cgImage else { continue }
@@ -54,6 +57,12 @@ class Service {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 let options = PHAssetResourceCreationOptions()
                 creationRequest.addResource(with: .photo, data: imageData as Data, options: options)
+                
+               let newAssetIdentifier = creationRequest.placeholderForCreatedAsset?.localIdentifier
+                
+                if let id = newAssetIdentifier {
+                    newIdentifiers.append(id)
+                }
             }
 
             // Borrar las fotos originales
@@ -65,6 +74,9 @@ class Service {
         }) { success, error in
             if success {
                 print("✅ Corrected images saved with metadata and originals deleted")
+               
+                PhotoAnalysisCloudCache.saveProcessedPhotos(newIdentifiers)
+                
                 completion(true)
             } else {
                 print("❌ Error saving or deleting images: \(error?.localizedDescription ?? "unknown error")")

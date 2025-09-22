@@ -33,17 +33,14 @@ class PhotoLibraryScanner {
         options.deliveryMode = .fastFormat
         options.resizeMode = .fast
         options.isSynchronous = false
+        
+        let records = PhotoAnalysisCloudCache.loadRecords()
+        
+        let noAnalyzedAssets = assets.objects(at: IndexSet(integersIn: 0..<assets.count)).filter { records[$0.localIdentifier] == nil }
 
-        for i in 0..<assets.count {
+        for i in 0..<noAnalyzedAssets.count {
             
-            let asset: PHAsset = assets.object(at: i)
-            
-            guard PhotoAnalysisCloudCache.isAnalyzed(asset) == false else {
-                if let record = PhotoAnalysisCloudCache.record(for: asset) {
-                    print("⏭️ Skipping: \(asset.localIdentifier), analyzed on \(record.date), orientation: \(record.orientation ?? -1)")
-                }
-                continue
-            }
+            let asset: PHAsset = noAnalyzedAssets[i]
             
             if results.count >= limit { break }
 
@@ -98,6 +95,46 @@ class PhotoLibraryScanner {
                                  options: options) { image, _ in
                 continuation.resume(returning: image)
             }
+        }
+    }
+    
+    
+    func fetchProcessedPhotos(with identifiers: [String], completion: @escaping ([UIImage]) -> Void) {
+        // Array donde se guardarán las imágenes recuperadas
+        var images: [UIImage] = []
+        
+        // Obtenemos los assets a partir de los identifiers
+        let assets = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+        
+        // Configuración para la petición de imagen
+        let imageManager = PHImageManager.default()
+        let requestOptions = PHImageRequestOptions()
+        requestOptions.isSynchronous = false
+        requestOptions.deliveryMode = .highQualityFormat
+        requestOptions.resizeMode = .fast
+        
+        let group = DispatchGroup()
+        
+        assets.enumerateObjects { asset, _, _ in
+            group.enter()
+            
+            let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
+            
+            imageManager.requestImage(
+                for: asset,
+                targetSize: targetSize,
+                contentMode: .aspectFit,
+                options: requestOptions
+            ) { image, _ in
+                if let image = image {
+                    images.append(image)
+                }
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(images)
         }
     }
 }

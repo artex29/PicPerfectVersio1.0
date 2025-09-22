@@ -18,6 +18,7 @@ struct PicPerfectTheme {
     struct Fonts {
         static let title = Font.system(size: 28, weight: .bold, design: .default)
         static let body = Font.system(size: 16, weight: .regular)
+        static let minimalist = Font.system(.headline, design: .rounded)
     }
 }
 
@@ -26,13 +27,13 @@ extension View {
         self
             .foregroundColor(.black)
             .padding()
-            .background(PicPerfectTheme.Colors.accent)
+            .background(PicPerfectTheme.Colors.accent.opacity(0.5))
             .cornerRadius(12)
     }
 
     @ViewBuilder
     func ifAvailableGlassButtonStyle() -> some View {
-        if #available(iOS 26, macOS 26, visionOS 26, *) {
+        if #available(iOS 26, macOS 26, watchOS 26, visionOS 26, *) {
             self.buttonStyle(.glass)
         } else {
             self.picPerfectButton()
