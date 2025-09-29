@@ -95,15 +95,13 @@ struct ReviewCorrectedImagesView: View {
             
             for i in selectedIndices {
                
-                var result:ImageOrientationResult = images[i]
+                let result:ImageOrientationResult = images[i]
             
-                let fixed = await OrientationService.correctedOrientation(for: result.image)
+                var fixed = await OrientationService.correctedOrientation(for: result)
                 
-                result.image = fixed
+                fixed.isIncorrect = false
                 
-                result.isIncorrect = false
-                
-                corrected.append(result)
+                corrected.append(fixed)
             }
 
             self.processedImages = corrected

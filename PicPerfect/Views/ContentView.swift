@@ -94,8 +94,17 @@ struct ContentView: View {
         for item in selectedItems {
             if let data = try? await item.loadTransferable(type: Data.self),
                let image = UIImage(data: data) {
-                let corrected = await OrientationService.correctedOrientation(for: image)
-                let model = CorrectedPhoto(correctedImage: corrected)
+                
+                let isIncorrectlyOriented = await OrientationService.isImageIncorrectlyOriented(in: image)
+                
+                print("Is Image Incorrectly Oriented: \(isIncorrectlyOriented)")
+                
+                let asset = PHAsset()
+                
+                let resultedImage = ImageOrientationResult(isIncorrect: true, image: image, asset: asset)
+                
+                let corrected = await OrientationService.correctedOrientation(for: resultedImage)
+                let model = CorrectedPhoto(correctedImage: corrected.image)
                 correctedPhotos.append(model)
                 print("Processed corrected photo")
             }

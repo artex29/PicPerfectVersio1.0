@@ -24,63 +24,118 @@ class Service {
         @unknown default: return 1
         }
     }
-
-    static func saveAndReplace(results: [ImageOrientationResult], deleteOriginals: Bool, completion: @escaping (Bool) -> Void) {
+    
+    static func saveAndReplace(results: [ImageOrientationResult], completion: @escaping (Bool) -> Void) {
         
-        var newIdentifiers: [String] = []
+        var processedIdentifiers: [String] = []
         
-        PHPhotoLibrary.shared().performChanges({
-            for result in results {
-                guard let cgImage = result.image.cgImage else { continue }
+        for result in results {
+            let asset = result.asset
+            
+            let identifier = asset.localIdentifier
+            
+            processedIdentifiers.append(identifier)
 
-                // Convertir orientación UIImage -> EXIF
-                let orientationValue = exifOrientation(for: result.image.imageOrientation)
+            let requestOptions = PHContentEditingInputRequestOptions()
+            requestOptions.canHandleAdjustmentData = { _ in true }
 
-                // Crear NSData con orientación en los metadatos
-                let imageData = NSMutableData()
-                
-                guard let destination = CGImageDestinationCreateWithData(
-                    imageData,
-                    UTType.jpeg.identifier as CFString, // 👈 usar el identifier
-                    1,
-                    nil
-                ) else { continue }
+            asset.requestContentEditingInput(with: requestOptions) { input, _ in
+                guard let input = input else { return }
 
-                let properties: [CFString: Any] = [
-                    kCGImagePropertyOrientation: orientationValue
+                let output = PHContentEditingOutput(contentEditingInput: input)
+
+                // 1. Guardar la imagen corregida en disco
+                if let data = result.image.jpegData(compressionQuality: 1.0) {
+                    do {
+                        try data.write(to: output.renderedContentURL)
+                    } catch {
+                        print("❌ Error writing corrected image: \(error)")
+                        completion(false)
+                        return
+                    }
+                }
+
+                // 2. Crear JSON con los metadatos de la edición
+                let adjustmentInfo: [String: Any?] = [
+                    "isIncorrect": result.isIncorrect,
+                    "imageType": result.imageType?.rawValue,
+                    "orientation": result.orientation?.rawValue,
+                    "rotationAngle": result.rotationAngle,
+                    "confidence": result.confidence,
+                    "source": result.source,
+                    "timestamp": Date().timeIntervalSince1970,
+                    "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
                 ]
 
-                CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
-                CGImageDestinationFinalize(destination)
+                let jsonData = try? JSONSerialization.data(withJSONObject: adjustmentInfo.compactMapValues { $0 }, options: [])
 
-                // Guardar como nuevo asset con metadatos EXIF
-                let creationRequest = PHAssetCreationRequest.forAsset()
-                let options = PHAssetResourceCreationOptions()
-                creationRequest.addResource(with: .photo, data: imageData as Data, options: options)
-                
-               let newAssetIdentifier = creationRequest.placeholderForCreatedAsset?.localIdentifier
-                
-                if let id = newAssetIdentifier {
-                    newIdentifiers.append(id)
+                // 3. Guardar JSON en adjustmentData
+                let adjustmentData = PHAdjustmentData(
+                    formatIdentifier: "net.artexcomputer.PicPerfect",
+                    formatVersion: "1.0",
+                    data: jsonData ?? Data()
+                )
+                output.adjustmentData = adjustmentData
+
+                // 4. Guardar cambios en el asset
+                PHPhotoLibrary.shared().performChanges({
+                    let request = PHAssetChangeRequest(for: asset)
+                    request.contentEditingOutput = output
+                }) { success, error in
+                    if success {
+                        print("✅ Asset replaced with non-destructive edit")
+                       
+                    } else {
+                        print("❌ Error saving edit: \(error?.localizedDescription ?? "unknown error")")
+                        completion(false)
+                    }
                 }
             }
+        }
+        
+        PhotoAnalysisCloudCache.saveProcessedPhotos(processedIdentifiers)
+        completion(true)
+    }
+    
+    static func getLibraryAssets() async -> [PHAsset] {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
+        
+        let allPhotos = PHAsset.fetchAssets(with: fetchOptions)
+        
+        let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        
+        return assets.objects(at: IndexSet(0..<assets.count))
+    }
 
-            // Borrar las fotos originales
-            if deleteOriginals {
-                let assetsToDelete = results.map { $0.asset }
-                PHAssetChangeRequest.deleteAssets(assetsToDelete as NSArray)
-            }
 
+    
+    static func deleteAssets(_ assets: [PHAsset]) {
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.deleteAssets(assets as NSArray)
         }) { success, error in
             if success {
-                print("✅ Corrected images saved with metadata and originals deleted")
-               
-                PhotoAnalysisCloudCache.saveProcessedPhotos(newIdentifiers)
-                
-                completion(true)
-            } else {
-                print("❌ Error saving or deleting images: \(error?.localizedDescription ?? "unknown error")")
-                completion(false)
+                print("🗑️ Original photo deleted")
+            } else if let error = error {
+                print("❌ Error deleting photo: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    static func requestImage(for asset: PHAsset, size: CGSize) async -> UIImage? {
+        await withCheckedContinuation { continuation in
+            
+            let options = PHImageRequestOptions()
+            options.isSynchronous = true
+            options.deliveryMode = .highQualityFormat
+            options.resizeMode = .fast
+            
+            PHImageManager.default().requestImage(for: asset,
+                                                  targetSize: size,
+                                                  contentMode: .aspectFit,
+                                                  options: options) { image, _ in
+                continuation.resume(returning: image)
             }
         }
     }

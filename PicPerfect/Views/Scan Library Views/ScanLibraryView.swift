@@ -11,6 +11,7 @@ import PhotosUI
 
 struct ScanLibraryView: View {
     @State private var scannedImages: [ImageOrientationResult] = []
+    @State private var duplicateGroups: [DuplicateGroup] = []
     @State private var showingReviewScreen = false
     @State private var isScanning = false
     @State private var photoAccessGranted = false
@@ -55,6 +56,11 @@ struct ScanLibraryView: View {
                     photoAccessGranted = granted
                 }
             }
+//            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
+//                
+//            }, content: {
+//                DuplicatesView(duplicaGroups: duplicateGroups)
+//            })
             .fullScreenCover(isPresented: $showingReviewScreen) {
                 ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
             }
@@ -73,6 +79,24 @@ struct ScanLibraryView: View {
             }
         }
 
+    }
+    
+    private func scanForDuplicates() {
+        
+        isScanning = true
+        
+        Task {
+            let assets =  await Service.getLibraryAssets()
+            
+            let duplicates = try? await DuplicateService.detectDuplicates(assets: assets)
+            
+            duplicateGroups = duplicates ?? []
+            print("Found \(duplicates?.count ?? 0) duplicate sets.")
+            
+            isScanning = false
+            
+            showingReviewScreen = true
+        }
     }
 
     func scanLibrary() {
@@ -95,4 +119,5 @@ struct ScanLibraryView: View {
 
 #Preview {
     ScanLibraryView()
+        .environment(ContentModel())
 }

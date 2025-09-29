@@ -10,11 +10,7 @@ import Photos
 import UIKit
 import Vision
 
-struct ImageOrientationResult: Hashable {
-    var isIncorrect: Bool
-    var image: UIImage
-    var asset: PHAsset
-}
+
 
 class PhotoLibraryScanner {
     static let shared = PhotoLibraryScanner()
@@ -27,12 +23,6 @@ class PhotoLibraryScanner {
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
 
         let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-        let imageManager = PHCachingImageManager()
-
-        let options = PHImageRequestOptions()
-        options.deliveryMode = .fastFormat
-        options.resizeMode = .fast
-        options.isSynchronous = false
         
         let records = PhotoAnalysisCloudCache.loadRecords()
         
@@ -43,11 +33,14 @@ class PhotoLibraryScanner {
             let asset: PHAsset = noAnalyzedAssets[i]
             
             if results.count >= limit { break }
-
             
             let targetSize = CGSize(width: 1024, height: 1024)
 
-            if let lowResImage = await requestImage(for: asset, size: targetSize, manager: imageManager, options: options) {
+            if let lowResImage = await Service.requestImage(for: asset, size: targetSize) {
+                
+                let orientationValue = Service.exifOrientation(for: lowResImage.imageOrientation)
+                
+                PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
                 
                 let isIncorrect = await OrientationService.isImageIncorrectlyOriented(in: lowResImage)
 
@@ -55,10 +48,6 @@ class PhotoLibraryScanner {
                     if let highResImage = await requestHighResImage(for: asset) {
                         
                         let result = ImageOrientationResult(isIncorrect: true, image: highResImage, asset: asset)
-                        
-                        let orientationValue = Service.exifOrientation(for: highResImage.imageOrientation)
-                        
-                        PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
                         
                         results.append(result)
                     }
@@ -69,16 +58,7 @@ class PhotoLibraryScanner {
         return results
     }
 
-    private func requestImage(for asset: PHAsset, size: CGSize, manager: PHCachingImageManager, options: PHImageRequestOptions) async -> UIImage? {
-        await withCheckedContinuation { continuation in
-            manager.requestImage(for: asset,
-                                 targetSize: size,
-                                 contentMode: .aspectFit,
-                                 options: options) { image, _ in
-                continuation.resume(returning: image)
-            }
-        }
-    }
+   
     
     func requestHighResImage(for asset: PHAsset) async -> UIImage? {
         await withCheckedContinuation { continuation in

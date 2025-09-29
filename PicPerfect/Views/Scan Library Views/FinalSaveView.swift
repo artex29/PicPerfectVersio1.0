@@ -86,7 +86,7 @@ struct FinalSaveView: View {
             selectedResults.append(results[index])
         }
         
-        Service.saveAndReplace(results: selectedResults, deleteOriginals: deleteOriginals) { saved in
+        Service.saveAndReplace(results: selectedResults) { saved in
             if saved {
                 print("Photos saved successfully")
             } else {

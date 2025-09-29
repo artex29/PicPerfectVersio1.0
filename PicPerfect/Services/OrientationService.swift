@@ -11,10 +11,6 @@ import Vision
 import CoreML
 import Playgrounds
 
-enum DetectedOrientation: String, CaseIterable {
-    case up, rotatedRight, upsideDown, rotatedLeft
-}
-
 struct PredictedResult: Identifiable {
     var id: String = UUID().uuidString
     var image: UIImage
@@ -22,46 +18,92 @@ struct PredictedResult: Identifiable {
     var confidence: Float
 }
 
+struct ImageOrientationResult: Hashable, Identifiable {
+    var isIncorrect: Bool
+    var image: UIImage
+    var asset: PHAsset
+    var imageType: ImageType? = nil
+    var orientation: DetectedOrientation? = nil
+    var rotationAngle: CGFloat? = nil
+    var confidence: Float? = nil
+    var source: String? = nil
+    
+    var id: String {
+        asset.localIdentifier == "(null)/L0/001" ? "\(image.size)\(image.scale)\(image.imageOrientation)\(image.isPortrait)" : asset.localIdentifier
+    }
+    
+}
+
 class OrientationService {
     
-    static func correctedOrientation(for image: UIImage) async -> UIImage {
+    static func correctedOrientation(for image: ImageOrientationResult) async -> ImageOrientationResult {
         
-        let preprocessedImage = image.resized()
+        var resultedImage: ImageOrientationResult = image
         
-        if let faceImage = detectFace(in: preprocessedImage) {
+        let preprocessedImage = image.image.resized()
+        
+        if let faceImage = detectFace(in: resultedImage) {
+           
             return faceImage
         }
         
+        if let horizonImage = detectHorizon(in: resultedImage) {
+            
+            return horizonImage
+        }
+        
         print("🤖 No object or face detected — using Core ML")
+        
+        resultedImage.imageType = .unknown
+        
         
         let configuration = MLModelConfiguration()
         
         guard let coreMLModel = try? PicPerfectOrientationClassifier(configuration: configuration),
               let visionModel = try? VNCoreMLModel(for: coreMLModel.model) else {
             print("❌ Could not load Core ML model")
-            return preprocessedImage
+            return resultedImage
         }
         
         //let orientation = await predictOrientation(with: visionModel, image: preprocessedImage)
         let result = await predictResults(with: visionModel, image: preprocessedImage)?.max(by: { $0.confidence < $1.confidence })
+        print("Result: \(String(describing: result))")
         let orientation = result?.orientation ?? .up
         let finalImage = result?.image ?? preprocessedImage
         
+        resultedImage.source = "coreML"
+        resultedImage.orientation = orientation
+        resultedImage.confidence = result?.confidence ?? 0.0
+        resultedImage.isIncorrect = false
+        
         switch orientation {
         case .rotatedLeft:
-            return rotate(image: finalImage, angle: .pi / 2)
+            resultedImage.image = rotate(image: finalImage, angle: .pi / 2)
+            resultedImage.rotationAngle = 90.0
+            return resultedImage
         case .rotatedRight:
-            return rotate(image: finalImage, angle: -.pi / 2)
+            resultedImage.image = rotate(image: finalImage, angle: -.pi / 2)
+            resultedImage.rotationAngle = -90.0
+            return resultedImage
         case .upsideDown:
-            return rotate(image: finalImage, angle: .pi)
+            resultedImage.image = rotate(image: finalImage, angle: .pi)
+            resultedImage.rotationAngle = 180.0
+            return resultedImage
         case .up:
-            return finalImage
+            resultedImage.image = finalImage
+            resultedImage.rotationAngle = 0.0
+            return resultedImage
         }
     }
     
-    private static func detectFace(in image: UIImage) -> UIImage? {
-        guard let cgImage = image.cgImage else { return nil }
+    private static func detectFace(in image: ImageOrientationResult) -> ImageOrientationResult? {
+        guard let cgImage = image.image.cgImage else { return nil }
 
+        var resultedImage: ImageOrientationResult = image
+        resultedImage.confidence = 1.0
+        resultedImage.isIncorrect = false
+        resultedImage.imageType = .face
+        
         let request = VNDetectFaceLandmarksRequest()
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         try? handler.perform([request])
@@ -72,16 +114,88 @@ class OrientationService {
             
             let tolerance = 0.2
             if abs(roll + .pi) < tolerance || abs(roll - .pi) < tolerance {
-                return rotate(image: image, angle: .pi)
+                
+                resultedImage.image = rotate(image: image.image, angle: .pi)
+                
+                resultedImage.orientation = .upsideDown
+                
+                resultedImage.rotationAngle = 180.0
+                
+                return resultedImage
+                
             } else if abs(roll - (.pi / 2)) < tolerance {
-                return rotate(image: image, angle: .pi / 2)
+                resultedImage.image = rotate(image: image.image, angle: .pi / 2)
+                
+                resultedImage.orientation = .rotatedLeft
+                
+                resultedImage.rotationAngle = 90.0
+                
+                return resultedImage
             } else if abs(roll + (.pi / 2)) < tolerance {
-                return rotate(image: image, angle: -.pi / 2)
+                resultedImage.image = rotate(image: image.image, angle: -.pi / 2)
+                
+                resultedImage.orientation = .rotatedRight
+                
+                resultedImage.rotationAngle = -90.0
+                
+                return resultedImage
             } else {
-                return image
+                resultedImage.orientation = .up
+                resultedImage.rotationAngle = 0.0
+                return resultedImage
             }
         }
 
+        return nil
+    }
+    
+    private static func detectHorizon(in image: ImageOrientationResult) -> ImageOrientationResult? {
+        guard let cgImage = image.image.cgImage else { return nil }
+        
+        var resultedImage: ImageOrientationResult = image
+        resultedImage.confidence = 1.0
+        resultedImage.isIncorrect = false
+        resultedImage.imageType = .horizon
+        
+        let request = VNDetectHorizonRequest()
+        
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try? handler.perform([request])
+        
+        if let horizon = request.results?.first as? VNHorizonObservation {
+            // print("🧠 Detected horizon: \(horizon)")
+            
+            let tolerance = 0.2
+            let angle = horizon.angle
+            
+            print("🧠 [Horizon] Angle: \(angle) radians")
+            
+            if abs(Double(angle) - 1.0) < tolerance {
+                resultedImage.image = rotate(image: image.image, angle: 0)
+                resultedImage.rotationAngle = 0.0
+                resultedImage.orientation = .up
+                return resultedImage
+            } else if abs(Double(angle) - 0.75) < tolerance {
+                resultedImage.image = rotate(image: image.image, angle: .pi / 2)
+                resultedImage.rotationAngle = 90.0
+                resultedImage.orientation = .rotatedLeft
+                return resultedImage
+            } else if abs(Double(angle) - 0.5) < tolerance {
+                resultedImage.image = rotate(image: image.image, angle: .pi)
+                resultedImage.rotationAngle = 180.0
+                resultedImage.orientation = .upsideDown
+                return resultedImage
+            } else if abs(Double(angle) - 0.25) < tolerance {
+                resultedImage.image = rotate(image: image.image, angle: -.pi / 2)
+                resultedImage.rotationAngle = -90.0
+                resultedImage.orientation = .rotatedRight
+                return resultedImage
+            } else {
+                return image
+            }
+            
+        }
+        
         return nil
     }
     
@@ -97,6 +211,7 @@ class OrientationService {
                 guard let results = request.results as? [VNClassificationObservation],
                       let top = results.first
                 else {
+                    print("❌ No results from Core ML model")
                     continuation.resume(returning: .none)
                     return
                 }
@@ -150,7 +265,6 @@ class OrientationService {
         
         await withCheckedContinuation { continuation in
             
-//            guard let cgImage = image.cgImage else { continuation.resume(returning: nil); return }
             
             var results: [DetectedOrientation: Float] = [:]
             var interactions = 0
@@ -187,6 +301,8 @@ class OrientationService {
                 
                 
                 let reversedOrientation = orientation.reversed(interactions: interactions)
+                
+                print("🔄 Mapped orientation: \(orientation) -> \(reversedOrientation) after \(interactions) interactions")
                 
                 results[reversedOrientation] = results[reversedOrientation, default: 0.0] < confidence ? confidence : results[reversedOrientation, default: 0.0]
                 
@@ -304,18 +420,6 @@ class OrientationService {
             ctx.rotate(by: finalAngle)
             ctx.translateBy(x: -image.size.width / 2, y: -image.size.height / 2)
             image.draw(in: CGRect(origin: .zero, size: image.size))
-        }
-    }
-    
-    func deleteAsset(_ asset: PHAsset) {
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.deleteAssets([asset] as NSArray)
-        }) { success, error in
-            if success {
-                print("🗑️ Original photo deleted")
-            } else if let error = error {
-                print("❌ Error deleting photo: \(error.localizedDescription)")
-            }
         }
     }
 }
