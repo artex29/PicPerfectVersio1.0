@@ -102,7 +102,7 @@ class Service {
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
         
-        let allPhotos = PHAsset.fetchAssets(with: fetchOptions)
+       // let allPhotos = PHAsset.fetchAssets(with: fetchOptions)
         
         let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         

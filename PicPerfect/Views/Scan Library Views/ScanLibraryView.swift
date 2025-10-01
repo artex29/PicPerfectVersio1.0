@@ -39,7 +39,7 @@ struct ScanLibraryView: View {
                     
                     Spacer()
                     
-                    Button(action: scanLibrary) {
+                    Button(action: scanForDuplicates) {
                         Text("🔍 Scan Library")
                             .font(PicPerfectTheme.Fonts.minimalist)
                         
@@ -56,14 +56,14 @@ struct ScanLibraryView: View {
                     photoAccessGranted = granted
                 }
             }
-//            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
-//                
-//            }, content: {
-//                DuplicatesView(duplicaGroups: duplicateGroups)
-//            })
-            .fullScreenCover(isPresented: $showingReviewScreen) {
-                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
-            }
+            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
+                
+            }, content: {
+                DuplicatesView(duplicaGroups: duplicateGroups)
+            })
+//            .fullScreenCover(isPresented: $showingReviewScreen) {
+//                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
+//            }
             .alert("Permission Required", isPresented: $permisionAlertPresented) {
                 
                 Button("Open Settings") {
