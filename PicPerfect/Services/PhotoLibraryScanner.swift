@@ -15,8 +15,8 @@ import Vision
 class PhotoLibraryScanner {
     static let shared = PhotoLibraryScanner()
 
-    func scanForIncorrectlyOrientedPhotos(limit: Int) async -> [ImageOrientationResult] {
-        var results: [ImageOrientationResult] = []
+    func scanForIncorrectlyOrientedPhotos(limit: Int) async -> [ImageInfo] {
+        var results: [ImageInfo] = []
         
         
         let fetchOptions = PHFetchOptions()
@@ -47,7 +47,7 @@ class PhotoLibraryScanner {
                 if isIncorrect {
                     if let highResImage = await requestHighResImage(for: asset) {
                         
-                        let result = ImageOrientationResult(isIncorrect: true, image: highResImage, asset: asset)
+                        let result = ImageInfo(isIncorrect: true, image: highResImage, asset: asset)
                         
                         results.append(result)
                     }

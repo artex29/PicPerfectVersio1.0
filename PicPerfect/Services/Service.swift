@@ -25,7 +25,7 @@ class Service {
         }
     }
     
-    static func saveAndReplace(results: [ImageOrientationResult], completion: @escaping (Bool) -> Void) {
+    static func saveAndReplace(results: [ImageInfo], completion: @escaping (Bool) -> Void) {
         
         var processedIdentifiers: [String] = []
         

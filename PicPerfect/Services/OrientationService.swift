@@ -18,7 +18,7 @@ struct PredictedResult: Identifiable {
     var confidence: Float
 }
 
-struct ImageOrientationResult: Hashable, Identifiable {
+struct ImageInfo: Hashable, Identifiable {
     var isIncorrect: Bool
     var image: UIImage
     var asset: PHAsset
@@ -36,9 +36,9 @@ struct ImageOrientationResult: Hashable, Identifiable {
 
 class OrientationService {
     
-    static func correctedOrientation(for image: ImageOrientationResult) async -> ImageOrientationResult {
+    static func correctedOrientation(for image: ImageInfo) async -> ImageInfo {
         
-        var resultedImage: ImageOrientationResult = image
+        var resultedImage: ImageInfo = image
         
         let preprocessedImage = image.image.resized()
         
@@ -96,10 +96,10 @@ class OrientationService {
         }
     }
     
-    private static func detectFace(in image: ImageOrientationResult) -> ImageOrientationResult? {
+    private static func detectFace(in image: ImageInfo) -> ImageInfo? {
         guard let cgImage = image.image.cgImage else { return nil }
 
-        var resultedImage: ImageOrientationResult = image
+        var resultedImage: ImageInfo = image
         resultedImage.confidence = 1.0
         resultedImage.isIncorrect = false
         resultedImage.imageType = .face
@@ -149,10 +149,10 @@ class OrientationService {
         return nil
     }
     
-    private static func detectHorizon(in image: ImageOrientationResult) -> ImageOrientationResult? {
+    private static func detectHorizon(in image: ImageInfo) -> ImageInfo? {
         guard let cgImage = image.image.cgImage else { return nil }
         
-        var resultedImage: ImageOrientationResult = image
+        var resultedImage: ImageInfo = image
         resultedImage.confidence = 1.0
         resultedImage.isIncorrect = false
         resultedImage.imageType = .horizon

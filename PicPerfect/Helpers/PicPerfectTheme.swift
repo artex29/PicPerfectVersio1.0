@@ -39,6 +39,17 @@ extension View {
             self.picPerfectButton()
         }
     }
+    
+    @ViewBuilder
+    func disabledView(_ isDisabled: Bool) -> some View {
+        if isDisabled {
+            self.opacity(0.5)
+                .allowsHitTesting(false)
+                .disabled(true)
+        } else {
+            self
+        }
+    }
 }
 
 extension Color {

@@ -101,7 +101,7 @@ struct ContentView: View {
                 
                 let asset = PHAsset()
                 
-                let resultedImage = ImageOrientationResult(isIncorrect: true, image: image, asset: asset)
+                let resultedImage = ImageInfo(isIncorrect: true, image: image, asset: asset)
                 
                 let corrected = await OrientationService.correctedOrientation(for: resultedImage)
                 let model = CorrectedPhoto(correctedImage: corrected.image)

@@ -33,6 +33,7 @@
 		FFD355122E6F61C900BEB236 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD355112E6F61C500BEB236 /* Service.swift */; };
 		FFDDD34A2E81EB7300ACD669 /* DuplicateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */; };
 		FFDFDA632E8460D800367F43 /* DuplicatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDFDA622E8460D800367F43 /* DuplicatesView.swift */; };
+		FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		FFD355112E6F61C500BEB236 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateService.swift; sourceTree = "<group>"; };
 		FFDFDA622E8460D800367F43 /* DuplicatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicatesView.swift; sourceTree = "<group>"; };
+		FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionRecord.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +175,7 @@
 		FFD22CF62E5127E200071915 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */,
 				FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */,
 				FFD22CF92E51293400071915 /* CorrectedPhoto.swift */,
 			);
@@ -281,6 +284,7 @@
 				FFAF02972E83280400CBF98B /* Enums.swift in Sources */,
 				FFD355092E6F474800BEB236 /* PhotoLibraryScanner.swift in Sources */,
 				FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */,
+				FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */,
 				FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */,
 				FFD3550F2E6F4DA600BEB236 /* FinalSaveView.swift in Sources */,
 				FFD22CFA2E51293400071915 /* CorrectedPhoto.swift in Sources */,

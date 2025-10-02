@@ -10,7 +10,7 @@ import SwiftUI
 import Photos
 
 struct FinalSaveView: View {
-    let results: [ImageOrientationResult]
+    let results: [ImageInfo]
     @Environment(\.dismiss) var dismiss
 
     @State private var deleteAlertPresent = false
@@ -80,7 +80,7 @@ struct FinalSaveView: View {
     
     func savePhotos() {
         
-        var selectedResults: [ImageOrientationResult] = []
+        var selectedResults: [ImageInfo] = []
         
         for index in selectedIndices {
             selectedResults.append(results[index])

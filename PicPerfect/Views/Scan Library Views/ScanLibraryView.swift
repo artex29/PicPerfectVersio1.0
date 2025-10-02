@@ -10,7 +10,7 @@ import SwiftUI
 import PhotosUI
 
 struct ScanLibraryView: View {
-    @State private var scannedImages: [ImageOrientationResult] = []
+    @State private var scannedImages: [ImageInfo] = []
     @State private var duplicateGroups: [DuplicateGroup] = []
     @State private var showingReviewScreen = false
     @State private var isScanning = false

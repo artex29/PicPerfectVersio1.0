@@ -10,11 +10,11 @@ import SwiftUI
 import Photos
 
 struct ReviewCorrectedImagesView: View {
-    @State var images: [ImageOrientationResult]
+    @State var images: [ImageInfo]
     @State private var selectedIndices: Set<Int> = []
     @State private var isProcessing = false
     @State private var showConfirmation = false
-    @State private var processedImages: [ImageOrientationResult] = []
+    @State private var processedImages: [ImageInfo] = []
 
     @Binding var showingReviewScreen: Bool
     
@@ -91,11 +91,11 @@ struct ReviewCorrectedImagesView: View {
         isProcessing = true
         
         Task {
-            var corrected: [ImageOrientationResult] = []
+            var corrected: [ImageInfo] = []
             
             for i in selectedIndices {
                
-                let result:ImageOrientationResult = images[i]
+                let result:ImageInfo = images[i]
             
                 var fixed = await OrientationService.correctedOrientation(for: result)
                 

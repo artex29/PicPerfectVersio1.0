@@ -12,6 +12,7 @@ struct DecisionMenuView: View {
     var deleteAction: () -> Void
     var undoAction: () -> Void
     var keepAction: () -> Void
+    var decisionHistory: [DecisionRecord]
     
     var body: some View {
         HStack {
@@ -34,6 +35,7 @@ struct DecisionMenuView: View {
                     .foregroundStyle(.blue)
             }
             .ifAvailableGlassButtonStyle()
+            .disabledView(decisionHistory.isEmpty)
             Spacer()
             
             Button {
@@ -53,5 +55,5 @@ struct DecisionMenuView: View {
 }
 
 #Preview {
-    DecisionMenuView(deleteAction: {}, undoAction: {}, keepAction: {})
+    DecisionMenuView(deleteAction: {}, undoAction: {}, keepAction: {}, decisionHistory: [])
 }

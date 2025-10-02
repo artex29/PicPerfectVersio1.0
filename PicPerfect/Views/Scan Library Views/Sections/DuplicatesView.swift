@@ -33,20 +33,24 @@ struct DuplicatesView: View {
         UIImage(named: "marquee12")
     ]
     
-    @State private var groupedImages: [[ImageOrientationResult]] = []
+    @State private var groupedImages: [[ImageInfo]] = []
     
-    @State private var selectedGroup: [ImageOrientationResult] = []
+    @State private var selectedGroup: [ImageInfo] = []
     
-    @State private var keepPhotos: [ImageOrientationResult] = []
+    @State private var keepPhotos: [ImageInfo] = []
     
-    @State private var deletePhotos: [ImageOrientationResult] = []
-    
-    @State private var refresh: Bool = true
+    @State private var deletePhotos: [ImageInfo] = []
     
     @State private var decisionAction: DecisionActions? = nil
     
+    @State private var decisionHistory: [DecisionRecord] = []
+    
+    @State private var refresh = true
+    
     var selectedIDImage: String {
-        selectedGroup.reversed().first?.id ?? ""
+        let id = selectedGroup.reversed().first?.id ?? ""
+        print("Selected ID Image: \(id)")
+        return id
     }
     
     var body: some View {
@@ -64,9 +68,21 @@ struct DuplicatesView: View {
                         selectedGroup: $selectedGroup,
                         proxy: geo,
                         decisionAction: $decisionAction,
-                        selecteIDImage: selectedIDImage
+                        selectedIDImage: selectedIDImage
                     )
                     .isPresent(refresh)
+                    .onChange(of: decisionAction) { oldValue, newValue in
+                        guard newValue != nil else { return  }
+                        
+                        if newValue == .undo {
+                            // force a refresh to reset any animation glitches
+                            refresh = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                                refresh = true
+                            }
+                        }
+                    }
+                   
                     Spacer()
                 }
                
@@ -98,7 +114,8 @@ struct DuplicatesView: View {
                     DecisionMenuView(
                         deleteAction: {handleDecisionAction(for: .delete)},
                         undoAction: {handleDecisionAction(for: .undo)},
-                        keepAction: {handleDecisionAction(for: .keep)}
+                        keepAction: {handleDecisionAction(for: .keep)},
+                        decisionHistory: decisionHistory
                     )
                 }
                 .padding(.bottom, 30)
@@ -115,62 +132,105 @@ struct DuplicatesView: View {
     
     
     private func handleDecisionAction(for decision: DecisionActions) {
-        
+       
         let resultedImage = selectedGroup.reversed().first!
         
         switch decision {
             
         case .delete:
-            decisionAction = .delete
-            deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex in
-                deletePhotos.append(resultedImage)
-                selectNextGroup(nextIndex: nextIndex,
-                                selectedGroup: &selectedGroup,
-                                allGroups: groupedImages)
+            
+            if let rec = makeRecord(for: resultedImage, action: .delete) {
+                decisionHistory.append(rec)
             }
             
+            decisionAction = .delete
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
+                deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
+                    deletePhotos.append(resultedImage)
+                    selectNextGroup(nextIndex: nextIndex,
+                                    selectedGroup: &selectedGroup,
+                                    allGroups: returningGroups ?? [])
+                }
+            }
+            
+           
             
         case .keep:
+            
+            if let rec = makeRecord(for: resultedImage, action: .keep) {
+                decisionHistory.append(rec)
+            }
+            
             decisionAction = .keep
             
-            deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex in
-               keepPhotos.append(resultedImage)
-                selectNextGroup(nextIndex: nextIndex,
-                                selectedGroup: &selectedGroup,
-                                allGroups: groupedImages)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
+                deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
+                    keepPhotos.append(resultedImage)
+                    selectNextGroup(nextIndex: nextIndex,
+                                    selectedGroup: &selectedGroup,
+                                    allGroups: returningGroups ?? [])
+                }
             }
             
             
             
         case .undo:
             decisionAction = .undo
-            if let index = keepPhotos.firstIndex(where: { $0.id == resultedImage.id }) {
-                keepPhotos.remove(at: index)
-                selectedGroup.append(resultedImage)
-            } else if let index = deletePhotos.firstIndex(where: { $0.id == resultedImage.id }) {
-                deletePhotos.remove(at: index)
-                selectedGroup.append(resultedImage)
+            undoLastAction()
+           
+        }
+    }
+    
+    private func undoLastAction() {
+        guard let last = decisionHistory.popLast() else { return }
+        guard decisionAction != nil else { return }
+        
+        // 1) Quitar de keep/delete
+        if last.action == .keep {
+            if let idx = keepPhotos.firstIndex(where: { $0.id == last.image.id }) {
+                keepPhotos.remove(at: idx)
             }
+        } else if last.action == .delete {
+            if let idx = deletePhotos.firstIndex(where: { $0.id == last.image.id }) {
+                deletePhotos.remove(at: idx)
+            }
+        }
+        
+        // 2) Buscar el grupo original (sin la imagen removida)
+        let remainingIds = Set(last.originalGroupIds.filter { $0 != last.image.id })
+        
+        let sampleID = remainingIds.first
+        
+        if let groupIndex = groupedImages.firstIndex(where: {$0.contains(where: {$0.id == sampleID})}) {
+            let position = min(last.originalImageIndex, groupedImages[groupIndex].count)
+            groupedImages[groupIndex].insert(last.image, at: position)
+            selectedGroup = groupedImages[groupIndex].reversed()
+        }
+        else {
+            let groupPosition = min(last.originalGroupIndex, groupedImages.count)
+            groupedImages.insert([last.image], at: groupPosition)
+            selectedGroup = groupedImages[groupPosition].reversed()
         }
     }
     
     
-    private func selectGroup(group: [ImageOrientationResult]) {
+    private func selectGroup(group: [ImageInfo]) {
         selectedGroup = group.reversed()
     }
     
     private func getGroups(completion: @escaping() -> Void) async {
         
-        var groups: [[ImageOrientationResult]] = []
+        var groups: [[ImageInfo]] = []
         
         if duplicaGroups.isEmpty == false {
             for group in duplicaGroups {
                 
-                var imageGroup: [ImageOrientationResult] = []
+                var imageGroup: [ImageInfo] = []
                 
                 for asset in group.assets {
                     // Convert PHAsset to Image
-                    var result: ImageOrientationResult = ImageOrientationResult(isIncorrect: false, image: UIImage(), asset: asset)
+                    var result: ImageInfo = ImageInfo(isIncorrect: false, image: UIImage(), asset: asset)
                     
                     if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) {
                        
@@ -193,11 +253,11 @@ struct DuplicatesView: View {
             let chunkSize = 3
             for i in stride(from: 0, to: images.count, by: chunkSize) {
                 
-                var result: ImageOrientationResult = ImageOrientationResult(isIncorrect: false, image: UIImage(), asset: PHAsset())
+                var result: ImageInfo = ImageInfo(isIncorrect: false, image: UIImage(), asset: PHAsset())
                 
                 let chunk = Array(images[i..<min(i + chunkSize, images.count)])
                 
-                var results: [ImageOrientationResult] = []
+                var results: [ImageInfo] = []
                 
                 for image in chunk {
                     result.image = image ?? UIImage()
@@ -212,6 +272,20 @@ struct DuplicatesView: View {
         completion()
     }
     
+    private func makeRecord(for image: ImageInfo,
+                            action: DecisionActions) -> DecisionRecord? {
+        
+        guard let gIdx = groupedImages.firstIndex(where: { $0.contains(where: { $0.id == image.id }) }),
+              let iIdx = groupedImages[gIdx].firstIndex(where: { $0.id == image.id }) else { return nil }
+        
+        let groupIds = groupedImages[gIdx].map { $0.id }   // estado previo
+        return DecisionRecord(action: action,
+                              image: image,
+                              originalGroupIndex: gIdx,
+                              originalImageIndex: iIdx,
+                              originalGroupIds: groupIds)
+    }
+    
 }
 
 struct DuplicatePhotos: View {
@@ -224,17 +298,17 @@ struct DuplicatePhotos: View {
     @State private var dragRotations: [String: CGFloat] = [:]
     @State private var dragOffsets: [String: CGSize] = [:]
     
-    @Binding var keepPhotos: [ImageOrientationResult]
-    @Binding var deletePhotos: [ImageOrientationResult]
-    @Binding var allGroups: [[ImageOrientationResult]]
+    @Binding var keepPhotos: [ImageInfo]
+    @Binding var deletePhotos: [ImageInfo]
+    @Binding var allGroups: [[ImageInfo]]
     
-    @Binding var selectedGroup: [ImageOrientationResult]
+    @Binding var selectedGroup: [ImageInfo]
     
     var proxy: GeometryProxy
     
     @Binding var decisionAction: DecisionActions?
     
-    var selecteIDImage: String
+    var selectedIDImage: String
     
     var body: some View {
         
@@ -242,9 +316,9 @@ struct DuplicatePhotos: View {
         VStack {
             ZStack(alignment: .top) {
                 
-                ForEach(selectedGroup.indices, id: \.self) { index in
+                ForEach(Array(selectedGroup.enumerated()), id: \.element.id) { index, image in
                     
-                    let image = selectedGroup[index]
+                    
                     let identifier = image.id
                     
                     ZStack {
@@ -268,7 +342,9 @@ struct DuplicatePhotos: View {
                         startRotation(for: index, identifier: identifier)
                     }
                     .onChange(of: decisionAction) { oldValue, newValue in
-                        if let action = newValue, action != .undo, identifier == selecteIDImage {
+                        
+                        if let action = newValue, action != .undo , identifier == selectedIDImage {
+                            
                             startDeletingAnimation(for: identifier)
                         }
                     }
@@ -316,7 +392,7 @@ struct DuplicatePhotos: View {
     }
     
     @ViewBuilder
-    private func scaledImage(image: ImageOrientationResult, imageIdentifier: String) -> some View {
+    private func scaledImage(image: ImageInfo, imageIdentifier: String) -> some View {
         
         let resultedImage = image
         let img = Image(uiImage: resultedImage.image)
@@ -352,25 +428,17 @@ struct DuplicatePhotos: View {
                                             withAnimation(.easeIn) {
                                                 
                                                 if angle > 10 {
-                                                    // mantener
+                                                    // keep
                                                     dragRotations[imageIdentifier] = 15
-                                                    keepPhotos.append(resultedImage)
-                                                    deleteFromGroup(image: resultedImage, allGroups: &allGroups) { nextIndex in
-                                                        selectNextGroup(nextIndex: nextIndex,
-                                                        selectedGroup: &selectedGroup,
-                                                        allGroups: allGroups)
-                                                    }
+                                                    decisionAction = .keep
+                                                    
                                                 } else if angle < -10 {
-                                                    // eliminar
+                                                    // delete
                                                     dragRotations[imageIdentifier] = -15
-                                                    deletePhotos.append(resultedImage)
-                                                    deleteFromGroup(image: resultedImage, allGroups: &allGroups) { nextIndex in
-                                                        selectNextGroup(nextIndex: nextIndex,
-                                                        selectedGroup: &selectedGroup,
-                                                        allGroups: allGroups)
-                                                    }
+                                                    decisionAction = .delete
+
                                                 } else {
-                                                    // volver al centro
+                                                    // get it back to center
                                                     dragRotations[imageIdentifier] = 0
                                                     dragOffsets[imageIdentifier] = .zero
                                                 }
@@ -389,9 +457,9 @@ struct DuplicatePhotos: View {
     DuplicatesView(duplicaGroups: [])
 }
 
-fileprivate func deleteFromGroup(image: ImageOrientationResult,
-                                 allGroups: inout [[ImageOrientationResult]],
-                                 completion: @escaping (Int?) -> Void) {
+fileprivate func deleteFromGroup(image: ImageInfo,
+                                 allGroups: inout [[ImageInfo]],
+                                 completion: @escaping (Int?, _ returningGroups: [[ImageInfo]]?) -> Void) {
     
     if let groupIndex = allGroups.firstIndex(where: { $0.contains(where: { $0.id == image.id }) }) {
         if let imageIndex = allGroups[groupIndex].firstIndex(where: { $0.id == image.id }) {
@@ -401,23 +469,23 @@ fileprivate func deleteFromGroup(image: ImageOrientationResult,
             if allGroups[groupIndex].isEmpty {
                 allGroups.remove(at: groupIndex)
                 let nextIndex = groupIndex < allGroups.count ? groupIndex : nil
-                completion(nextIndex)
+                completion(nextIndex, allGroups)
             } else {
-                completion(groupIndex)
+                completion(groupIndex, allGroups)
             }
             return
         }
     }
-    completion(nil)
+    completion(nil, nil)
 }
 
-fileprivate  func selectNextGroup(nextIndex: Int?, selectedGroup: inout [ImageOrientationResult], allGroups: [[ImageOrientationResult]]) {
+fileprivate  func selectNextGroup(nextIndex: Int?, selectedGroup: inout [ImageInfo], allGroups: [[ImageInfo]]) {
     
     guard let nextIndex else { return }
     
     if nextIndex < allGroups.count {
         
-        if allGroups[nextIndex].count > 1 {
+        if allGroups[nextIndex].count > 0 {
             selectedGroup = allGroups[nextIndex].reversed()
         }
         else {
