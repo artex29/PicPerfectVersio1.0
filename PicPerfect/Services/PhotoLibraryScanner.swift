@@ -45,7 +45,7 @@ class PhotoLibraryScanner {
                 let isIncorrect = await OrientationService.isImageIncorrectlyOriented(in: lowResImage)
 
                 if isIncorrect {
-                    if let highResImage = await requestHighResImage(for: asset) {
+                    if let highResImage = await Service.requestHighResImage(for: asset) {
                         
                         let result = ImageInfo(isIncorrect: true, image: highResImage, asset: asset)
                         
@@ -60,23 +60,7 @@ class PhotoLibraryScanner {
 
    
     
-    func requestHighResImage(for asset: PHAsset) async -> UIImage? {
-        await withCheckedContinuation { continuation in
-            let manager = PHCachingImageManager()
-            let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
-            options.isSynchronous = false
-
-            let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
-
-            manager.requestImage(for: asset,
-                                 targetSize: targetSize,
-                                 contentMode: .default,
-                                 options: options) { image, _ in
-                continuation.resume(returning: image)
-            }
-        }
-    }
+   
     
     
     func fetchProcessedPhotos(with identifiers: [String], completion: @escaping ([UIImage]) -> Void) {

@@ -10,7 +10,7 @@ import SwiftUI
 import Photos
 
 struct ReviewCorrectedImagesView: View {
-    @State var images: [ImageInfo]
+    let images: [ImageInfo]
     @State private var selectedIndices: Set<Int> = []
     @State private var isProcessing = false
     @State private var showConfirmation = false

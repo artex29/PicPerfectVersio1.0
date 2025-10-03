@@ -33,6 +33,12 @@
 		FFD355122E6F61C900BEB236 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD355112E6F61C500BEB236 /* Service.swift */; };
 		FFDDD34A2E81EB7300ACD669 /* DuplicateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */; };
 		FFDFDA632E8460D800367F43 /* DuplicatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDFDA622E8460D800367F43 /* DuplicatesView.swift */; };
+		FFE0D8542E8EF2FA00CBA5A6 /* ImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0D8532E8EF2F200CBA5A6 /* ImageInfo.swift */; };
+		FFE0D8562E8F08C500CBA5A6 /* PhotoSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0D8552E8F08BD00CBA5A6 /* PhotoSummary.swift */; };
+		FFE0D8582E8F0F9600CBA5A6 /* ScreenShotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0D8572E8F0F8D00CBA5A6 /* ScreenShotService.swift */; };
+		FFE3F7AD2E90214000A1F3D2 /* BlurryPhotosService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7AC2E90212E00A1F3D2 /* BlurryPhotosService.swift */; };
+		FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */; };
+		FFE3F7B12E9042B400A1F3D2 /* FaceQualityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */; };
 		FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */; };
 /* End PBXBuildFile section */
 
@@ -65,6 +71,12 @@
 		FFD355112E6F61C500BEB236 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateService.swift; sourceTree = "<group>"; };
 		FFDFDA622E8460D800367F43 /* DuplicatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicatesView.swift; sourceTree = "<group>"; };
+		FFE0D8532E8EF2F200CBA5A6 /* ImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageInfo.swift; sourceTree = "<group>"; };
+		FFE0D8552E8F08BD00CBA5A6 /* PhotoSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSummary.swift; sourceTree = "<group>"; };
+		FFE0D8572E8F0F8D00CBA5A6 /* ScreenShotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShotService.swift; sourceTree = "<group>"; };
+		FFE3F7AC2E90212E00A1F3D2 /* BlurryPhotosService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurryPhotosService.swift; sourceTree = "<group>"; };
+		FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureService.swift; sourceTree = "<group>"; };
+		FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceQualityService.swift; sourceTree = "<group>"; };
 		FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionRecord.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -162,11 +174,15 @@
 		FFD22CF32E511F7C00071915 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */,
 				FFD355112E6F61C500BEB236 /* Service.swift */,
+				FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */,
+				FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */,
+				FFE3F7AC2E90212E00A1F3D2 /* BlurryPhotosService.swift */,
+				FFE0D8572E8F0F8D00CBA5A6 /* ScreenShotService.swift */,
 				FFD355082E6F473A00BEB236 /* PhotoLibraryScanner.swift */,
 				FFD22CF72E5127FB00071915 /* OrientationService.swift */,
 				FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */,
+				FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */,
 				FFD22CF42E511FA100071915 /* Localizable.xcstrings */,
 			);
 			path = Services;
@@ -175,6 +191,8 @@
 		FFD22CF62E5127E200071915 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FFE0D8552E8F08BD00CBA5A6 /* PhotoSummary.swift */,
+				FFE0D8532E8EF2F200CBA5A6 /* ImageInfo.swift */,
 				FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */,
 				FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */,
 				FFD22CF92E51293400071915 /* CorrectedPhoto.swift */,
@@ -283,10 +301,13 @@
 				FF36CD842E8731CE005BB5CA /* DecisionMenuView.swift in Sources */,
 				FFAF02972E83280400CBF98B /* Enums.swift in Sources */,
 				FFD355092E6F474800BEB236 /* PhotoLibraryScanner.swift in Sources */,
+				FFE0D8542E8EF2FA00CBA5A6 /* ImageInfo.swift in Sources */,
 				FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */,
+				FFE0D8582E8F0F9600CBA5A6 /* ScreenShotService.swift in Sources */,
 				FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */,
 				FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */,
 				FFD3550F2E6F4DA600BEB236 /* FinalSaveView.swift in Sources */,
+				FFE3F7AD2E90214000A1F3D2 /* BlurryPhotosService.swift in Sources */,
 				FFD22CFA2E51293400071915 /* CorrectedPhoto.swift in Sources */,
 				FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */,
 				FFD22CEA2E510C0B00071915 /* ContentView.swift in Sources */,
@@ -295,10 +316,13 @@
 				FF6739DC2E6B82C600C7C95A /* Extensions.swift in Sources */,
 				FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */,
 				FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */,
+				FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */,
 				FFD3550B2E6F4D3800BEB236 /* ScanLibraryView.swift in Sources */,
 				FFD22CF82E51280900071915 /* OrientationService.swift in Sources */,
 				FFD22CEF2E510C3000071915 /* PicPerfectTheme.swift in Sources */,
+				FFE0D8562E8F08C500CBA5A6 /* PhotoSummary.swift in Sources */,
 				FF68ACE82E8AD670005A09B4 /* DecisionCard.swift in Sources */,
+				FFE3F7B12E9042B400A1F3D2 /* FaceQualityService.swift in Sources */,
 				FFDFDA632E8460D800367F43 /* DuplicatesView.swift in Sources */,
 				FFD22CF22E511F2700071915 /* WelcomeView.swift in Sources */,
 			);

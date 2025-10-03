@@ -123,7 +123,7 @@ class Service {
         }
     }
     
-    static func requestImage(for asset: PHAsset, size: CGSize) async -> UIImage? {
+    static func requestImage(for asset: PHAsset, size: CGSize = CGSize(width: 1024, height: 1024)) async -> UIImage? {
         await withCheckedContinuation { continuation in
             
             let options = PHImageRequestOptions()
@@ -135,6 +135,24 @@ class Service {
                                                   targetSize: size,
                                                   contentMode: .aspectFit,
                                                   options: options) { image, _ in
+                continuation.resume(returning: image)
+            }
+        }
+    }
+    
+    static func requestHighResImage(for asset: PHAsset) async -> UIImage? {
+        await withCheckedContinuation { continuation in
+            let manager = PHCachingImageManager()
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.isSynchronous = false
+
+            let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
+
+            manager.requestImage(for: asset,
+                                 targetSize: targetSize,
+                                 contentMode: .default,
+                                 options: options) { image, _ in
                 continuation.resume(returning: image)
             }
         }

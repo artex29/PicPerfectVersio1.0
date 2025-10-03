@@ -125,5 +125,6 @@ struct PhotosGrid: View {
 
 #Preview {
     ProcessedPhotos(showPhotos: .constant(true))
+        .environment(ContentModel())
 }
 

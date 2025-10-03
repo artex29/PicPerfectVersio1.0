@@ -12,3 +12,15 @@ enum ImageType: String {
 enum DetectedOrientation: String, CaseIterable {
     case up, rotatedRight, upsideDown, rotatedLeft
 }
+
+enum ExposureCategory {
+    case underexposed   // Too dark
+    case overexposed    // Too bright / blown out
+    case normal         // Properly exposed
+}
+
+enum FaceIssue {
+    case eyesClosed
+    case blurry
+    case badFraming
+}

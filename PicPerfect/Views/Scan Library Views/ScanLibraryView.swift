@@ -39,7 +39,7 @@ struct ScanLibraryView: View {
                     
                     Spacer()
                     
-                    Button(action: scanForDuplicates) {
+                    Button(action: detectBadFaces) {
                         Text("🔍 Scan Library")
                             .font(PicPerfectTheme.Fonts.minimalist)
                         
@@ -56,14 +56,14 @@ struct ScanLibraryView: View {
                     photoAccessGranted = granted
                 }
             }
-            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
-                
-            }, content: {
-                DuplicatesView(duplicaGroups: duplicateGroups)
-            })
-//            .fullScreenCover(isPresented: $showingReviewScreen) {
-//                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
-//            }
+//            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
+//                
+//            }, content: {
+//                DuplicatesView(duplicaGroups: duplicateGroups)
+//            })
+            .fullScreenCover(isPresented: $showingReviewScreen) {
+                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
+            }
             .alert("Permission Required", isPresented: $permisionAlertPresented) {
                 
                 Button("Open Settings") {
@@ -81,21 +81,104 @@ struct ScanLibraryView: View {
 
     }
     
+    func detectBadFaces() {
+        if photoAccessGranted {
+            isScanning = true
+            
+            Task {
+                let assets =  await Service.getLibraryAssets()
+                let badFaces = await FaceQualityService.detectBadFaces(assets: assets)
+                scannedImages = badFaces
+                
+                isScanning = false
+                showingReviewScreen = true
+            }
+        }
+        else {
+            permisionAlertPresented = true
+        }
+    }
+    
+    private func detecExposure() {
+        if photoAccessGranted {
+            isScanning = true
+            
+            Task {
+                let assets =  await Service.getLibraryAssets()
+                let blurryPhotos = await ExposureService.detectExposureIssues(assets: assets)
+                scannedImages = blurryPhotos
+                
+                isScanning = false
+                showingReviewScreen = true
+            }
+        }
+        else {
+            permisionAlertPresented = true
+        }
+    }
+    
+    private func detectBlurryImages() {
+        if photoAccessGranted {
+            isScanning = true
+            
+            Task {
+                let assets =  await Service.getLibraryAssets()
+                let blurryPhotos = await BlurryPhotosService.detectBlurryPhotos(assets: assets)
+                scannedImages = blurryPhotos
+                
+                isScanning = false
+                showingReviewScreen = true
+            }
+        }
+        else {
+            permisionAlertPresented = true
+        }
+
+    }
+    
+    private func fetchScreenShots() {
+        if photoAccessGranted {
+            isScanning = true
+            Task {
+                let screenShots = await ScreenShotService.fetchScreenshotsBatch(limit: 100)
+                
+                // Filtrar nulos / ids inválidos
+                let safeShots = screenShots.filter { !$0.asset.localIdentifier.isEmpty }
+                
+                
+                scannedImages = safeShots
+                isScanning = false
+                
+                
+                // present only after UI updated
+                
+                showingReviewScreen = true
+                
+            }
+        } else {
+            permisionAlertPresented = true
+        }
+    }
+    
     private func scanForDuplicates() {
         
-        isScanning = true
-        
-        Task {
-            let assets =  await Service.getLibraryAssets()
+        if photoAccessGranted {
+            isScanning = true
             
-            let duplicates = try? await DuplicateService.detectDuplicates(assets: assets)
-            
-            duplicateGroups = duplicates ?? []
-            print("Found \(duplicates?.count ?? 0) duplicate sets.")
-            
-            isScanning = false
-            
-            showingReviewScreen = true
+            Task {
+                let assets =  await Service.getLibraryAssets()
+                
+                let duplicates = try? await DuplicateService.detectDuplicates(assets: assets)
+                
+                duplicateGroups = duplicates ?? []
+                print("Found \(duplicates?.count ?? 0) duplicate sets.")
+                
+                isScanning = false
+                
+                showingReviewScreen = true
+            }
+        } else {
+            permisionAlertPresented = true
         }
     }
 

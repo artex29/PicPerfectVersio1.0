@@ -11,28 +11,7 @@ import Vision
 import CoreML
 import Playgrounds
 
-struct PredictedResult: Identifiable {
-    var id: String = UUID().uuidString
-    var image: UIImage
-    var orientation: DetectedOrientation
-    var confidence: Float
-}
 
-struct ImageInfo: Hashable, Identifiable {
-    var isIncorrect: Bool
-    var image: UIImage
-    var asset: PHAsset
-    var imageType: ImageType? = nil
-    var orientation: DetectedOrientation? = nil
-    var rotationAngle: CGFloat? = nil
-    var confidence: Float? = nil
-    var source: String? = nil
-    
-    var id: String {
-        asset.localIdentifier == "(null)/L0/001" ? "\(image.size)\(image.scale)\(image.imageOrientation)\(image.isPortrait)" : asset.localIdentifier
-    }
-    
-}
 
 class OrientationService {
     

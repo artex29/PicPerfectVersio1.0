@@ -222,31 +222,9 @@ struct DuplicatesView: View {
     private func getGroups(completion: @escaping() -> Void) async {
         
         var groups: [[ImageInfo]] = []
-        
+       
         if duplicaGroups.isEmpty == false {
-            for group in duplicaGroups {
-                
-                var imageGroup: [ImageInfo] = []
-                
-                for asset in group.assets {
-                    // Convert PHAsset to Image
-                    var result: ImageInfo = ImageInfo(isIncorrect: false, image: UIImage(), asset: asset)
-                    
-                    if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) {
-                       
-                        // Add image to the appropriate group
-                        result.image = uiImage
-                        
-                        imageGroup.append(result)
-                    }
-                    
-                    
-                }
-                
-                if !imageGroup.isEmpty {
-                    groups.append(imageGroup)
-                }
-            }
+            groups = duplicaGroups.map({$0.images})
         }
         else {
             // If no duplicate groups, create dummy groups from local images
