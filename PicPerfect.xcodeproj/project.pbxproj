@@ -142,7 +142,7 @@
 				FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */,
 				FFD22CF02E510C5600071915 /* Views */,
 				FF2305042E7C5858000F382D /* ElementsViews */,
-				FF23050B2E7CB716000F382D /* ContentModel.swift */,
+				FFE3F7B22E90634A00A1F3D2 /* ViewModels */,
 				FFD22CF62E5127E200071915 /* Models */,
 				FFD22CED2E510C1A00071915 /* Resources */,
 				FF6739DD2E6B82D200C7C95A /* Helpers */,
@@ -175,11 +175,11 @@
 			isa = PBXGroup;
 			children = (
 				FFD355112E6F61C500BEB236 /* Service.swift */,
+				FFD355082E6F473A00BEB236 /* PhotoLibraryScanner.swift */,
 				FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */,
 				FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */,
 				FFE3F7AC2E90212E00A1F3D2 /* BlurryPhotosService.swift */,
 				FFE0D8572E8F0F8D00CBA5A6 /* ScreenShotService.swift */,
-				FFD355082E6F473A00BEB236 /* PhotoLibraryScanner.swift */,
 				FFD22CF72E5127FB00071915 /* OrientationService.swift */,
 				FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */,
 				FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */,
@@ -218,6 +218,14 @@
 				FFDFDA622E8460D800367F43 /* DuplicatesView.swift */,
 			);
 			path = Sections;
+			sourceTree = "<group>";
+		};
+		FFE3F7B22E90634A00A1F3D2 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FF23050B2E7CB716000F382D /* ContentModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

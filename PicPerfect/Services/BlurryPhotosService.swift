@@ -13,6 +13,24 @@ import Photos
 
 class BlurryPhotosService {
     
+    // Detect blurriness on a single photo
+    static func detectBlurriness(in image: UIImage,
+                                 asset: PHAsset,
+                                 laplacianThreshold: Float = 100.0,
+                                 faceTreshold: Float = 0.3) async -> ImageInfo? {
+        
+        let isBlurry = isBlurry(image, laplacianThreshold: laplacianThreshold, faceThreshold: faceTreshold)
+        
+        if isBlurry.0 {
+            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, blurScore: isBlurry.1)
+            info.source = "blurryPhotosService"
+            return info
+        }
+        
+        return nil
+        
+    }
+    
     static func detectBlurryPhotos(
         assets: [PHAsset],
         laplacianThreshold: Float = 100.0,

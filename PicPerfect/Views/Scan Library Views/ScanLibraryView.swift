@@ -11,7 +11,7 @@ import PhotosUI
 
 struct ScanLibraryView: View {
     @State private var scannedImages: [ImageInfo] = []
-    @State private var duplicateGroups: [DuplicateGroup] = []
+    @State private var photoGroups: [PhotoGroup] = []
     @State private var showingReviewScreen = false
     @State private var isScanning = false
     @State private var photoAccessGranted = false
@@ -19,6 +19,8 @@ struct ScanLibraryView: View {
     @State private var permisionAlertPresented = false
     
     @State private var showProcessedPhotos = false
+    
+    @State private var progress: AnalysisProgress = .starting
     
     var body: some View {
         ZStack {
@@ -33,13 +35,23 @@ struct ScanLibraryView: View {
                     ProgressView("Scanning Library…")
                         .tint(.white)
                         .foregroundStyle(.white)
+                    
+                    ProgressView(value: progress.percentage, total: 1) {
+                        Text(progress.description)
+                    } currentValueLabel: {
+                        Text("\(Int(progress.percentage * 100))%")
+                    }
+                    .tint(.white)
+                    .foregroundStyle(.white)
+                    
+                    
                 } else {
                     
                     ProcessedPhotos(showPhotos: $showProcessedPhotos)
                     
                     Spacer()
                     
-                    Button(action: detectBadFaces) {
+                    Button(action: analyzeLibrary) {
                         Text("🔍 Scan Library")
                             .font(PicPerfectTheme.Fonts.minimalist)
                         
@@ -56,11 +68,11 @@ struct ScanLibraryView: View {
                     photoAccessGranted = granted
                 }
             }
-//            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
-//                
-//            }, content: {
-//                DuplicatesView(duplicaGroups: duplicateGroups)
-//            })
+            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
+                
+            }, content: {
+                DuplicatesView(duplicaGroups: photoGroups)
+            })
             .fullScreenCover(isPresented: $showingReviewScreen) {
                 ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
             }
@@ -81,6 +93,57 @@ struct ScanLibraryView: View {
 
     }
     
+    private func analyzeLibrary() {
+        if photoAccessGranted {
+            isScanning = true
+            Task {
+                
+                let assets =  await Service.getLibraryAssets()
+                let results = await PhotoLibraryScanner.analyzeLibraryWithEfficiency(assets: assets) { prog in
+                    print("Progress: \(prog.description) - \(Int(prog.percentage * 100))%")
+                    
+                    progress = prog
+                    
+                }
+                
+                print("Analysis complete. Found \(results.count) issues.")
+                
+                photoGroups = results.first ?? []
+                
+                isScanning = false
+                showingReviewScreen = true
+            }
+        }
+        else {
+            permisionAlertPresented = true
+        }
+    }
+    
+    func groupImages(category: PhotoGroupCategory, images: [ImageInfo]) async  {
+        var result: [PhotoGroup] = []
+       // var chunk: [ImageInfo] = []
+        
+        for image in images {
+            result.append(PhotoGroup(images: [image], score: nil, category: category))
+        }
+        
+//        let chunkSize:Int = images.count.isMultiple(of: 5) ? 5 : images.count % 5
+//
+//        for image in images {
+//            chunk.append(image)
+//            if chunk.count == chunkSize {
+//                result.append(PhotoGroup(images: chunk, score: nil, category: category))
+//                chunk.removeAll()
+//            }
+//        }
+//        
+//        if !chunk.isEmpty {
+//            result.append(PhotoGroup(images: chunk, score: nil, category: category))
+//        }
+        
+        photoGroups = result
+    }
+    
     func detectBadFaces() {
         if photoAccessGranted {
             isScanning = true
@@ -88,8 +151,9 @@ struct ScanLibraryView: View {
             Task {
                 let assets =  await Service.getLibraryAssets()
                 let badFaces = await FaceQualityService.detectBadFaces(assets: assets)
-                scannedImages = badFaces
-                
+               // scannedImages = badFaces
+                await groupImages(category: .faces, images: badFaces)
+               
                 isScanning = false
                 showingReviewScreen = true
             }
@@ -146,7 +210,10 @@ struct ScanLibraryView: View {
                 let safeShots = screenShots.filter { !$0.asset.localIdentifier.isEmpty }
                 
                 
-                scannedImages = safeShots
+//                scannedImages = safeShots
+                
+                await groupImages(category: .screenshots, images: safeShots)
+                
                 isScanning = false
                 
                 
@@ -170,7 +237,7 @@ struct ScanLibraryView: View {
                 
                 let duplicates = try? await DuplicateService.detectDuplicates(assets: assets)
                 
-                duplicateGroups = duplicates ?? []
+                photoGroups = duplicates ?? []
                 print("Found \(duplicates?.count ?? 0) duplicate sets.")
                 
                 isScanning = false
@@ -189,7 +256,7 @@ struct ScanLibraryView: View {
             isScanning = true
             
             Task {
-                let images = await PhotoLibraryScanner.shared.scanForIncorrectlyOrientedPhotos(limit: 5)
+                let images = await OrientationService.scanForIncorrectlyOrientedPhotos(limit: 5)
                 scannedImages = images
                 isScanning = false
                 showingReviewScreen = true

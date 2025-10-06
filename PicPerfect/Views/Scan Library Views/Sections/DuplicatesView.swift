@@ -16,7 +16,7 @@ enum DecisionActions: Int {
 
 struct DuplicatesView: View {
     
-    var duplicaGroups: [DuplicateGroup]
+    var duplicaGroups: [PhotoGroup]
     
     @State private var images:[UIImage?] = [
         UIImage(named: "marquee1"),
@@ -99,8 +99,9 @@ struct DuplicatesView: View {
                                 thumbnail
                                     .resizable()
                                     .scaledToFill()
+                                    .frame(width: 150, height: 150)
                                     .clipShape(RoundedRectangle(cornerRadius: 30))
-                                    .frame(height: 150)
+                                    
                                     .onTapGesture {
                                         selectGroup(group: group)
                                     }

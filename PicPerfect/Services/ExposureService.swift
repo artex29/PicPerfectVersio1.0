@@ -14,6 +14,23 @@ import CoreImage
 
 final class ExposureService {
     
+    //Scan a single Image
+    static func detectExposureIssueOnImage(image: UIImage,
+                                           asset: PHAsset,
+                                           darkTreshold: Float = 0.2,
+                                           brightTreshold: Float = 0.8) async -> ImageInfo? {
+        
+        let result = analyzeExposure(for: image, darkThreshold: darkTreshold, brightThreshold: brightTreshold)
+        
+        if result != .normal {
+            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, exposure: result)
+            info.source = "exposureService"
+            return info
+        }
+        
+        return nil
+    }
+    
     /// Escanea múltiples assets y devuelve solo los que están mal expuestos
     static func detectExposureIssues(
         assets: [PHAsset],

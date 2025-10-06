@@ -10,10 +10,11 @@ import Photos
 import Vision
 import UIKit
 
-struct DuplicateGroup {
+struct PhotoGroup: Identifiable {
     let id = UUID()
     let images: [ImageInfo]
-    let distance: Float
+    let score: Float?    // optional, for duplicates similarity or blur avg
+    let category: PhotoGroupCategory // e.g. "Duplicates", "Blurry", "Exposure", "Faces"
 }
 
 enum DuplicateServiceError: Error {
@@ -44,8 +45,8 @@ final class DuplicateService {
         assets: [PHAsset],
         threshold: Float = 0.2,
         limit: Int = 100
-    ) async throws -> [DuplicateGroup] {
-        var groups: [DuplicateGroup] = []
+    ) async throws -> [PhotoGroup] {
+        var groups: [PhotoGroup] = []
         
         // 1. Hash duplicates (exactos)
         let hashGroups = await detectHashDuplicates(assets: assets, limit: limit)
@@ -60,7 +61,7 @@ final class DuplicateService {
         for (index, asset) in assets.enumerated() {
             guard index < limit else { break }
                 
-            if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 1024, height: 1024)) {
+            if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
                 let obs = try featurePrint(for: uiImage)
                 featurePrints.append(obs)
                 imageInfos.append(ImageInfo(isIncorrect: false, image: uiImage, asset: asset))
@@ -111,7 +112,7 @@ final class DuplicateService {
             
             if groupImages.count > 1 {
                 let avgDistance = distances.isEmpty ? 0.0 : distances.reduce(0,+)/Float(distances.count)
-                groups.append(DuplicateGroup(images: groupImages, distance: avgDistance))
+                groups.append(PhotoGroup(images: groupImages, score: avgDistance, category: .duplicates) )
             }
         }
         
@@ -122,8 +123,8 @@ final class DuplicateService {
         return groups
     }
     
-    private static func getBursts(limit: Int, offset: Int = 0) async -> [DuplicateGroup] {
-        var bursts: [DuplicateGroup] = []
+    private static func getBursts(limit: Int, offset: Int = 0) async -> [PhotoGroup] {
+        var bursts: [PhotoGroup] = []
         var processedIdentifiers: Set<String> = []
         
         let burstsCollections = PHAssetCollection.fetchAssetCollections(
@@ -163,14 +164,14 @@ final class DuplicateService {
             for i in 0..<burstAssets.count {
                 let a = burstAssets.object(at: i)
                 
-                if let image = await Service.requestImage(for: a, size: CGSize(width: 1024, height: 1024)) {
+                if let image = await Service.requestImage(for: a, size: CGSize(width: 256, height: 256)) {
                     let info = ImageInfo(isIncorrect: false, image: image, asset: a)
                     groupImages.append(info)
                 }
             }
             
             if groupImages.count > 1 {
-                bursts.append(DuplicateGroup(images: groupImages, distance: 0.0))
+                bursts.append(PhotoGroup(images: groupImages, score: nil, category: .duplicates))
             }
             
             processedIdentifiers.insert(burstID)
@@ -180,14 +181,14 @@ final class DuplicateService {
     }
     
     /// Detecta duplicados exactos por hash
-    private static func detectHashDuplicates(assets: [PHAsset], limit: Int = 100) async -> [DuplicateGroup] {
-        var groups: [DuplicateGroup] = []
+    private static func detectHashDuplicates(assets: [PHAsset], limit: Int = 100) async -> [PhotoGroup] {
+        var groups: [PhotoGroup] = []
         var seen: [String: [ImageInfo]] = [:]
         
         for (index, asset) in assets.enumerated() {
             guard index < limit else { break }
             
-            if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 1024, height: 1024)) {
+            if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
                 if let hash = perceptualHash(for: uiImage) {
                     let info = ImageInfo(isIncorrect: false, image: uiImage, asset: asset)
                     seen[hash, default: []].append(info)
@@ -197,7 +198,7 @@ final class DuplicateService {
         
         for (_, infos) in seen {
             if infos.count > 1 {
-                groups.append(DuplicateGroup(images: infos, distance: 0.0))
+                groups.append(PhotoGroup(images: infos, score: 0.0, category: .duplicates))
             }
         }
         

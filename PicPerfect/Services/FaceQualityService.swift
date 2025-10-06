@@ -14,6 +14,17 @@ import Photos
 
 final class FaceQualityService {
     
+    static func detectBadFaceOnImage(_ image: UIImage, asset: PHAsset) async -> ImageInfo? {
+        let issues = analyzeFaces(in: image)
+        if !issues.isEmpty {
+            var info = ImageInfo(isIncorrect: true, image: image, asset: asset)
+            info.source = "faceQualityService"
+            info.faceIssues = issues
+            return info
+        }
+        return nil
+    }
+    
     /// Detect face issues in a list of PHAssets
     static func detectBadFaces(
         assets: [PHAsset],

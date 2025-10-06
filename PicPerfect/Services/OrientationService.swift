@@ -15,6 +15,74 @@ import Playgrounds
 
 class OrientationService {
     
+    // Detect if a single photo is incorrectly oriented
+    static func detectMisalignment(in image: UIImage, asset: PHAsset, records: [String:PhotoAnalysisRecord]) async -> ImageInfo? {
+        
+        guard records[asset.localIdentifier] == nil else {
+            print("⚠️ Photo \(asset.localIdentifier) already analyzed for orientation issues, skipping.")
+            return nil
+        }
+        
+        let orientationValue = Service.exifOrientation(for: image.imageOrientation)
+        PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
+        
+        let lowResImage = image.resized(maxDimension: 256)
+        
+        let isIncorrect = await isImageIncorrectlyOriented(in: lowResImage)
+        
+        if isIncorrect {
+            var result = ImageInfo(isIncorrect: true, image: image, asset: asset)
+            result.source = "orientationService"
+            return result
+        }
+        
+        return nil
+    }
+
+    
+    static func scanForIncorrectlyOrientedPhotos(limit: Int) async -> [ImageInfo] {
+        var results: [ImageInfo] = []
+        
+        
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+
+        let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        
+        let records = PhotoAnalysisCloudCache.loadRecords()
+        
+        let noAnalyzedAssets = assets.objects(at: IndexSet(integersIn: 0..<assets.count)).filter { records[$0.localIdentifier] == nil }
+
+        for i in 0..<noAnalyzedAssets.count {
+            
+            let asset: PHAsset = noAnalyzedAssets[i]
+            
+            if results.count >= limit { break }
+            
+            let targetSize = CGSize(width: 256, height: 256)
+
+            if let lowResImage = await Service.requestImage(for: asset, size: targetSize) {
+                
+                let orientationValue = Service.exifOrientation(for: lowResImage.imageOrientation)
+                
+                PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
+                
+                let isIncorrect = await OrientationService.isImageIncorrectlyOriented(in: lowResImage)
+
+                if isIncorrect {
+                    if let highResImage = await Service.requestHighResImage(for: asset) {
+                        
+                        let result = ImageInfo(isIncorrect: true, image: highResImage, asset: asset)
+                        
+                        results.append(result)
+                    }
+                }
+            }
+        }
+
+        return results
+    }
+    
     static func correctedOrientation(for image: ImageInfo) async -> ImageInfo {
         
         var resultedImage: ImageInfo = image

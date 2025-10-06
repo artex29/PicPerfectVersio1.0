@@ -38,7 +38,7 @@ class ScreenShotService {
         for index in start..<end {
             
             let asset = allScreenshots.object(at: index)
-            if let image = await Service.requestImage(for: asset, size: CGSize(width: 300, height: 300)) {
+            if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
                 let info = ImageInfo(isIncorrect: false, image: image, asset: asset)
                 
                 infos.append(info)
