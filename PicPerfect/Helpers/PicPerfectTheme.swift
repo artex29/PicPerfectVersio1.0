@@ -50,6 +50,21 @@ extension View {
             self
         }
     }
+    
+    @ViewBuilder
+    func applyGlassIfAvailable() -> some View {
+        if #available(iOS 26, macOS 26, watchOS 26, visionOS 26, *) {
+            
+            self
+                .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 10))
+                
+            
+        } else {
+            self
+                .background(.ultraThinMaterial)
+            
+        }
+    }
 }
 
 extension Color {

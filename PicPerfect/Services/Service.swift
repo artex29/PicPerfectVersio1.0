@@ -32,14 +32,14 @@ class Service {
         for result in results {
             let asset = result.asset
             
-            let identifier = asset.localIdentifier
+            let identifier = asset?.localIdentifier ?? UUID().uuidString
             
             processedIdentifiers.append(identifier)
 
             let requestOptions = PHContentEditingInputRequestOptions()
             requestOptions.canHandleAdjustmentData = { _ in true }
 
-            asset.requestContentEditingInput(with: requestOptions) { input, _ in
+            asset?.requestContentEditingInput(with: requestOptions) { input, _ in
                 guard let input = input else { return }
 
                 let output = PHContentEditingOutput(contentEditingInput: input)
@@ -79,7 +79,7 @@ class Service {
 
                 // 4. Guardar cambios en el asset
                 PHPhotoLibrary.shared().performChanges({
-                    let request = PHAssetChangeRequest(for: asset)
+                    let request = PHAssetChangeRequest(for: asset ?? PHAsset())
                     request.contentEditingOutput = output
                 }) { success, error in
                     if success {

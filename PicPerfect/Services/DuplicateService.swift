@@ -10,12 +10,7 @@ import Photos
 import Vision
 import UIKit
 
-struct PhotoGroup: Identifiable {
-    let id = UUID()
-    let images: [ImageInfo]
-    let score: Float?    // optional, for duplicates similarity or blur avg
-    let category: PhotoGroupCategory // e.g. "Duplicates", "Blurry", "Exposure", "Faces"
-}
+
 
 enum DuplicateServiceError: Error {
     case imageRequestFailed
@@ -97,8 +92,8 @@ final class DuplicateService {
                     guard !groups.map({ $0.images })
                         .flatMap({ $0 })
                         .contains(where: {
-                            $0.asset.localIdentifier == asset1.localIdentifier ||
-                            $0.asset.localIdentifier == asset2.localIdentifier
+                            $0.asset?.localIdentifier == asset1.localIdentifier ||
+                            $0.asset?.localIdentifier == asset2.localIdentifier
                         }) else {
                         
                         continue

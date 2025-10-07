@@ -33,7 +33,7 @@ class PhotoLibraryScanner {
 
         // 2.- Detect Similars
        await MainActor.run { progress(.similars) }
-        if let similars = try? await DuplicateService.detectDuplicates(for: true, assets: assets, threshold: 0.5, limit: 50) {
+        if let similars = try? await DuplicateService.detectDuplicates(for: true, assets: assets, threshold: 0.8, limit: 50) {
             
             let mapped = similars.map { sim in
                 PhotoGroup(images: sim.images, score: sim.score, category: .similars)

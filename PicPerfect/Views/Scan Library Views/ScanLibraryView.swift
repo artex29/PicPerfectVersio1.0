@@ -10,8 +10,9 @@ import SwiftUI
 import PhotosUI
 
 struct ScanLibraryView: View {
+    
     @State private var scannedImages: [ImageInfo] = []
-    @State private var photoGroups: [PhotoGroup] = []
+   // @State private var photoGroups: [[PhotoGroup]] = []
     @State private var showingReviewScreen = false
     @State private var isScanning = false
     @State private var photoAccessGranted = false
@@ -21,6 +22,11 @@ struct ScanLibraryView: View {
     @State private var showProcessedPhotos = false
     
     @State private var progress: AnalysisProgress = .starting
+    
+    @Binding var navigationPath: NavigationPath
+    //@Binding var photoGroups:[[PhotoGroup]]
+    
+    var onFinished:([[PhotoGroup]]) -> Void
     
     var body: some View {
         ZStack {
@@ -68,14 +74,14 @@ struct ScanLibraryView: View {
                     photoAccessGranted = granted
                 }
             }
-            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
-                
-            }, content: {
-                DuplicatesView(duplicaGroups: photoGroups)
-            })
-            .fullScreenCover(isPresented: $showingReviewScreen) {
-                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
-            }
+//            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
+//                
+//            }, content: {
+//               CategorySplitView(photoGroups: photoGroups)
+//            })
+//            .fullScreenCover(isPresented: $showingReviewScreen) {
+//                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
+//            }
             .alert("Permission Required", isPresented: $permisionAlertPresented) {
                 
                 Button("Open Settings") {
@@ -106,12 +112,13 @@ struct ScanLibraryView: View {
                     
                 }
                 
-                print("Analysis complete. Found \(results.count) issues.")
-                
-                photoGroups = results.first ?? []
+               // photoGroups = results
                 
                 isScanning = false
-                showingReviewScreen = true
+                print("➡️ Navigating to CategoryView with \(results.count) groups.")
+                
+               // showingReviewScreen = true
+                onFinished(results)
             }
         }
         else {
@@ -141,7 +148,7 @@ struct ScanLibraryView: View {
 //            result.append(PhotoGroup(images: chunk, score: nil, category: category))
 //        }
         
-        photoGroups = result
+      //  photoGroups = result
     }
     
     func detectBadFaces() {
@@ -207,7 +214,7 @@ struct ScanLibraryView: View {
                 let screenShots = await ScreenShotService.fetchScreenshotsBatch(limit: 100)
                 
                 // Filtrar nulos / ids inválidos
-                let safeShots = screenShots.filter { !$0.asset.localIdentifier.isEmpty }
+                let safeShots = screenShots.filter { $0.asset?.localIdentifier.isEmpty == false }
                 
                 
 //                scannedImages = safeShots
@@ -227,27 +234,27 @@ struct ScanLibraryView: View {
         }
     }
     
-    private func scanForDuplicates() {
-        
-        if photoAccessGranted {
-            isScanning = true
-            
-            Task {
-                let assets =  await Service.getLibraryAssets()
-                
-                let duplicates = try? await DuplicateService.detectDuplicates(assets: assets)
-                
-                photoGroups = duplicates ?? []
-                print("Found \(duplicates?.count ?? 0) duplicate sets.")
-                
-                isScanning = false
-                
-                showingReviewScreen = true
-            }
-        } else {
-            permisionAlertPresented = true
-        }
-    }
+//    private func scanForDuplicates() {
+//        
+//        if photoAccessGranted {
+//            isScanning = true
+//            
+//            Task {
+//                let assets =  await Service.getLibraryAssets()
+//                
+//                let duplicates = try? await DuplicateService.detectDuplicates(assets: assets)
+//                
+//                photoGroups = duplicates ?? []
+//                print("Found \(duplicates?.count ?? 0) duplicate sets.")
+//                
+//                isScanning = false
+//                
+//                showingReviewScreen = true
+//            }
+//        } else {
+//            permisionAlertPresented = true
+//        }
+//    }
 
     func scanLibrary() {
         
@@ -268,6 +275,6 @@ struct ScanLibraryView: View {
 }
 
 #Preview {
-    ScanLibraryView()
+    ScanLibraryView(navigationPath: .constant(NavigationPath()), onFinished: {_ in })
         .environment(ContentModel())
 }

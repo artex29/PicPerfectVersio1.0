@@ -14,9 +14,9 @@ enum DecisionActions: Int {
     case undo
 }
 
-struct DuplicatesView: View {
+struct SwipeDecisionView: View {
     
-    var duplicaGroups: [PhotoGroup]
+    var photoGroups: [PhotoGroup]
     
     @State private var images:[UIImage?] = [
         UIImage(named: "marquee1"),
@@ -224,8 +224,8 @@ struct DuplicatesView: View {
         
         var groups: [[ImageInfo]] = []
        
-        if duplicaGroups.isEmpty == false {
-            groups = duplicaGroups.map({$0.images})
+        if photoGroups.isEmpty == false {
+            groups = photoGroups.map({$0.images})
         }
         else {
             // If no duplicate groups, create dummy groups from local images
@@ -433,7 +433,7 @@ struct DuplicatePhotos: View {
 }
 
 #Preview {
-    DuplicatesView(duplicaGroups: [])
+    SwipeDecisionView(photoGroups: [])
 }
 
 fileprivate func deleteFromGroup(image: ImageInfo,

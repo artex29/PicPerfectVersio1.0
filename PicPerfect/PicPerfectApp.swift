@@ -26,7 +26,7 @@ struct PicPerfectApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ScanLibraryView()
+            RootView()
                 .environment(ContentModel())
                 .onAppear {
                     // Sincronizar al volver al foreground
