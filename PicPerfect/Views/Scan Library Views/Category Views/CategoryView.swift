@@ -15,6 +15,8 @@ struct CategoryView: View {
     
     let device = DeviceHelper.type
     
+    let onClose: () -> Void
+    
     var body: some View {
         
         if device == .iPhone {
@@ -45,6 +47,13 @@ struct CategoryView: View {
                     }
                     
                 }
+                .navigationTitle("Categories")
+                .toolbar(content: {
+                    Button("Close", action: {onClose()})
+                        .ifAvailableGlassButtonStyle()
+                })
+                .navigationBarTitleDisplayMode(.inline)
+
             }
             
         }
@@ -75,5 +84,5 @@ struct CategoryView: View {
 
 
 #Preview {
-    CategoryView(selectedGroup: .constant(nil), photoGroups: [])
+    CategoryView(selectedGroup: .constant(nil), photoGroups: [], onClose: {})
 }

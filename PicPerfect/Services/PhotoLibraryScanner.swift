@@ -52,23 +52,37 @@ class PhotoLibraryScanner {
         for index in 0..<min(limit, assets.count) {
             let asset = assets[index]
             
-            if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
-                // Chaeck face quality
-                if index == 0 {
-                    await MainActor.run { progress(.faces) }
-                }
-                
-                if let faceIssue = await FaceQualityService.detectBadFaceOnImage(image, asset: asset) {
-                    faceIssues.append(faceIssue)
-                }
+            if let lowQualityImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
                 
                 // Check exposure issues
                 if index == Int(assets.count / 5) {
                     await MainActor.run { progress(.exposure) }
                 }
                 
-                if let exposureIssue = await ExposureService.detectExposureIssueOnImage(image: image, asset: asset) {
+                if let exposureIssue = await ExposureService.detectExposureIssueOnImage(image: lowQualityImage, asset: asset) {
                     exposureIssues.append(exposureIssue)
+                }
+                
+               
+                //Check orientation issues
+                if index == Int(assets.count * 4 / 5) {
+                    await MainActor.run { progress(.orientation) }
+                }
+                    
+                if let orientationIssue = await OrientationService.detectMisalignment(in: lowQualityImage, asset: asset, records: records) {
+                    orientationIssues.append(orientationIssue)
+                }
+            }
+            
+            if let mediumQualityImage = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)) {
+                
+                if index == 0 {
+                    await MainActor.run { progress(.faces) }
+                }
+                
+                // Chaeck face quality
+                if let faceIssue = await FaceQualityService.detectBadFaceOnImage(mediumQualityImage, asset: asset) {
+                    faceIssues.append(faceIssue)
                 }
                 
                 // Check Blurriness
@@ -76,16 +90,8 @@ class PhotoLibraryScanner {
                     await MainActor.run { progress(.blurry) }
                 }
                     
-                if let blurryIssue = await BlurryPhotosService.detectBlurriness(in: image, asset: asset) {
+                if let blurryIssue = await BlurryPhotosService.detectBlurriness(in: mediumQualityImage, asset: asset) {
                     blurryIssues.append(blurryIssue)
-                }
-                //Check orientation issues
-                if index == Int(assets.count * 4 / 5) {
-                    await MainActor.run { progress(.orientation) }
-                }
-                    
-                if let orientationIssue = await OrientationService.detectMisalignment(in: image, asset: asset, records: records) {
-                    orientationIssues.append(orientationIssue)
                 }
             }
             

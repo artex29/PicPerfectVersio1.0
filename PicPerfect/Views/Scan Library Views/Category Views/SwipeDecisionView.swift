@@ -85,6 +85,7 @@ struct SwipeDecisionView: View {
                    
                     Spacer()
                 }
+                .frame(width: geo.size.width, height: geo.size.height)
                
                 
                 VStack {
@@ -96,15 +97,28 @@ struct SwipeDecisionView: View {
                                 
                                 let thumbnail = Image(uiImage: group.first?.image ?? UIImage())
 
-                                thumbnail
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 150, height: 150)
-                                    .clipShape(RoundedRectangle(cornerRadius: 30))
+                                ZStack(alignment: .topTrailing) {
                                     
-                                    .onTapGesture {
-                                        selectGroup(group: group)
-                                    }
+                                    thumbnail
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 150, height: 150)
+                                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                                        
+                                    
+                                    Text("\(group.count)")
+                                         .foregroundStyle(.white)
+                                         .background(
+                                            Circle()
+                                                .fill(.black.opacity(0.7))
+                                                .frame(width: 30, height: 30)
+                                         )
+                                         .padding([.trailing, .top])
+                                         
+                                }
+                                .onTapGesture {
+                                    selectGroup(group: group)
+                                }
 
                             }
                         }
@@ -126,8 +140,9 @@ struct SwipeDecisionView: View {
                     }
                 }
             }
-            .ignoresSafeArea()
+           
         }
+        .ignoresSafeArea(SafeAreaRegions.all, edges: .vertical)
         
     }
     
@@ -225,7 +240,29 @@ struct SwipeDecisionView: View {
         var groups: [[ImageInfo]] = []
        
         if photoGroups.isEmpty == false {
-            groups = photoGroups.map({$0.images})
+            if photoGroups.count > 1 {
+                groups = photoGroups.map({$0.images})
+            }
+            else {
+                let chunckSize = 5
+                let flatImages = photoGroups.flatMap({$0.images})
+                
+                for i in stride(from: 0, to: flatImages.count, by: chunckSize) {
+                    let chunk = Array(flatImages[i..<min(i + chunckSize, flatImages.count)])
+                    groups.append(chunk)
+                }
+            }
+            
+            
+            for (index, group) in groups.enumerated() {
+                // Skip screenshots to save time
+                if photoGroups.contains(where: { $0.category == .screenshots }) {break}
+                
+                for (i, imageInfo) in group.enumerated() {
+                    groups[index][i].image = await Service.requestHighResImage(for: imageInfo.asset ?? PHAsset()) ?? UIImage()
+                }
+            }
+            
         }
         else {
             // If no duplicate groups, create dummy groups from local images

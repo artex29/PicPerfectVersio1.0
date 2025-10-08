@@ -21,30 +21,31 @@ struct CategorySplitView: View {
         
         Group {
             if device == .iPhone {
-           
-                    CategoryView(selectedGroup: $selectedGroup, photoGroups: photoGroups)
-                        .navigationTitle("Categories")
-                        .toolbar {
-                            Button("Close") { onClose() }
-                        }
-                        
-              
+                
+                CategoryView(selectedGroup: $selectedGroup, photoGroups: photoGroups, onClose: {onClose()})
+                
             } else {
                 // iPad o iPhone horizontal → usa SplitView
                 
                 NavigationSplitView(columnVisibility: $sideBarVisibility) {
-                    CategoryView(selectedGroup: $selectedGroup, photoGroups: photoGroups)
+                    CategoryView(selectedGroup: $selectedGroup, photoGroups: photoGroups, onClose: {onClose()})
                         .navigationTitle("Categories")
                         .navigationSplitViewColumnWidth(min: 400, ideal: 400)
                        
                 } detail: {
-                    if let group = selectedGroup {
-                        SwipeDecisionView(photoGroups: group)
-                            .id(group.first?.id ?? UUID()) // Force detail view refresh
-                    } else {
-                        Text("Select a category")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
+                    ZStack {
+                        
+                        Color(PicPerfectTheme.Colors.background)
+                            .ignoresSafeArea()
+                        
+                        if let group = selectedGroup {
+                            SwipeDecisionView(photoGroups: group)
+                                .id(group.first?.id ?? UUID()) // Force detail view refresh
+                        } else {
+                            Text("Select a category")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
                     }
                 }
                 .navigationSplitViewStyle(.balanced)
