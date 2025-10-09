@@ -16,6 +16,8 @@ enum DecisionActions: Int {
 
 struct SwipeDecisionView: View {
     
+    @Environment(PhotoGroupManager.self) var manager
+    
     var photoGroups: [PhotoGroup]
     
     @State private var images:[UIImage?] = [
@@ -137,6 +139,7 @@ struct SwipeDecisionView: View {
                 .task {
                     await getGroups {
                         selectedGroup = groupedImages.first?.reversed() ?? []
+                        setHistory()
                     }
                 }
             }
@@ -146,6 +149,14 @@ struct SwipeDecisionView: View {
         
     }
     
+    private func setHistory() {
+        
+        let category = photoGroups.first?.category ?? .duplicates
+       
+        let managerHistory = manager.decisionHistory.filter { $0.category == category }
+        
+        decisionHistory = managerHistory
+    }
     
     private func handleDecisionAction(for decision: DecisionActions) {
        
@@ -163,6 +174,7 @@ struct SwipeDecisionView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
                 deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
+                    manager.processPhoto(withId: resultedImage.id, action: decision)
                     deletePhotos.append(resultedImage)
                     selectNextGroup(nextIndex: nextIndex,
                                     selectedGroup: &selectedGroup,
@@ -182,6 +194,7 @@ struct SwipeDecisionView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
                 deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
+                    manager.processPhoto(withId: resultedImage.id, action: decision)
                     keepPhotos.append(resultedImage)
                     selectNextGroup(nextIndex: nextIndex,
                                     selectedGroup: &selectedGroup,
@@ -193,10 +206,14 @@ struct SwipeDecisionView: View {
             
         case .undo:
             decisionAction = .undo
+            let category = photoGroups.first?.category ?? .duplicates
+            manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
             undoLastAction()
-           
+            
         }
     }
+    
+    
     
     private func undoLastAction() {
         guard let last = decisionHistory.popLast() else { return }
@@ -295,11 +312,14 @@ struct SwipeDecisionView: View {
               let iIdx = groupedImages[gIdx].firstIndex(where: { $0.id == image.id }) else { return nil }
         
         let groupIds = groupedImages[gIdx].map { $0.id }   // estado previo
+        let category = photoGroups.first(where: { $0.images.contains(where: { $0.id == image.id }) })?.category ?? .duplicates
+        let groupId = photoGroups.first(where: { $0.images.contains(where: { $0.id == image.id }) })?.id ?? UUID()
         return DecisionRecord(action: action,
                               image: image,
                               originalGroupIndex: gIdx,
                               originalImageIndex: iIdx,
-                              originalGroupIds: groupIds)
+                              originalGroupIds: groupIds,
+                              category: category)
     }
     
 }
@@ -471,6 +491,7 @@ struct DuplicatePhotos: View {
 
 #Preview {
     SwipeDecisionView(photoGroups: [])
+        .environment(PhotoGroupManager())
 }
 
 fileprivate func deleteFromGroup(image: ImageInfo,

@@ -85,4 +85,5 @@ struct CategoryView: View {
 
 #Preview {
     CategoryView(selectedGroup: .constant(nil), photoGroups: [], onClose: {})
+        .environment(PhotoGroupManager())
 }

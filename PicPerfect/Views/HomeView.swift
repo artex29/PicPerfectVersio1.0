@@ -18,10 +18,12 @@ enum Destination: Hashable {
 
 enum AppPhase {
     case scan
-    case categories([[PhotoGroup]])
+    case categories
 }
 
 struct HomeView: View {
+    
+    private var manager = PhotoGroupManager(groups: [])
     
     @State private var navigationPath: NavigationPath = NavigationPath()
     @State private var groups:[[PhotoGroup]] = []
@@ -33,14 +35,16 @@ struct HomeView: View {
         case .scan:
             NavigationStack(path: $navigationPath) {
                 ScanLibraryView(navigationPath: $navigationPath, onFinished: {groups in
-                    phase = .categories(groups)
+                    phase = .categories
+                    manager.allGroups = groups
                 })
                    
             }
-        case .categories(let groups):
-            CategorySplitView(photoGroups: groups, onClose: {
+        case .categories:
+            CategorySplitView(onClose: {
                 phase = .scan
             })
+            .environment(manager)
         }
        
         

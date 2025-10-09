@@ -22,6 +22,7 @@
 		FF6F454B2E94311A000FAF9A /* CategoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6F454A2E94311A000FAF9A /* CategoryCard.swift */; };
 		FF6F454D2E9446A1000FAF9A /* CategorySplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6F454C2E9446A1000FAF9A /* CategorySplitView.swift */; };
 		FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */; };
+		FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */; };
 		FFAF02972E83280400CBF98B /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAF02962E83280100CBF98B /* Enums.swift */; };
 		FFCBB3D72E68CFFA00928FA7 /* ReviewAndSaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */; };
 		FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */; };
@@ -64,6 +65,7 @@
 		FF6F454A2E94311A000FAF9A /* CategoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCard.swift; sourceTree = "<group>"; };
 		FF6F454C2E9446A1000FAF9A /* CategorySplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySplitView.swift; sourceTree = "<group>"; };
 		FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligence.swift; sourceTree = "<group>"; };
+		FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupManager.swift; sourceTree = "<group>"; };
 		FFAF02962E83280100CBF98B /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewAndSaveView.swift; sourceTree = "<group>"; };
 		FFD22CD82E51072300071915 /* PicPerfect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicPerfect.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -238,6 +240,7 @@
 		FFE3F7B22E90634A00A1F3D2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */,
 				FF23050B2E7CB716000F382D /* ContentModel.swift */,
 			);
 			path = ViewModels;
@@ -332,6 +335,7 @@
 				FFE0D8582E8F0F9600CBA5A6 /* ScreenShotService.swift in Sources */,
 				FFFB6FFF2E9547E800D56BA3 /* DeviceHelper.swift in Sources */,
 				FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */,
+				FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */,
 				FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */,
 				FFD3550F2E6F4DA600BEB236 /* FinalSaveView.swift in Sources */,
 				FFE3F7AD2E90214000A1F3D2 /* BlurryPhotosService.swift in Sources */,

@@ -14,6 +14,8 @@ struct DecisionRecord: Identifiable {
     let originalGroupIndex: Int      // índice del grupo ANTES de remover
     let originalImageIndex: Int      // posición dentro del grupo ANTES de remover
     let originalGroupIds: [String]   // ids de TODAS las imágenes del grupo ANTES de remover
+    let category: PhotoGroupCategory
+   
 }
 
 

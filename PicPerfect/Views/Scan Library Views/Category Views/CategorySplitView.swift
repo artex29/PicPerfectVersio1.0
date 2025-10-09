@@ -10,7 +10,9 @@ import Photos
 
 struct CategorySplitView: View {
     
-    let photoGroups: [[PhotoGroup]]
+    //let photoGroups: [[PhotoGroup]]
+    @Environment(PhotoGroupManager.self) var manager
+    
     let onClose: () -> Void
     let device = DeviceHelper.type
     @State private var selectedGroup: [PhotoGroup]? = nil
@@ -22,13 +24,14 @@ struct CategorySplitView: View {
         Group {
             if device == .iPhone {
                 
-                CategoryView(selectedGroup: $selectedGroup, photoGroups: photoGroups, onClose: {onClose()})
+                CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()})
+                   
                 
             } else {
                 // iPad o iPhone horizontal → usa SplitView
                 
                 NavigationSplitView(columnVisibility: $sideBarVisibility) {
-                    CategoryView(selectedGroup: $selectedGroup, photoGroups: photoGroups, onClose: {onClose()})
+                    CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()})
                         .navigationTitle("Categories")
                         .navigationSplitViewColumnWidth(min: 400, ideal: 400)
                        
@@ -40,7 +43,7 @@ struct CategorySplitView: View {
                         
                         if let group = selectedGroup {
                             SwipeDecisionView(photoGroups: group)
-                                .id(group.first?.id ?? UUID()) // Force detail view refresh
+                                .id(group.first?.id) // Force detail view refresh
                         } else {
                             Text("Select a category")
                                 .font(.headline)
@@ -134,5 +137,6 @@ struct CategorySplitView: View {
         ]
     }
     
-    CategorySplitView(photoGroups: photoGroups, onClose: {})
+    CategorySplitView(onClose: {})
+        .environment(PhotoGroupManager())
 }

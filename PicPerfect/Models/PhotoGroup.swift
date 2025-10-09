@@ -9,7 +9,7 @@ import Foundation
 
 struct PhotoGroup: Identifiable, Hashable {
     let id = UUID()
-    let images: [ImageInfo]
+    var images: [ImageInfo]
     let score: Float?    // optional, for duplicates similarity or blur avg
     let category: PhotoGroupCategory // e.g. "Duplicates", "Blurry", "Exposure", "Faces"
 }
