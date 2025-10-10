@@ -26,7 +26,7 @@ struct ScanLibraryView: View {
     @Binding var navigationPath: NavigationPath
     //@Binding var photoGroups:[[PhotoGroup]]
     
-    var onFinished:([[PhotoGroup]]) -> Void
+    var onFinished:([PhotoGroup]) -> Void
     
     var body: some View {
         ZStack {

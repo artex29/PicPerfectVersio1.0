@@ -111,14 +111,16 @@ class Service {
 
 
     
-    static func deleteAssets(_ assets: [PHAsset]) {
+    static func deleteAssets(_ assets: [PHAsset], completion: @escaping (Bool) -> Void) {
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.deleteAssets(assets as NSArray)
         }) { success, error in
             if success {
                 print("🗑️ Original photo deleted")
+                completion(true)
             } else if let error = error {
                 print("❌ Error deleting photo: \(error.localizedDescription)")
+                completion(false)
             }
         }
     }

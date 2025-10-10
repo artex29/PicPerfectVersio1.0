@@ -39,15 +39,15 @@ struct SwipeDecisionView: View {
     
     @State private var selectedGroup: [ImageInfo] = []
     
-    @State private var keepPhotos: [ImageInfo] = []
-    
-    @State private var deletePhotos: [ImageInfo] = []
-    
     @State private var decisionAction: DecisionActions? = nil
     
     @State private var decisionHistory: [DecisionRecord] = []
     
     @State private var refresh = true
+    
+    @State private var showConfirmation = false
+    
+    @State private var isPileExpanded = false
     
     var selectedIDImage: String {
         let id = selectedGroup.reversed().first?.id ?? ""
@@ -63,9 +63,9 @@ struct SwipeDecisionView: View {
                 PicPerfectTheme.Colors.background
                 
                 VStack {
-                    DuplicatePhotos(
-                        keepPhotos: $keepPhotos,
-                        deletePhotos: $deletePhotos,
+                    
+                    PhotosPile(
+                        expanded: $isPileExpanded,
                         allGroups: $groupedImages,
                         selectedGroup: $selectedGroup,
                         proxy: geo,
@@ -82,6 +82,9 @@ struct SwipeDecisionView: View {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                                 refresh = true
                             }
+                        }
+                        else if isPileExpanded {
+                            handleDecisionAction(for: newValue!)
                         }
                     }
                    
@@ -143,9 +146,21 @@ struct SwipeDecisionView: View {
                     }
                 }
             }
-           
+            .navigationTitle(photoGroups.first?.category.displayName ?? "Duplicates")
+            
         }
         .ignoresSafeArea(SafeAreaRegions.all, edges: .vertical)
+        .onChange(of: groupedImages, { oldValue, newValue in
+            if newValue.count == 0 {
+                showConfirmation = true
+            }
+        })
+        .fullScreenCover(isPresented: $showConfirmation) {
+            
+        } content: {
+            ConfirmationView(showingConfirmationView: $showConfirmation, photoGroups: photoGroups)
+        }
+
         
     }
     
@@ -160,7 +175,10 @@ struct SwipeDecisionView: View {
     
     private func handleDecisionAction(for decision: DecisionActions) {
        
+        print("Handling action: \(decision)")
         let resultedImage = selectedGroup.reversed().first!
+        
+        let category = photoGroups.first?.category ?? .duplicates
         
         switch decision {
             
@@ -174,8 +192,9 @@ struct SwipeDecisionView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
                 deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
-                    manager.processPhoto(withId: resultedImage.id, action: decision)
-                    deletePhotos.append(resultedImage)
+                    
+                    manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+                   
                     selectNextGroup(nextIndex: nextIndex,
                                     selectedGroup: &selectedGroup,
                                     allGroups: returningGroups ?? [])
@@ -194,8 +213,7 @@ struct SwipeDecisionView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
                 deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
-                    manager.processPhoto(withId: resultedImage.id, action: decision)
-                    keepPhotos.append(resultedImage)
+                    manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
                     selectNextGroup(nextIndex: nextIndex,
                                     selectedGroup: &selectedGroup,
                                     allGroups: returningGroups ?? [])
@@ -206,7 +224,7 @@ struct SwipeDecisionView: View {
             
         case .undo:
             decisionAction = .undo
-            let category = photoGroups.first?.category ?? .duplicates
+            
             manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
             undoLastAction()
             
@@ -218,17 +236,6 @@ struct SwipeDecisionView: View {
     private func undoLastAction() {
         guard let last = decisionHistory.popLast() else { return }
         guard decisionAction != nil else { return }
-        
-        // 1) Quitar de keep/delete
-        if last.action == .keep {
-            if let idx = keepPhotos.firstIndex(where: { $0.id == last.image.id }) {
-                keepPhotos.remove(at: idx)
-            }
-        } else if last.action == .delete {
-            if let idx = deletePhotos.firstIndex(where: { $0.id == last.image.id }) {
-                deletePhotos.remove(at: idx)
-            }
-        }
         
         // 2) Buscar el grupo original (sin la imagen removida)
         let remainingIds = Set(last.originalGroupIds.filter { $0 != last.image.id })
@@ -313,7 +320,7 @@ struct SwipeDecisionView: View {
         
         let groupIds = groupedImages[gIdx].map { $0.id }   // estado previo
         let category = photoGroups.first(where: { $0.images.contains(where: { $0.id == image.id }) })?.category ?? .duplicates
-        let groupId = photoGroups.first(where: { $0.images.contains(where: { $0.id == image.id }) })?.id ?? UUID()
+       
         return DecisionRecord(action: action,
                               image: image,
                               originalGroupIndex: gIdx,
@@ -324,9 +331,9 @@ struct SwipeDecisionView: View {
     
 }
 
-struct DuplicatePhotos: View {
+struct PhotosPile: View {
     
-    @State private var expanded: Bool = false
+    @Binding var expanded: Bool
     
     @State private var rotations: [String: Double] = [:]
     
@@ -334,8 +341,6 @@ struct DuplicatePhotos: View {
     @State private var dragRotations: [String: CGFloat] = [:]
     @State private var dragOffsets: [String: CGSize] = [:]
     
-    @Binding var keepPhotos: [ImageInfo]
-    @Binding var deletePhotos: [ImageInfo]
     @Binding var allGroups: [[ImageInfo]]
     
     @Binding var selectedGroup: [ImageInfo]

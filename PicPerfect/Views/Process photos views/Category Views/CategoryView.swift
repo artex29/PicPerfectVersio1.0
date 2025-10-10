@@ -10,12 +10,19 @@ import Photos
 
 struct CategoryView: View {
     
+    @Environment(PhotoGroupManager.self) var manager
+    
     @Binding var selectedGroup: [PhotoGroup]?
-    var photoGroups: [[PhotoGroup]]
+    var photoGroups: [PhotoGroup]
     
     let device = DeviceHelper.type
     
     let onClose: () -> Void
+    
+    var photosToReviewCount: String {
+        let count = photoGroups.reduce(0) { $0 + $1.images.count }
+        return count > 0 ? "\(count) Photos to review" : ""
+    }
     
     var body: some View {
         
@@ -28,7 +35,7 @@ struct CategoryView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 20) {
                             
-                            ForEach(photoGroups, id: \.self) { group in
+                            ForEach(reGroupByCategory(), id: \.self) { group in
                                 
                                 NavigationLink(value: group) {
                                     CategoryCard(selectedGroup: $selectedGroup, group: group)
@@ -47,14 +54,18 @@ struct CategoryView: View {
                     }
                     
                 }
-                .navigationTitle("Categories")
+                .navigationTitle(photosToReviewCount)
                 .toolbar(content: {
-                    Button("Close", action: {onClose()})
-                        .ifAvailableGlassButtonStyle()
+                    
+                        Button("X", action: {onClose()})
+                            .ifAvailableGlassButtonStyle()
+                        
+                    
                 })
                 .navigationBarTitleDisplayMode(.inline)
 
             }
+            .environment(manager)
             
         }
         else {
@@ -65,7 +76,7 @@ struct CategoryView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         
-                        ForEach(photoGroups, id: \.self) { group in
+                        ForEach(reGroupByCategory(), id: \.self) { group in
                             
                             CategoryCard(selectedGroup: $selectedGroup, group: group)
                         }
@@ -76,10 +87,29 @@ struct CategoryView: View {
                 }
                 
             }
+            .environment(manager)
         }
         
        
     }
+    
+    
+    
+    private func reGroupByCategory() -> [[PhotoGroup]] {
+        let categories = Dictionary(grouping: photoGroups, by: { $0.category })
+        let sortOrder: [PhotoGroupCategory] = [.duplicates, .similars, .blurry, .exposure, .faces, .screenshots, .orientation]
+        
+        return categories.values.map { Array($0) }.sorted { first, second in
+            guard let firstCategory = first.first?.category,
+                  let secondCategory = second.first?.category,
+                  let firstIndex = sortOrder.firstIndex(of: firstCategory),
+                  let secondIndex = sortOrder.firstIndex(of: secondCategory) else {
+                return false
+            }
+            return firstIndex < secondIndex
+        }
+    }
+    
 }
 
 

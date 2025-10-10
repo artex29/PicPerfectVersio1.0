@@ -34,6 +34,24 @@ enum PhotoGroupCategory: String {
     case orientation
     case screenshots
   
+    var displayName: String {
+        switch self {
+        case .duplicates:
+            return "Duplicate Photos"
+        case .similars:
+            return "Similar Photos"
+        case .blurry:
+            return "Blurry Photos"
+        case .exposure:
+            return "Exposure Issues"
+        case .faces:
+            return "Closed Eyes / Blurry Faces"
+        case .orientation:
+            return "Orientation Issues"
+        case .screenshots:
+            return "Screenshots"
+        }
+    }
 }
 
 enum AnalysisProgress: String {

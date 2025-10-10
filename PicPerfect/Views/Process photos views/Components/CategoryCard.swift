@@ -44,7 +44,7 @@ struct iPhoneCategoryCard: View {
                     
                     Text("\(totalCount)")
                     
-                    Text(firstGroup.category.rawValue.capitalized)
+                    Text(firstGroup.category.displayName)
                     
                     Spacer()
                     
@@ -92,7 +92,8 @@ struct iPadCategoryCard: View {
                     
                     Text("\(totalCount)")
                     
-                    Text(firstGroup.category.rawValue.capitalized)
+                    Text(firstGroup.category.displayName)
+                        .font(.caption)
                     
                     Spacer()
                     
@@ -124,4 +125,5 @@ struct iPadCategoryCard: View {
 #Preview {
     CategoryCard(selectedGroup: .constant(nil),
                  group: [])
+    .environment(PhotoGroupManager())
 }

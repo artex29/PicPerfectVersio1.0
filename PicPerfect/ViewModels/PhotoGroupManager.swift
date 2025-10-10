@@ -6,26 +6,28 @@
 //
 
 import SwiftUI
+import Photos
 
 @MainActor
 @Observable
 final class PhotoGroupManager {
-    var allGroups: [[PhotoGroup]]
-    var photosToDelete: Set<ImageInfo> = []
-    var photosToKeep: Set<ImageInfo> = []
+    var allGroups: [PhotoGroup]
     var decisionHistory:[DecisionRecord] = []
+    var confirmationActions: [ConfirmationAction] = []
     
-    init(groups: [[PhotoGroup]] = []) {
+    init(groups: [PhotoGroup] = []) {
         self.allGroups = groups
     }
     
     //Removes a photo (by id) from all groups whre it appears
-    func processPhoto(withId id: String, action: DecisionActions, for category: PhotoGroupCategory? = nil) {
+    func processPhoto(withId id: String, action: DecisionActions, for category: PhotoGroupCategory) {
         // Find the image before modifying anything
-        guard let image = allGroups.flatMap({ $0 }).flatMap({ $0.images }).first(where: { $0.id == id }) else {
+        guard let image = allGroups.compactMap({ $0 }).flatMap({ $0.images }).first(where: { $0.id == id }) else {
             print("⚠️ Image not found in any group: \(id)")
             return
         }
+        
+        var confirmationAction: ConfirmationAction? = nil
 
         switch action {
         case .delete:
@@ -33,56 +35,69 @@ final class PhotoGroupManager {
             makeAllGroupRecords(for: image, action: .delete)
             
             // 2️⃣ Remove from all groups
-            for (index, groupArray) in allGroups.enumerated() {
-                let updatedGroups = groupArray.map { group -> PhotoGroup in
-                    var mutableGroup = group
-                    mutableGroup.images.removeAll(where: { $0.id == id })
-                    return mutableGroup
-                }
-                allGroups[index] = updatedGroups.filter { !$0.images.isEmpty }
+            for (index, group) in allGroups.enumerated() {
+                
+                var mutableGroup = group
+                
+                mutableGroup.images.removeAll(where: { $0.id == id })
+                
+                allGroups[index] = mutableGroup
+                
             }
             
+            allGroups.removeAll(where: { $0.images.isEmpty })
+            
+        
+            
             // 3️⃣ Update tracking sets
-            photosToDelete.insert(image)
-            photosToKeep.remove(image)
+            confirmationAction = ConfirmationAction(imageInfo: image, action: .delete, category: category)
+            if let action = confirmationAction {
+                // Insert at the beginning to maintain order
+                confirmationActions.insert(action, at: 0)
+            }
+
             
         case .keep:
             // 1️⃣ Record all appearances before removal
             makeAllGroupRecords(for: image, action: .keep)
             
-            // 2️⃣ Update tracking sets
-            photosToKeep.insert(image)
-            photosToDelete.remove(image)
-            
             // 3️⃣ Remove from UI (optional)
-            for (index, groupArray) in allGroups.enumerated() {
-                let updatedGroups = groupArray.map { group -> PhotoGroup in
-                    var mutableGroup = group
-                    mutableGroup.images.removeAll(where: { $0.id == id })
-                    return mutableGroup
-                }
-                allGroups[index] = updatedGroups.filter { !$0.images.isEmpty }
+            for (index, group) in allGroups.enumerated() {
+                var mutableGroup = group
+                
+                mutableGroup.images.removeAll(where: { $0.id == id })
+                
+                allGroups[index] = mutableGroup
+               
+            }
+            
+            allGroups.removeAll(where: { $0.images.isEmpty })
+            
+            confirmationAction = ConfirmationAction(imageInfo: image, action: .keep, category: category)
+            if let action = confirmationAction {
+                // Insert at the beginning to maintain order
+                confirmationActions.insert(action, at: 0)
             }
             
         case .undo:
             withAnimation {
-                undo(for: category ?? .duplicates)
+                undo(for: category)
             }
         }
     }
     
     /// Updates a specific photo if edited or rotated, etc.
     func updatePhoto(_ updatedImage: ImageInfo) {
-        for (i, groupArray) in allGroups.enumerated() {
-            
-            let newGroups = groupArray.map { group in
+        for (i, group) in allGroups.enumerated() {
+            if group.images.contains(where: {$0.id == updatedImage.id}) {
                 var mutableGroup = group
-                if let idx = mutableGroup.images.firstIndex(where: { $0.id == updatedImage.id }) {
-                    mutableGroup.images[idx] = updatedImage
+                if let imgIndex = mutableGroup.images.firstIndex(where: { $0.id == updatedImage.id }) {
+                    mutableGroup.images[imgIndex] = updatedImage
+                    allGroups[i] = mutableGroup
+                    print("✅ Updated image \(updatedImage.id) in group \(mutableGroup.id)")
                 }
-                return mutableGroup
             }
-            allGroups[i] = newGroups
+            
         }
     }
     
@@ -107,41 +122,47 @@ final class PhotoGroupManager {
                 restoreImage(referenceImage, using: record)
             }
         
-        switch lastRecord.action {
-        case .delete:
-            photosToDelete.remove(referenceImage)
-        case .keep:
-            photosToKeep.remove(referenceImage)
-        case .undo:
-            break
-        }
         
+        if let actionToRemove = confirmationActions.first(where: { $0.imageInfo.id == targetImageId }) {
+            confirmationActions.removeAll { $0.imageInfo.id == targetImageId }
+        }
     }
         
         
     /// Reinserts the given `referenceImage` into all groups that originally contained it,
     /// using the stored group and image indices.
     private func restoreImage(_ referenceImage: ImageInfo, using record: DecisionRecord) {
-        let section = record.originalGroupIndex
-        guard allGroups.indices.contains(section) else {
-            print("⚠️ Invalid section index \(section)")
-            return
+        
+        let groupIdx = record.originalGroupIndex
+        let origainalIds = record.originalGroupIds
+        var group = allGroups[groupIdx]
+        
+        if allGroups.indices.contains(groupIdx) == false {
+            print("⚠️ Invalid section index \(groupIdx)")
+            //Creating a new group if the original index is out of bounds
+            let newGroup = PhotoGroup(images: [], score: 0.0, category: record.category)
+            group = newGroup
+            
+            allGroups.insert(group, at: groupIdx)
+        }
+        else  {
+            let remainingIds = origainalIds.filter({$0 != referenceImage.id})
+            if allGroups[groupIdx].images.map({$0.id}) != remainingIds {
+                print("⚠️ Group IDs do not match for group at index \(groupIdx). Expected: \(remainingIds), Found: \(allGroups[groupIdx].images.map({$0.id}))")
+                let newGroup = PhotoGroup(images: [], score: 0.0, category: record.category)
+                group = newGroup
+                allGroups.insert(group, at: groupIdx)
+            }
         }
 
-        // Encontrar el sub-grupo correcto por ID
-        guard let subgroupIdx = allGroups[section].firstIndex(where: { $0.id == record.id}) else {
-            print("⚠️ Subgroup \(record.id) not found in section \(section)")
-            return
-        }
-
-        var group = allGroups[section][subgroupIdx]
 
         // Evitar duplicados
         guard !group.images.contains(where: { $0.id == referenceImage.id }) else { return }
 
         let safeIndex = min(record.originalImageIndex, group.images.count)
         group.images.insert(referenceImage, at: safeIndex)
-        allGroups[section][subgroupIdx] = group
+        
+        allGroups[groupIdx] = group
 
         print("✅ Restored image \(referenceImage.id) to subgroup \(group.id) at index \(safeIndex)")
     }
@@ -150,7 +171,7 @@ final class PhotoGroupManager {
     // MARK: - History Recording
     private func makeRecord(for image: ImageInfo, in group:PhotoGroup, action: DecisionActions) -> DecisionRecord? {
         
-        if let originalGroupIndex = allGroups.firstIndex(where: { $0.contains(where: { $0.id == group.id }) }),
+        if let originalGroupIndex = allGroups.firstIndex(where: { $0.id == group.id }),
            let originalImageIndex = group.images.firstIndex(where: { $0.id == image.id }) {
             let originalGroupIds = group.images.map { $0.id }
             return DecisionRecord(action: action,
@@ -166,7 +187,7 @@ final class PhotoGroupManager {
     
     private func makeAllGroupRecords(for image: ImageInfo, action: DecisionActions) {
         
-        let groupsContainingImage:[PhotoGroup] = allGroups.flatMap { $0 }.filter { $0.images.contains(where: { $0.id == image.id }) }
+        let groupsContainingImage:[PhotoGroup] = allGroups.filter { $0.images.contains(where: { $0.id == image.id }) }
         print("📝 Recorded \(groupsContainingImage.count) groups for image \(image.id)")
         
         for group in groupsContainingImage {

@@ -16,8 +16,8 @@ class PhotoLibraryScanner {
     static let shared = PhotoLibraryScanner()
     
     
-    static func analyzeLibraryWithEfficiency(assets: [PHAsset], limit: Int = 100, progress: @MainActor @escaping(AnalysisProgress) -> Void) async -> [[PhotoGroup]] {
-        var groups: [[PhotoGroup]] = []
+    static func analyzeLibraryWithEfficiency(assets: [PHAsset], limit: Int = 100, progress: @MainActor @escaping(AnalysisProgress) -> Void) async -> [PhotoGroup] {
+        var groups: [PhotoGroup] = []
         
         //Detect duplicates
         await MainActor.run { progress(.duplicates) }
@@ -27,7 +27,7 @@ class PhotoLibraryScanner {
                 PhotoGroup(images: dup.images, score: dup.score, category: .duplicates)
             }
             
-            groups.append(mapped)
+            groups.append(contentsOf: mapped)
             
         }
 
@@ -39,7 +39,7 @@ class PhotoLibraryScanner {
                 PhotoGroup(images: sim.images, score: sim.score, category: .similars)
             }
             
-            groups.append(mapped)
+            groups.append(contentsOf: mapped)
         }
         
         
@@ -130,9 +130,9 @@ class PhotoLibraryScanner {
     }
 
     
-    static func analyzeLibrary(assets: [PHAsset], limit: Int = 100, progress:@MainActor @escaping(AnalysisProgress) -> Void) async -> [[PhotoGroup]] {
+    static func analyzeLibrary(assets: [PHAsset], limit: Int = 100, progress:@MainActor @escaping(AnalysisProgress) -> Void) async -> [PhotoGroup] {
         
-        var groups: [[PhotoGroup]] = []
+        var groups: [PhotoGroup] = []
         
         // 1. Detect Duplicates
        await MainActor.run { progress(.duplicates) }
@@ -142,7 +142,7 @@ class PhotoLibraryScanner {
                 PhotoGroup(images: dup.images, score: dup.score, category: .duplicates)
             }
             
-            groups.append(mapped)
+            groups.append(contentsOf: mapped)
             
         }
         
@@ -154,7 +154,7 @@ class PhotoLibraryScanner {
                 PhotoGroup(images: sim.images, score: sim.score, category: .similars)
             }
             
-            groups.append(mapped)
+            groups.append(contentsOf: mapped)
         }
         
         // 3.- Detect Blurry
@@ -181,8 +181,8 @@ class PhotoLibraryScanner {
         return groups
     }
     
-    private static func groupImages(_ images: [ImageInfo], by category: PhotoGroupCategory) -> [PhotoGroup] {
-        return [PhotoGroup(images: images, score: nil, category: category)]
+    private static func groupImages(_ images: [ImageInfo], by category: PhotoGroupCategory) -> PhotoGroup {
+        return PhotoGroup(images: images, score: nil, category: category)
     }
     
     func fetchProcessedPhotos(with identifiers: [String], completion: @escaping ([UIImage]) -> Void) {
