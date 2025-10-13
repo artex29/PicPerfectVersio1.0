@@ -11,14 +11,14 @@ import Photos
 
 struct PredictedResult: Identifiable {
     var id: String = UUID().uuidString
-    var image: UIImage
+    var image: PPImage
     var orientation: DetectedOrientation
     var confidence: Float
 }
 
 struct ImageInfo: Hashable, Identifiable {
     var isIncorrect: Bool
-    var image: UIImage
+    var image: PPImage
     var asset: PHAsset?
     var summary: PhotoSummary? = nil
     var imageType: ImageType? = nil
@@ -41,7 +41,7 @@ struct ImageInfo: Hashable, Identifiable {
         let identifier = asset?.localIdentifier
         if identifier?.isEmpty == true || identifier == "(null)/L0/001" {
             if identifier == "(null)/L0/001" {
-                return "\(image.size)\(image.scale)\(image.imageOrientation)\(image.isPortrait)"
+                return image.uniqueIdentifier
             } else {
                 return UUID().uuidString
             }

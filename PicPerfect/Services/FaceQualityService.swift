@@ -6,15 +6,21 @@
 //
 
 
+
+
+
 import Vision
-import UIKit
 import Photos
 
-
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 
 final class FaceQualityService {
     
-    static func detectBadFaceOnImage(_ image: UIImage, asset: PHAsset) async -> ImageInfo? {
+    static func detectBadFaceOnImage(_ image: PPImage, asset: PHAsset) async -> ImageInfo? {
         let issues = analyzeFaces(in: image)
         if !issues.isEmpty {
             var info = ImageInfo(isIncorrect: true, image: image, asset: asset)
@@ -52,11 +58,15 @@ final class FaceQualityService {
     }
     
     /// Analyze face quality issues in a single image
-    private static func analyzeFaces(in image: UIImage,
+    private static func analyzeFaces(in image: PPImage,
                              eyeClosureThreshold: Float = 0.15,
                              blurThreshold: Float = 0.3,
                              minFaceCoverage: CGFloat = 0.1) -> [FaceIssue] {
+        #if os(iOS)
         guard let cgImage = image.cgImage else { return [] }
+        #elseif os(macOS)
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return [] }
+        #endif
         var issues: [FaceIssue] = []
         
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])

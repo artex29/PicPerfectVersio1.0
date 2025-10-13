@@ -5,9 +5,10 @@
 //  Created by ANGEL RAMIREZ on 9/8/25.
 //
 
+
+
 import Foundation
 import Photos
-import UIKit
 import Vision
 
 
@@ -185,9 +186,9 @@ class PhotoLibraryScanner {
         return PhotoGroup(images: images, score: nil, category: category)
     }
     
-    func fetchProcessedPhotos(with identifiers: [String], completion: @escaping ([UIImage]) -> Void) {
+    func fetchProcessedPhotos(with identifiers: [String], completion: @escaping ([PPImage]) -> Void) {
         // Array donde se guardarán las imágenes recuperadas
-        var images: [UIImage] = []
+        var images: [PPImage] = []
         
         // Obtenemos los assets a partir de los identifiers
         let assets = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)

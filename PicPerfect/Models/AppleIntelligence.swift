@@ -33,7 +33,7 @@ struct result  {
    
     if #available(iOS 26.0, macOS 26.0, watchOS 26.0, visionOS 26.0, *) {
         
-        let uiImage = UIImage(named: "exampleImage2")!
+        let uiImage = PPImage(named: "exampleImage2")!
         
         let prompt = """
         Analyze the image \(uiImage) and predict its correct orientation.

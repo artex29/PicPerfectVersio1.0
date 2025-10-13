@@ -8,7 +8,12 @@
 
 import Photos
 import Vision
+
+#if os(macOS)
+import AppKit
+#else
 import UIKit
+#endif
 
 
 
@@ -21,10 +26,18 @@ enum DuplicateServiceError: Error {
 final class DuplicateService {
     
     /// Genera un feature print (embedding) de Vision para comparar imágenes
-    private static func featurePrint(for image: UIImage) throws -> VNFeaturePrintObservation {
+    private static func featurePrint(for image: PPImage) throws -> VNFeaturePrintObservation {
+        #if os(iOS)
         guard let cgImage = image.cgImage else {
             throw DuplicateServiceError.imageRequestFailed
         }
+        #elseif os(macOS)
+        let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        guard let cgImage = cgImage else {
+            throw DuplicateServiceError.imageRequestFailed
+        }
+        #endif
+        
         let request = VNGenerateImageFeaturePrintRequest()
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         try handler.perform([request])
@@ -200,17 +213,34 @@ final class DuplicateService {
         return groups
     }
 
-    private static func perceptualHash(for image: UIImage, size: CGSize = CGSize(width: 8, height: 8)) -> String? {
+    private static func perceptualHash(for image: PPImage, size: CGSize = CGSize(width: 8, height: 8)) -> String? {
+        
+        #if os(iOS)
         guard let cgImage = image.cgImage else { return nil }
+        #elseif os(macOS)
+        let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        guard let cgImage = cgImage else { return nil }
+        #endif
         
         // Redimensionar
+        #if os(iOS)
         UIGraphicsBeginImageContext(size)
         UIImage(cgImage: cgImage).draw(in: CGRect(origin: .zero, size: size))
         let resized = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        #elseif os(macOS)
+        let nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+        let resized = nsImage.resized( maxDimension: size.width)
+        #endif
         
+        #if os(iOS)
         guard let smallImage = resized,
               let pixels = smallImage.cgImage?.dataProvider?.data else { return nil }
+        #elseif os(macOS)
+         let smallImage = resized
+        guard let pixels = smallImage.cgImage(forProposedRect: nil, context: nil, hints: nil)?
+                .dataProvider?.data else { return nil }
+        #endif
         
         let ptr = CFDataGetBytePtr(pixels)!
         let length = CFDataGetLength(pixels)

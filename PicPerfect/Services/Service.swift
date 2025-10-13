@@ -5,13 +5,19 @@
 //  Created by ANGEL RAMIREZ on 9/8/25.
 //
 
-import Photos
+#if os(macOS)
+import AppKit
+#else
 import UIKit
-import MobileCoreServices
+#endif
+
+import Photos
+//import MobileCoreServices
 
 class Service {
    
-    static func exifOrientation(for orientation: UIImage.Orientation) -> Int {
+    #if os(iOS)
+    static func exifOrientation(for orientation: PPImage.Orientation) -> Int {
         switch orientation {
         case .up: return 1
         case .down: return 3
@@ -24,6 +30,7 @@ class Service {
         @unknown default: return 1
         }
     }
+    #endif
     
     static func saveAndReplace(results: [ImageInfo], completion: @escaping (Bool) -> Void) {
         
@@ -44,6 +51,7 @@ class Service {
 
                 let output = PHContentEditingOutput(contentEditingInput: input)
 
+                #if os(iOS)
                 // 1. Guardar la imagen corregida en disco
                 if let data = result.image.jpegData(compressionQuality: 1.0) {
                     do {
@@ -54,6 +62,19 @@ class Service {
                         return
                     }
                 }
+                #elseif os(macOS)
+                if let tiffData = result.image.tiffRepresentation,
+                     let bitmap = NSBitmapImageRep(data: tiffData),
+                   let data = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 1.0]) {
+                    do {
+                        try data.write(to: output.renderedContentURL)
+                    } catch {
+                        print("❌ Error writing corrected image: \(error)")
+                        completion(false)
+                        return
+                    }
+                }
+                #endif
 
                 // 2. Crear JSON con los metadatos de la edición
                 let adjustmentInfo: [String: Any?] = [
@@ -125,7 +146,7 @@ class Service {
         }
     }
     
-    static func requestImage(for asset: PHAsset, size: CGSize = CGSize(width: 1024, height: 1024)) async -> UIImage? {
+    static func requestImage(for asset: PHAsset, size: CGSize = CGSize(width: 1024, height: 1024)) async -> PPImage? {
         await withCheckedContinuation { continuation in
             
             let options = PHImageRequestOptions()
@@ -142,7 +163,7 @@ class Service {
         }
     }
     
-    static func requestHighResImage(for asset: PHAsset) async -> UIImage? {
+    static func requestHighResImage(for asset: PHAsset) async -> PPImage? {
         await withCheckedContinuation { continuation in
             let manager = PHCachingImageManager()
             let options = PHImageRequestOptions()

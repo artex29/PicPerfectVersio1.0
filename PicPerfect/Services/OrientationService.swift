@@ -16,14 +16,18 @@ import Playgrounds
 class OrientationService {
     
     // Detect if a single photo is incorrectly oriented
-    static func detectMisalignment(in image: UIImage, asset: PHAsset, records: [String:PhotoAnalysisRecord]) async -> ImageInfo? {
+    static func detectMisalignment(in image: PPImage, asset: PHAsset, records: [String:PhotoAnalysisRecord]) async -> ImageInfo? {
         
         guard records[asset.localIdentifier] == nil else {
             print("⚠️ Photo \(asset.localIdentifier) already analyzed for orientation issues, skipping.")
             return nil
         }
         
-        let orientationValue = Service.exifOrientation(for: image.imageOrientation)
+        #if os(iOS)
+        let orientationValue =  Service.exifOrientation(for: image.imageOrientation)
+        #elseif os(macOS)
+        let orientationValue = 1 // Default to "up" for macOS
+        #endif
         PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
         
         let lowResImage = image.resized(maxDimension: 256)
@@ -63,7 +67,11 @@ class OrientationService {
 
             if let lowResImage = await Service.requestImage(for: asset, size: targetSize) {
                 
+                #if os(iOS)
                 let orientationValue = Service.exifOrientation(for: lowResImage.imageOrientation)
+                #elseif os(macOS)
+                let orientationValue = 1 // Default to "up" for macOS
+                #endif
                 
                 PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
                 
@@ -125,15 +133,15 @@ class OrientationService {
         
         switch orientation {
         case .rotatedLeft:
-            resultedImage.image = rotate(image: finalImage, angle: .pi / 2)
+            resultedImage.image = rotate(image: finalImage, angle: Double.pi / 2)
             resultedImage.rotationAngle = 90.0
             return resultedImage
         case .rotatedRight:
-            resultedImage.image = rotate(image: finalImage, angle: -.pi / 2)
+            resultedImage.image = rotate(image: finalImage, angle: -Double.pi / 2)
             resultedImage.rotationAngle = -90.0
             return resultedImage
         case .upsideDown:
-            resultedImage.image = rotate(image: finalImage, angle: .pi)
+            resultedImage.image = rotate(image: finalImage, angle: Double.pi)
             resultedImage.rotationAngle = 180.0
             return resultedImage
         case .up:
@@ -144,7 +152,11 @@ class OrientationService {
     }
     
     private static func detectFace(in image: ImageInfo) -> ImageInfo? {
+        #if os(iOS)
         guard let cgImage = image.image.cgImage else { return nil }
+        #elseif os(macOS)
+        guard let cgImage = image.image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        #endif
 
         var resultedImage: ImageInfo = image
         resultedImage.confidence = 1.0
@@ -162,7 +174,7 @@ class OrientationService {
             let tolerance = 0.2
             if abs(roll + .pi) < tolerance || abs(roll - .pi) < tolerance {
                 
-                resultedImage.image = rotate(image: image.image, angle: .pi)
+                resultedImage.image = rotate(image: image.image, angle: Double.pi)
                 
                 resultedImage.orientation = .upsideDown
                 
@@ -197,7 +209,11 @@ class OrientationService {
     }
     
     private static func detectHorizon(in image: ImageInfo) -> ImageInfo? {
+        #if os(iOS)
         guard let cgImage = image.image.cgImage else { return nil }
+        #elseif os(macOS)
+        guard let cgImage = image.image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        #endif
         
         var resultedImage: ImageInfo = image
         resultedImage.confidence = 1.0
@@ -223,17 +239,17 @@ class OrientationService {
                 resultedImage.orientation = .up
                 return resultedImage
             } else if abs(Double(angle) - 0.75) < tolerance {
-                resultedImage.image = rotate(image: image.image, angle: .pi / 2)
+                resultedImage.image = rotate(image: image.image, angle: Double.pi / 2)
                 resultedImage.rotationAngle = 90.0
                 resultedImage.orientation = .rotatedLeft
                 return resultedImage
             } else if abs(Double(angle) - 0.5) < tolerance {
-                resultedImage.image = rotate(image: image.image, angle: .pi)
+                resultedImage.image = rotate(image: image.image, angle: Double.pi)
                 resultedImage.rotationAngle = 180.0
                 resultedImage.orientation = .upsideDown
                 return resultedImage
             } else if abs(Double(angle) - 0.25) < tolerance {
-                resultedImage.image = rotate(image: image.image, angle: -.pi / 2)
+                resultedImage.image = rotate(image: image.image, angle: -Double.pi / 2)
                 resultedImage.rotationAngle = -90.0
                 resultedImage.orientation = .rotatedRight
                 return resultedImage
@@ -246,7 +262,7 @@ class OrientationService {
         return nil
     }
     
-    private static func predictResults(with model: VNCoreMLModel, image: UIImage) async -> [PredictedResult]? {
+    private static func predictResults(with model: VNCoreMLModel, image: PPImage) async -> [PredictedResult]? {
         
         await withCheckedContinuation { continuation in
            
@@ -294,7 +310,12 @@ class OrientationService {
                 
                 predictedResult = PredictedResult(image: rotatedImage, orientation: .up, confidence: 0.0)
                 
+                #if os(iOS)
                 guard let cgImage = rotatedImage.cgImage else { continue }
+                #elseif os(macOS)
+                guard let cgImage = rotatedImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else { continue }
+                #endif
+                
                 
                 let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
                 try? handler.perform([request])
@@ -308,7 +329,7 @@ class OrientationService {
         }
     }
     
-    private static func predictOrientation(with model: VNCoreMLModel, image: UIImage) async -> DetectedOrientation? {
+    private static func predictOrientation(with model: VNCoreMLModel, image: PPImage) async -> DetectedOrientation? {
         
         await withCheckedContinuation { continuation in
             
@@ -321,7 +342,9 @@ class OrientationService {
                     let observations = request.results as? [VNClassificationObservation],
                     let top = observations.first
                 else {
+                    #if os(iOS)
                     continuation.resume(returning: nil)
+                    #endif
                     return
                 }
                 
@@ -361,7 +384,11 @@ class OrientationService {
                 
                 let rotatedImage = rotate(image: image, angle: 0, rotateTo: orientation)
                 
+                #if os(iOS)
                 guard let cgImage = rotatedImage.cgImage else { continue }
+                #elseif os(macOS)
+                let cgImage = rotatedImage.cgImage(forProposedRect: nil, context: nil, hints: nil)!
+                #endif
                 let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
                 try? handler.perform([request])
             }
@@ -370,8 +397,12 @@ class OrientationService {
         }
     }
     
-    static func isImageIncorrectlyOriented(in image: UIImage) async -> Bool {
+    static func isImageIncorrectlyOriented(in image: PPImage) async -> Bool {
+        #if os(iOS)
         guard let cgImage = image.cgImage else { return false }
+        #elseif os(macOS)
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return false }
+        #endif
         
         let faceRequest = VNDetectFaceLandmarksRequest()
         let faceHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
@@ -442,7 +473,7 @@ class OrientationService {
        
     }
     
-    private static func rotate(image: UIImage, angle: CGFloat, rotateTo: DetectedOrientation? = nil) -> UIImage {
+    private static func rotate(image: PPImage, angle: CGFloat, rotateTo: DetectedOrientation? = nil) -> PPImage {
         
         var finalAngle: CGFloat = 0.0
         
@@ -459,7 +490,7 @@ class OrientationService {
             finalAngle = angle
         }
         
-        
+        #if os(iOS)
         let renderer = UIGraphicsImageRenderer(size: image.size)
         return renderer.image { context in
             let ctx = context.cgContext
@@ -468,5 +499,17 @@ class OrientationService {
             ctx.translateBy(x: -image.size.width / 2, y: -image.size.height / 2)
             image.draw(in: CGRect(origin: .zero, size: image.size))
         }
+        #elseif os(macOS)
+        let renderer = NSImage(size: image.size)
+        renderer.lockFocus()
+        let ctx = NSGraphicsContext.current?.cgContext
+        ctx?.translateBy(x: image.size.width / 2, y: image.size.height / 2)
+        ctx?.rotate(by: finalAngle)
+        ctx?.translateBy(x: -image.size.width / 2, y: -image.size.height / 2)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        renderer.unlockFocus()
+        return renderer
+        #endif
+        
     }
 }

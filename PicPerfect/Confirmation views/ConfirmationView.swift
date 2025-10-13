@@ -12,7 +12,8 @@ struct ConfirmationView: View {
     
     @Environment(PhotoGroupManager.self) private var manager
     
-    @Binding var showingConfirmationView: Bool
+//    @Binding var showingConfirmationView: Bool
+    @Binding var navigationPath: [NavigationDestination]
     
     var photoGroups: [PhotoGroup]
     
@@ -27,18 +28,18 @@ struct ConfirmationView: View {
     }
     
     @State var dummyArray:[ConfirmationAction] = [
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee1")!), action: .delete, category: .blurry),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee2")!), action: .keep, category: .duplicates),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee3")!), action: .keep, category: .exposure),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee4")!), action: .delete, category: .faces),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee5")!), action: .keep, category: .orientation),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee6")!), action: .delete, category: .screenshots),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee7")!), action: .keep, category: .similars),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee8")!), action: .delete, category: .blurry),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee9")!), action: .keep, category: .duplicates),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee10")!), action: .delete, category: .exposure),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee11")!), action: .keep, category: .faces),
-        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: UIImage(named: "marquee12")!), action: .delete, category: .orientation)
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee1")!), action: .delete, category: .blurry),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee2")!), action: .keep, category: .duplicates),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee3")!), action: .keep, category: .exposure),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee4")!), action: .delete, category: .faces),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee5")!), action: .keep, category: .orientation),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee6")!), action: .delete, category: .screenshots),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee7")!), action: .keep, category: .similars),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee8")!), action: .delete, category: .blurry),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee9")!), action: .keep, category: .duplicates),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee10")!), action: .delete, category: .exposure),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee11")!), action: .keep, category: .faces),
+        ConfirmationAction(imageInfo: ImageInfo(isIncorrect: false, image: PPImage(named: "marquee12")!), action: .delete, category: .orientation)
     ]
     
     var body: some View {
@@ -82,11 +83,16 @@ struct ConfirmationView: View {
                             
                             ForEach(actionsArray, id: \.id) { action in
                                 
-                                Image(uiImage: action.imageInfo.image)
+                                #if os(iOS)
+                                let image = Image(uiImage: action.imageInfo.image)
+                                #elseif os(macOS)
+                                let image = Image(nsImage: action.imageInfo.image)
+                                #endif
+                                
+                                image
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: imageSize.width, height: imageSize.height)
-                                    
                                     .overlay(alignment: .topTrailing) {
                                         Image(systemName: action.action == .keep ? "hand.thumbsup.fill" : "trash.slash.fill")
                                             .resizable()
@@ -159,12 +165,12 @@ struct ConfirmationView: View {
             Service.deleteAssets(assets) { success in
                 if success {
                     manager.confirmationActions.removeAll(where: { assets.contains($0.imageInfo.asset ?? PHAsset()) })
-                    showingConfirmationView = false
+                   // showingConfirmationView = false
                 }
             }
         }
         else {
-            showingConfirmationView = false
+           // showingConfirmationView = false
         }
         
     }
@@ -173,6 +179,6 @@ struct ConfirmationView: View {
 
 
 #Preview {
-    ConfirmationView(showingConfirmationView: .constant(true), photoGroups: [])
+    ConfirmationView(navigationPath: .constant([]), photoGroups: [])
         .environment(PhotoGroupManager())
 }

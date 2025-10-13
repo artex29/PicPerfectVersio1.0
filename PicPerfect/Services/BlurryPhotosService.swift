@@ -14,7 +14,7 @@ import Photos
 class BlurryPhotosService {
     
     // Detect blurriness on a single photo
-    static func detectBlurriness(in image: UIImage,
+    static func detectBlurriness(in image: PPImage,
                                  asset: PHAsset,
                                  laplacianThreshold: Float = 100.0,
                                  faceTreshold: Float = 0.3) async -> ImageInfo? {
@@ -59,7 +59,7 @@ class BlurryPhotosService {
         return blurryImages
     }
     
-    private static func isBlurry(_ image: UIImage,
+    private static func isBlurry(_ image: PPImage,
                                  laplacianThreshold: Float = 100.0,
                                  faceThreshold: Float = 0.3) -> (Bool, Float) {
         // 1. Si hay rostro, usar face quality
@@ -75,8 +75,12 @@ class BlurryPhotosService {
         return (variance < laplacianThreshold, variance)
     }
     
-    private static func faceQualityScore(_ image: UIImage) -> Float? {
+    private static func faceQualityScore(_ image: PPImage) -> Float? {
+        #if os(iOS)
         guard let cgImage = image.cgImage else { return nil }
+        #elseif os(macOS)
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        #endif
         
         let request = VNDetectFaceCaptureQualityRequest()
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
@@ -88,8 +92,13 @@ class BlurryPhotosService {
         return nil
     }
     
-    private static func laplacianVariance(_ image: UIImage) -> Float {
+    private static func laplacianVariance(_ image: PPImage) -> Float {
+        #if os(iOS)
         guard let ciImage = CIImage(image: image) else { return 0 }
+        #elseif os(macOS)
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return 0 }
+        let ciImage = CIImage(cgImage: cgImage)
+        #endif
         
         let context = CIContext()
         

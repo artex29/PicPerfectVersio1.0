@@ -9,8 +9,7 @@ import SwiftUI
 import Photos
 
 struct CategorySplitView: View {
-    
-    //let photoGroups: [[PhotoGroup]]
+   
     @Environment(PhotoGroupManager.self) var manager
     
     let onClose: () -> Void
@@ -18,20 +17,37 @@ struct CategorySplitView: View {
     @State private var selectedGroup: [PhotoGroup]? = nil
     @State private var sideBarVisibility: NavigationSplitViewVisibility = .doubleColumn
    
+    @State private var navigationPath: [NavigationDestination] = []
     
     var body: some View {
         
         Group {
             if device == .iPhone {
                 
-                CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()})
+                NavigationStack(path: $navigationPath) {
+                    
+                    CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()}, navigationPath: $navigationPath)
+                        .navigationDestination(for: NavigationDestination.self) { destination in
+                            switch destination {
+                            case .categoryView:
+                                EmptyView()
+                            case .swipeDecisionView(let group):
+                                SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                            case .confirmationView(let group):
+                                ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
+                            case .saveView:
+                                EmptyView()
+                            }
+                        }
+                }
+                
                    
                 
             } else {
                 // iPad o iPhone horizontal → usa SplitView
                 
                 NavigationSplitView(columnVisibility: $sideBarVisibility) {
-                    CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()})
+                    CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()}, navigationPath: .constant([]))
                         .navigationTitle("Categories")
                         .navigationSplitViewColumnWidth(min: 400, ideal: 400)
                        
@@ -42,8 +58,27 @@ struct CategorySplitView: View {
                             .ignoresSafeArea()
                         
                         if let group = selectedGroup {
-                            SwipeDecisionView(photoGroups: group)
-                                .id(group.first?.id) // Force detail view refresh
+                            NavigationStack(path: $navigationPath) {
+                                SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                                    .id(group.first?.id) // Force detail view refresh
+                                    .navigationDestination(for: NavigationDestination.self) { destination in
+                                        switch destination {
+                                        case .categoryView:
+                                            EmptyView()
+                                        case .swipeDecisionView(let group):
+                                            SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                                        case .confirmationView(let group):
+                                            ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
+                                                .onAppear {
+                                                    sideBarVisibility = .detailOnly
+                                                }
+                                        case .saveView:
+                                            EmptyView()
+                                        }
+                                    }
+                                
+                            }
+                           
                         } else {
                             Text("Select a category")
                                 .font(.headline)
@@ -59,7 +94,9 @@ struct CategorySplitView: View {
         }
         .onChange(of: selectedGroup) { oldValue, newValue in
             if newValue != nil && device != .iPhone {
-                sideBarVisibility = .detailOnly
+                if #unavailable(iOS 26, macOS 26) {
+                    sideBarVisibility = .detailOnly
+                }
             }
         }
         
@@ -69,19 +106,19 @@ struct CategorySplitView: View {
 #Preview {
     // MARK: - Mock Data for Testing
     
-    let mockImages: [UIImage] = [
-        UIImage(named: "marquee1"),
-        UIImage(named: "marquee2"),
-        UIImage(named: "marquee3"),
-        UIImage(named: "marquee4"),
-        UIImage(named: "marquee5"),
-        UIImage(named: "marquee6"),
-        UIImage(named: "marquee7"),
-        UIImage(named: "marquee8"),
-        UIImage(named: "marquee9"),
-        UIImage(named: "marquee10"),
-        UIImage(named: "marquee11"),
-        UIImage(named: "marquee12")
+    let mockImages: [PPImage] = [
+        PPImage(named: "marquee1"),
+        PPImage(named: "marquee2"),
+        PPImage(named: "marquee3"),
+        PPImage(named: "marquee4"),
+        PPImage(named: "marquee5"),
+        PPImage(named: "marquee6"),
+        PPImage(named: "marquee7"),
+        PPImage(named: "marquee8"),
+        PPImage(named: "marquee9"),
+        PPImage(named: "marquee10"),
+        PPImage(named: "marquee11"),
+        PPImage(named: "marquee12")
     ].compactMap { $0 }
     
     // Fake PHAsset placeholder

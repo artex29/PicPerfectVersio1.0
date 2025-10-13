@@ -55,7 +55,14 @@ struct iPhoneCategoryCard: View {
                 
                 HStack {
                     ForEach(firstGroup.images.prefix(4), id: \.self) { image in
-                        Image(uiImage: image.image)
+                        
+#if os(iOS)
+                        let img = Image(uiImage: image.image)
+#elseif os(macOS)
+                        let img = Image(nsImage: image.image)
+#endif
+                        
+                        img
                             .resizable()
                             .scaledToFill()
                             .frame(width: 80, height: 80)
@@ -104,7 +111,14 @@ struct iPadCategoryCard: View {
                 
                 HStack {
                     ForEach(firstGroup.images.prefix(4), id: \.self) { image in
-                        Image(uiImage: image.image)
+                        
+                        #if os(iOS)
+                        let img = Image(uiImage: image.image)
+                        #elseif os(macOS)
+                        let img = Image(nsImage: image.image)
+                        #endif
+                        
+                        img
                             .resizable()
                             .scaledToFill()
                             .frame(width: 80, height: 80)

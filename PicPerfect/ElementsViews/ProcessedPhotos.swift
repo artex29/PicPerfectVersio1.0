@@ -114,7 +114,11 @@ struct PhotosGrid: View {
         .task {
             if model.processedPhotos.isEmpty == false {
                 images.removeAll()
+                #if os(iOS)
                 images = model.processedPhotos.map { Image(uiImage: $0)}
+                #elseif os(macOS)
+                images = model.processedPhotos.map { Image(nsImage: $0)}
+                #endif
             }
         }
         

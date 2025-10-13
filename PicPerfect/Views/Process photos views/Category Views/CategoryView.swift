@@ -8,6 +8,13 @@
 import SwiftUI
 import Photos
 
+enum NavigationDestination: Hashable {
+    case categoryView
+    case swipeDecisionView(group:[PhotoGroup])
+    case confirmationView(group: [PhotoGroup])
+    case saveView
+}
+
 struct CategoryView: View {
     
     @Environment(PhotoGroupManager.self) var manager
@@ -24,48 +31,57 @@ struct CategoryView: View {
         return count > 0 ? "\(count) Photos to review" : ""
     }
     
+    @Binding var navigationPath: [NavigationDestination]
+   
+    
     var body: some View {
         
         if device == .iPhone {
-            NavigationStack {
-                ZStack {
-                    PicPerfectTheme.Colors.background
-                        .ignoresSafeArea()
-                    
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 20) {
-                            
-                            ForEach(reGroupByCategory(), id: \.self) { group in
-                                
-                                NavigationLink(value: group) {
-                                    CategoryCard(selectedGroup: $selectedGroup, group: group)
-                                        .foregroundStyle(.clear)
-                                }
-                                .navigationDestination(for: [PhotoGroup].self) { group in
-                                    SwipeDecisionView(photoGroups: group)
-                                }
-                                
-                                
-                            }
-                            
-                            
-                        }
-                        .padding()
-                    }
-                    
-                }
-                .navigationTitle(photosToReviewCount)
-                .toolbar(content: {
-                    
-                        Button("X", action: {onClose()})
-                            .ifAvailableGlassButtonStyle()
+            
+            
+            ZStack {
+                PicPerfectTheme.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
                         
-                    
-                })
-                .navigationBarTitleDisplayMode(.inline)
-
+                        ForEach(reGroupByCategory(), id: \.self) { group in
+                            
+                            CategoryCard(selectedGroup: $selectedGroup, group: group)
+                                .foregroundStyle(.clear)
+                                .onTapGesture {
+                                    if group.contains(where: {$0.category != .orientation}) {
+                                        navigationPath.append(.swipeDecisionView(group: group))
+                                        
+                                    }
+                                    else {
+                                        //MARK: - Orientation category, create orientation screen and go there
+                                    }
+                                }
+                        }
+                        
+                        
+                    }
+                    .padding()
+                }
+                
             }
             .environment(manager)
+            .navigationTitle(photosToReviewCount)
+            .toolbar(content: {
+                
+                Button("X", action: {onClose()})
+                    .ifAvailableGlassButtonStyle()
+                
+                
+            })
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
+            
+            
+            
             
         }
         else {
@@ -114,6 +130,6 @@ struct CategoryView: View {
 
 
 #Preview {
-    CategoryView(selectedGroup: .constant(nil), photoGroups: [], onClose: {})
+    CategoryView(selectedGroup: .constant(nil), photoGroups: [], onClose: {}, navigationPath: .constant([]))
         .environment(PhotoGroupManager())
 }

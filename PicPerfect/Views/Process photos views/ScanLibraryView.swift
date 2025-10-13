@@ -23,9 +23,6 @@ struct ScanLibraryView: View {
     
     @State private var progress: AnalysisProgress = .starting
     
-    @Binding var navigationPath: NavigationPath
-    //@Binding var photoGroups:[[PhotoGroup]]
-    
     var onFinished:([PhotoGroup]) -> Void
     
     var body: some View {
@@ -74,20 +71,23 @@ struct ScanLibraryView: View {
                     photoAccessGranted = granted
                 }
             }
-//            .fullScreenCover(isPresented: $showingReviewScreen, onDismiss: {
-//                
-//            }, content: {
-//               CategorySplitView(photoGroups: photoGroups)
-//            })
-//            .fullScreenCover(isPresented: $showingReviewScreen) {
-//                ReviewCorrectedImagesView(images: scannedImages, showingReviewScreen: $showingReviewScreen)
-//            }
             .alert("Permission Required", isPresented: $permisionAlertPresented) {
                 
                 Button("Open Settings") {
+#if os(iOS)
                     if let appSettings = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(appSettings)
                     }
+#elseif os(macOS)
+                    let privacyPhotosURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Photos")
+                    let generalPrivacyURL = URL(string: "x-apple.systempreferences:com.apple.preference.security")
+                    
+                    if let url = privacyPhotosURL, NSWorkspace.shared.open(url) {
+                        // ✅ Opened successfully
+                    } else if let fallback = generalPrivacyURL {
+                        NSWorkspace.shared.open(fallback)
+                    }
+#endif
                 }
                 
                 Button("Cancel", role: .cancel) {}
@@ -129,6 +129,6 @@ struct ScanLibraryView: View {
 }
 
 #Preview {
-    ScanLibraryView(navigationPath: .constant(NavigationPath()), onFinished: {_ in })
+    ScanLibraryView(onFinished: {_ in })
         .environment(ContentModel())
 }

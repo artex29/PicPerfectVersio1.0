@@ -29,7 +29,14 @@ struct FinalSaveView: View {
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 10) {
                         ForEach(results.indices, id: \.self) { index in
-                            Image(uiImage: results[index].image)
+                            
+                            #if os(iOS)
+                            let image = Image(uiImage: results[index].image)
+                            #elseif os(macOS)
+                            let image = Image(nsImage: results[index].image)
+                            #endif
+                            
+                            image
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 120, height: 120)

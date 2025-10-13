@@ -20,19 +20,19 @@ struct SwipeDecisionView: View {
     
     var photoGroups: [PhotoGroup]
     
-    @State private var images:[UIImage?] = [
-        UIImage(named: "marquee1"),
-        UIImage(named: "marquee2"),
-        UIImage(named: "marquee3"),
-        UIImage(named: "marquee4"),
-        UIImage(named: "marquee5"),
-        UIImage(named: "marquee6"),
-        UIImage(named: "marquee7"),
-        UIImage(named: "marquee8"),
-        UIImage(named: "marquee9"),
-        UIImage(named: "marquee10"),
-        UIImage(named: "marquee11"),
-        UIImage(named: "marquee12")
+    @State private var images:[PPImage?] = [
+        PPImage(named: "marquee1"),
+        PPImage(named: "marquee2"),
+        PPImage(named: "marquee3"),
+        PPImage(named: "marquee4"),
+        PPImage(named: "marquee5"),
+        PPImage(named: "marquee6"),
+        PPImage(named: "marquee7"),
+        PPImage(named: "marquee8"),
+        PPImage(named: "marquee9"),
+        PPImage(named: "marquee10"),
+        PPImage(named: "marquee11"),
+        PPImage(named: "marquee12")
     ]
     
     @State private var groupedImages: [[ImageInfo]] = []
@@ -45,9 +45,9 @@ struct SwipeDecisionView: View {
     
     @State private var refresh = true
     
-    @State private var showConfirmation = false
-    
     @State private var isPileExpanded = false
+    
+    @Binding var navigationPath: [NavigationDestination]
     
     var selectedIDImage: String {
         let id = selectedGroup.reversed().first?.id ?? ""
@@ -100,7 +100,11 @@ struct SwipeDecisionView: View {
                             ForEach(groupedImages.indices, id: \.self) { groupIndex in
                                 let group = groupedImages[groupIndex]
                                 
+                                #if os(iOS)
                                 let thumbnail = Image(uiImage: group.first?.image ?? UIImage())
+                                #else
+                                let thumbnail = Image(nsImage: group.first?.image ?? NSImage())
+                                #endif
 
                                 ZStack(alignment: .topTrailing) {
                                     
@@ -152,14 +156,10 @@ struct SwipeDecisionView: View {
         .ignoresSafeArea(SafeAreaRegions.all, edges: .vertical)
         .onChange(of: groupedImages, { oldValue, newValue in
             if newValue.count == 0 {
-                showConfirmation = true
+                navigationPath.append(.confirmationView(group: photoGroups))
             }
         })
-        .fullScreenCover(isPresented: $showConfirmation) {
-            
-        } content: {
-            ConfirmationView(showingConfirmationView: $showConfirmation, photoGroups: photoGroups)
-        }
+        
 
         
     }
@@ -283,7 +283,7 @@ struct SwipeDecisionView: View {
                 if photoGroups.contains(where: { $0.category == .screenshots }) {break}
                 
                 for (i, imageInfo) in group.enumerated() {
-                    groups[index][i].image = await Service.requestHighResImage(for: imageInfo.asset ?? PHAsset()) ?? UIImage()
+                    groups[index][i].image = await Service.requestHighResImage(for: imageInfo.asset ?? PHAsset()) ?? PPImage()
                 }
             }
             
@@ -293,14 +293,14 @@ struct SwipeDecisionView: View {
             let chunkSize = 3
             for i in stride(from: 0, to: images.count, by: chunkSize) {
                 
-                var result: ImageInfo = ImageInfo(isIncorrect: false, image: UIImage(), asset: PHAsset())
+                var result: ImageInfo = ImageInfo(isIncorrect: false, image: PPImage(), asset: PHAsset())
                 
                 let chunk = Array(images[i..<min(i + chunkSize, images.count)])
                 
                 var results: [ImageInfo] = []
                 
                 for image in chunk {
-                    result.image = image ?? UIImage()
+                    result.image = image ?? PPImage()
                     results.append(result)
                 }
                 
@@ -436,7 +436,11 @@ struct PhotosPile: View {
     private func scaledImage(image: ImageInfo, imageIdentifier: String) -> some View {
         
         let resultedImage = image
+        #if os(iOS)
         let img = Image(uiImage: resultedImage.image)
+        #elseif os(macOS)
+        let img = Image(nsImage: resultedImage.image)
+        #endif
         
         if expanded == false {
             img
@@ -495,7 +499,7 @@ struct PhotosPile: View {
 }
 
 #Preview {
-    SwipeDecisionView(photoGroups: [])
+    SwipeDecisionView(photoGroups: [], navigationPath: .constant([]))
         .environment(PhotoGroupManager())
 }
 

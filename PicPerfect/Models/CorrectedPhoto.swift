@@ -11,6 +11,6 @@ import Photos
 
 struct CorrectedPhoto: Identifiable {
     let id = UUID()
-    let correctedImage: UIImage
+    let correctedImage: PPImage
     var isSelected: Bool = true
 }

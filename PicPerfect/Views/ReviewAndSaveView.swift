@@ -19,10 +19,18 @@ struct ReviewAndSaveView: View {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 16) {
                         ForEach($correctedPhotos) { $photo in
                             ZStack(alignment: .topTrailing) {
+                                #if os(iOS)
                                 Image(uiImage: photo.correctedImage)
                                     .resizable()
                                     .scaledToFit()
                                     .cornerRadius(12)
+                                #elseif os(macOS)
+                                Image(nsImage: photo.correctedImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(12)
+                                #endif
+                                    
 
                                 Button {
                                     photo.isSelected.toggle()
@@ -44,7 +52,9 @@ struct ReviewAndSaveView: View {
                 .padding(.bottom)
             }
             .navigationTitle("Review & Save")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .background(PicPerfectTheme.Colors.background)
         }
     }

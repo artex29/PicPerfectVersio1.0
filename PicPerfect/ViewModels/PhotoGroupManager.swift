@@ -106,26 +106,24 @@ final class PhotoGroupManager {
     /// reinserting it into all categories where it originally appeared.
     private func undo(for category: PhotoGroupCategory) {
         guard let lastRecord = decisionHistory.last(where: { $0.category == category }) else { return }
-            let targetImageId = lastRecord.image.id
-
-            // records de esa misma imagen (en todas las categorías)
-            let recordsToUndo = decisionHistory.filter { $0.image.id == targetImageId }
-
-            // usamos la versión de la imagen de la categoría actual como referencia
-            let referenceImage = lastRecord.image
-
-            // limpiamos historial de esos records
-            decisionHistory.removeAll { $0.image.id == targetImageId }
-
-            // restauramos en cada sub-grupo exacto
-            for record in recordsToUndo {
-                restoreImage(referenceImage, using: record)
-            }
+        let targetImageId = lastRecord.image.id
         
+        // records de esa misma imagen (en todas las categorías)
+        let recordsToUndo = decisionHistory.filter { $0.image.id == targetImageId }
         
-        if let actionToRemove = confirmationActions.first(where: { $0.imageInfo.id == targetImageId }) {
-            confirmationActions.removeAll { $0.imageInfo.id == targetImageId }
+        // usamos la versión de la imagen de la categoría actual como referencia
+        let referenceImage = lastRecord.image
+        
+        // limpiamos historial de esos records
+        decisionHistory.removeAll { $0.image.id == targetImageId }
+        
+        // restauramos en cada sub-grupo exacto
+        for record in recordsToUndo {
+            restoreImage(referenceImage, using: record)
         }
+        
+        confirmationActions.removeAll { $0.imageInfo.id == targetImageId }
+        
     }
         
         

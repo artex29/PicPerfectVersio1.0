@@ -27,24 +27,24 @@ struct ReviewCorrectedImagesView: View {
 
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 12) {
-                        ForEach(images.indices, id: \.self) { index in
-                            let img = images[index]
-                            ZStack {
-                                Image(uiImage: img.image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 120, height: 120)
-                                    .clipped()
-                                    .cornerRadius(10)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(selectedIndices.contains(index) ? Color.green : Color.clear, lineWidth: 3)
-                                    )
-                                    .onTapGesture {
-                                        toggleSelection(index: index)
-                                    }
-                            }
-                        }
+//                        ForEach(images.indices, id: \.self) { index in
+//                            let img = images[index]
+//                            ZStack {
+//                                Image(uiImage: img.image)
+//                                    .resizable()
+//                                    .scaledToFill()
+//                                    .frame(width: 120, height: 120)
+//                                    .clipped()
+//                                    .cornerRadius(10)
+//                                    .overlay(
+//                                        RoundedRectangle(cornerRadius: 10)
+//                                            .stroke(selectedIndices.contains(index) ? Color.green : Color.clear, lineWidth: 3)
+//                                    )
+//                                    .onTapGesture {
+//                                        toggleSelection(index: index)
+//                                    }
+//                            }
+//                        }
                     }
                     .padding()
                 }
@@ -73,9 +73,9 @@ struct ReviewCorrectedImagesView: View {
                 Spacer()
             }
             .navigationTitle("Revisión")
-            .fullScreenCover(isPresented: $showConfirmation) {
-                FinalSaveView(results: processedImages)
-            }
+//            .fullScreenCover(isPresented: $showConfirmation) {
+//                FinalSaveView(results: processedImages)
+//            }
         }
     }
 

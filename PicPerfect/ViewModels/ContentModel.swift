@@ -12,7 +12,7 @@ import SwiftUI
 @Observable
 class ContentModel {
   
-    var processedPhotos: [UIImage] = []
+    var processedPhotos: [PPImage] = []
     
     init() {
         loadProcessedPhotos()

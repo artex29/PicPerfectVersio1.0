@@ -6,16 +6,20 @@
 //
 
 
-import UIKit
+//import UIKit
 import Photos
 import CoreImage
-
+#if os(macOS)
+import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
 
 
 final class ExposureService {
     
     //Scan a single Image
-    static func detectExposureIssueOnImage(image: UIImage,
+    static func detectExposureIssueOnImage(image: PPImage,
                                            asset: PHAsset,
                                            darkTreshold: Float = 0.2,
                                            brightTreshold: Float = 0.8) async -> ImageInfo? {
@@ -59,11 +63,16 @@ final class ExposureService {
     }
     
     /// Detecta si una imagen está subexpuesta (oscura) o sobreexpuesta (quemada)
-    private static func analyzeExposure(for image: UIImage,
+    private static func analyzeExposure(for image: PPImage,
                                 darkThreshold: Float = 0.2,
                                 brightThreshold: Float = 0.8,
                                 tolerance: Float = 0.7) -> ExposureCategory {
+        
+        #if os(iOS)
         guard let cgImage = image.cgImage else { return .normal }
+        #elseif os(macOS)
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return .normal }
+        #endif
         
         let ciImage = CIImage(cgImage: cgImage)
         let extent = ciImage.extent
