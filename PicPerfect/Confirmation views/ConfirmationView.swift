@@ -24,7 +24,7 @@ struct ConfirmationView: View {
     
     var confirmButtonTitle: String {
         let assetsToDelete = actionsArray.filter({ $0.action == .delete }).count
-        return assetsToDelete > 0 ? "📸 Clean Up Now (\(assetsToDelete))" : "Done"
+        return assetsToDelete > 0 ? "📸 Clean Up Now (\(assetsToDelete))" : "Keep All Photos"
     }
     
     @State var dummyArray:[ConfirmationAction] = [
@@ -127,7 +127,7 @@ struct ConfirmationView: View {
                         
                         
                     }
-                    //.navigationTitle("Review & Confirm")
+                   
                 }
                 
                 
@@ -136,6 +136,9 @@ struct ConfirmationView: View {
                     cleanUp()
                 }
                 .ifAvailableGlassButtonStyle()
+                #if os(macOS)
+                .padding()
+                #endif
                 
             }
             
@@ -170,7 +173,7 @@ struct ConfirmationView: View {
             }
         }
         else {
-           // showingConfirmationView = false
+            navigationPath.removeAll()
         }
         
     }

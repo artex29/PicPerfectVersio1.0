@@ -10,6 +10,7 @@ import Photos
 
 enum NavigationDestination: Hashable {
     case categoryView
+    case orientationView(group: [PhotoGroup])
     case swipeDecisionView(group:[PhotoGroup])
     case confirmationView(group: [PhotoGroup])
     case saveView
@@ -57,6 +58,7 @@ struct CategoryView: View {
                                     }
                                     else {
                                         //MARK: - Orientation category, create orientation screen and go there
+                                        navigationPath.append(.orientationView(group: group))
                                     }
                                 }
                         }
@@ -79,9 +81,7 @@ struct CategoryView: View {
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
-            
-            
-            
+              
             
         }
         else {

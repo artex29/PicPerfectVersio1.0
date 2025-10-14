@@ -32,21 +32,23 @@ class Service {
     }
     #endif
     
-    static func saveAndReplace(results: [ImageInfo], completion: @escaping (Bool) -> Void) {
+    static func saveAndReplace(results: [ImageInfo], completion: @escaping (Bool) -> Void) async {
         
         var processedIdentifiers: [String] = []
         
         for result in results {
-            let asset = result.asset
+            guard let asset = result.asset else {continue}
             
-            let identifier = asset?.localIdentifier ?? UUID().uuidString
+            let highResImage = await Service.requestHighResImage(for: asset)
+            
+            let identifier = asset.localIdentifier
             
             processedIdentifiers.append(identifier)
 
             let requestOptions = PHContentEditingInputRequestOptions()
             requestOptions.canHandleAdjustmentData = { _ in true }
 
-            asset?.requestContentEditingInput(with: requestOptions) { input, _ in
+            asset.requestContentEditingInput(with: requestOptions) { input, _ in
                 guard let input = input else { return }
 
                 let output = PHContentEditingOutput(contentEditingInput: input)
@@ -100,7 +102,7 @@ class Service {
 
                 // 4. Guardar cambios en el asset
                 PHPhotoLibrary.shared().performChanges({
-                    let request = PHAssetChangeRequest(for: asset ?? PHAsset())
+                    let request = PHAssetChangeRequest(for: asset)
                     request.contentEditingOutput = output
                 }) { success, error in
                     if success {

@@ -33,6 +33,9 @@ struct CategorySplitView: View {
                                 EmptyView()
                             case .swipeDecisionView(let group):
                                 SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                            case .orientationView(group: let group):
+                                let images = group.flatMap { $0.images }
+                                ReviewMisalignedPhotos(images: images, showingReviewScreen: .constant(true))
                             case .confirmationView(let group):
                                 ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
                             case .saveView:
@@ -59,23 +62,46 @@ struct CategorySplitView: View {
                         
                         if let group = selectedGroup {
                             NavigationStack(path: $navigationPath) {
-                                SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
-                                    .id(group.first?.id) // Force detail view refresh
-                                    .navigationDestination(for: NavigationDestination.self) { destination in
-                                        switch destination {
-                                        case .categoryView:
-                                            EmptyView()
-                                        case .swipeDecisionView(let group):
-                                            SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
-                                        case .confirmationView(let group):
-                                            ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
-                                                .onAppear {
-                                                    sideBarVisibility = .detailOnly
-                                                }
-                                        case .saveView:
-                                            EmptyView()
+                                if group.first?.category != .orientation {
+                                    SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                                        .id(group.first?.id) // Force detail view refresh
+                                        .navigationDestination(for: NavigationDestination.self) { destination in
+                                            switch destination {
+                                            case .categoryView:
+                                                EmptyView()
+                                            case .swipeDecisionView(_):
+                                                EmptyView()
+                                            case .orientationView(group: let group):
+                                                let images = group.flatMap { $0.images }
+                                                ReviewMisalignedPhotos(images: images, showingReviewScreen: .constant(true))
+                                            case .confirmationView(let group):
+                                                ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
+                                                    .onAppear {
+                                                        sideBarVisibility = .detailOnly
+                                                    }
+                                                    .onDisappear {
+                                                        if manager.allGroups.isEmpty == false {
+                                                            sideBarVisibility = .all
+                                                            
+                                                            let groups = manager.allGroups
+                                                            
+                                                            selectedGroup = groups.filter { $0.category == groups.first?.category}
+                                                        }
+                                                    }
+                                            case .saveView:
+                                                EmptyView()
+                                                
+                                                
+                                            }
                                         }
+                                        
+                                }else {
+                                    NavigationStack(path: $navigationPath) {
+                                        let images = group.flatMap { $0.images }
+                                        ReviewMisalignedPhotos(images: images, showingReviewScreen: .constant(true))
+                                            .id(group.first?.id) // Force detail view refresh
                                     }
+                                }
                                 
                             }
                            

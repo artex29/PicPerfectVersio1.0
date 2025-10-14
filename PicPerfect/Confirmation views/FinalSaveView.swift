@@ -20,11 +20,43 @@ struct FinalSaveView: View {
     @Environment(ContentModel.self) var model
     
     var body: some View {
-        NavigationView {
+        ZStack {
+            
+            PicPerfectTheme.Colors.background.ignoresSafeArea()
+            
             VStack {
-                Text("¿Quieres guardar estas fotos ya corregidas?")
-                    .font(.title2)
+                
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                            
+                    }
+                    .ifAvailableGlassButtonStyle()
+                    
+                    
+                }
+                .padding(10)
+                
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Would you like to save the corrected photos?")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                            .padding(.bottom, 10)
+                           
+                        
+                        Text("Tap on the photos you want to save, then click 'Save Selected'.")
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
                     .padding()
+                    
+                    Spacer()
+                }
 
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 10) {
@@ -54,38 +86,26 @@ struct FinalSaveView: View {
                 }
                 .padding()
 
-                Button("💾 Guardar seleccionadas") {
+                Button("💾 Save Selected") {
                     
-                    deleteAlertPresent = true
-                    
+                    Task {
+                        await savePhotos()
+                    }
                    
                 }
                 .padding()
-                .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .disabled(selectedIndices.isEmpty)
-                .confirmationDialog("Delete Originals?", isPresented: $deleteAlertPresent, actions: {
-                    Button("Save Only") {
-                        deleteOriginals = false
-                       savePhotos()
-                    }
-                    
-                    Button("Save and Delete Originals", role: .destructive) {
-                        deleteOriginals = true
-                        savePhotos()
-                    }
-                    
-                    Button("Cancel", role: .cancel) {}
-                }, message: {
-                    Text("Do you want to delete the original photos after saving the corrected versions?")
-                })
+                .ifAvailableGlassButtonStyle()
+                .padding()
             }
-            .navigationTitle("¡Listo!")
+            
         }
+        .frame(minWidth: 400, minHeight: 600)
     }
     
-    func savePhotos() {
+    func savePhotos() async {
         
         var selectedResults: [ImageInfo] = []
         
@@ -93,14 +113,15 @@ struct FinalSaveView: View {
             selectedResults.append(results[index])
         }
         
-        Service.saveAndReplace(results: selectedResults) { saved in
+        await Service.saveAndReplace(results: selectedResults) { saved in
             if saved {
+                dismiss()
                 print("Photos saved successfully")
             } else {
                 print("Error saving photos")
             }
         }
-        dismiss()
+       
     }
     
     func toggleSelection(index: Int) {

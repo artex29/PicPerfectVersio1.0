@@ -25,7 +25,7 @@ enum FaceIssue {
     case badFraming
 }
 
-enum PhotoGroupCategory: String {
+enum PhotoGroupCategory: String, CaseIterable, Codable {
     case duplicates
     case similars
     case blurry
@@ -51,6 +51,10 @@ enum PhotoGroupCategory: String {
         case .screenshots:
             return "Screenshots"
         }
+    }
+    
+    var photoAnalysisKey: String {
+        "analyzedPhotoRecords_\(self.rawValue)"
     }
 }
 

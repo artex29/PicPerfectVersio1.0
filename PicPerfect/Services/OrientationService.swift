@@ -16,19 +16,14 @@ import Playgrounds
 class OrientationService {
     
     // Detect if a single photo is incorrectly oriented
-    static func detectMisalignment(in image: PPImage, asset: PHAsset, records: [String:PhotoAnalysisRecord]) async -> ImageInfo? {
-        
-        guard records[asset.localIdentifier] == nil else {
-            print("⚠️ Photo \(asset.localIdentifier) already analyzed for orientation issues, skipping.")
-            return nil
-        }
+    static func detectMisalignment(in image: PPImage, asset: PHAsset) async -> ImageInfo? {
         
         #if os(iOS)
         let orientationValue =  Service.exifOrientation(for: image.imageOrientation)
         #elseif os(macOS)
         let orientationValue = 1 // Default to "up" for macOS
         #endif
-        PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
+        PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue, module: .orientation)
         
         let lowResImage = image.resized(maxDimension: 256)
         
@@ -53,7 +48,7 @@ class OrientationService {
 
         let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         
-        let records = PhotoAnalysisCloudCache.loadRecords()
+        let records = PhotoAnalysisCloudCache.loadRecords(for: .orientation)
         
         let noAnalyzedAssets = assets.objects(at: IndexSet(integersIn: 0..<assets.count)).filter { records[$0.localIdentifier] == nil }
 
@@ -73,7 +68,7 @@ class OrientationService {
                 let orientationValue = 1 // Default to "up" for macOS
                 #endif
                 
-                PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue)
+                PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue, module: .orientation)
                 
                 let isIncorrect = await OrientationService.isImageIncorrectlyOriented(in: lowResImage)
 

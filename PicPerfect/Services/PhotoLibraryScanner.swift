@@ -17,114 +17,136 @@ class PhotoLibraryScanner {
     static let shared = PhotoLibraryScanner()
     
     
-    static func analyzeLibraryWithEfficiency(assets: [PHAsset], limit: Int = 100, progress: @MainActor @escaping(AnalysisProgress) -> Void) async -> [PhotoGroup] {
+    static func analyzeLibraryWithEfficiency(
+        assets: [PHAsset],
+        limit: Int = 100,
+        progress: @MainActor @escaping (AnalysisProgress) -> Void
+    ) async -> [PhotoGroup] {
+        
         var groups: [PhotoGroup] = []
         
-        //Detect duplicates
+        // Ordenar de más viejas a más nuevas
+        let sortedAssets = assets.sorted {
+            ($0.creationDate ?? .distantPast) < ($1.creationDate ?? .distantPast)
+        }
+        
+        // 1️⃣ Detect duplicates (usa todos los assets, no depende del cache)
         await MainActor.run { progress(.duplicates) }
-        if let duplicates = try? await DuplicateService.detectDuplicates(for: false, assets: assets, threshold: 0.2, limit: 50) {
-            
-            let mapped = duplicates.map { dup in
-                PhotoGroup(images: dup.images, score: dup.score, category: .duplicates)
+        if let duplicates = try? await DuplicateService.detectDuplicates(
+            for: false,
+            assets: sortedAssets,
+            threshold: 0.2,
+            limit: 50
+        ) {
+            groups.append(contentsOf: duplicates)
+        }
+        
+        
+        // 2️⃣ Detect similars
+        await MainActor.run { progress(.similars) }
+        if let similars = try? await DuplicateService.detectDuplicates(
+            for: true,
+            assets: sortedAssets,
+            threshold: 0.8,
+            limit: 50
+        ) {
+            groups.append(contentsOf: similars)
+        }
+        
+        // 3️⃣ Cargar registros de cada módulo
+        let blurryRecords = PhotoAnalysisCloudCache.loadRecords(for: .blurry)
+        let exposureRecords = PhotoAnalysisCloudCache.loadRecords(for: .exposure)
+        let faceRecords = PhotoAnalysisCloudCache.loadRecords(for: .faces)
+        let orientationRecords = PhotoAnalysisCloudCache.loadRecords(for: .orientation)
+        
+        // 4️⃣ Filtrar los assets que no estén analizados por módulo
+        let blurryAssets = sortedAssets.filter { blurryRecords[$0.localIdentifier] == nil }
+        let exposureAssets = sortedAssets.filter { exposureRecords[$0.localIdentifier] == nil }
+        let faceAssets = sortedAssets.filter { faceRecords[$0.localIdentifier] == nil }
+        let orientationAssets = sortedAssets.filter { orientationRecords[$0.localIdentifier] == nil }
+        
+        // 5️⃣ Analizar por módulo independiente (solo los faltantes)
+        var blurryIssues: [ImageInfo] = []
+        var exposureIssues: [ImageInfo] = []
+        var faceIssues: [ImageInfo] = []
+        var orientationIssues: [ImageInfo] = []
+        
+        // 🔹 Blurry
+        await MainActor.run { progress(.blurry) }
+        if !blurryAssets.isEmpty {
+            for asset in blurryAssets.prefix(limit) {
+                if let image = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)),
+                   let issue = await BlurryPhotosService.detectBlurriness(in: image, asset: asset) {
+                    blurryIssues.append(issue)
+                }
+                else {
+                    // Record in cache as analyzed with no issues
+                    PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: .blurry)
+                    
+                }
             }
-            
-            groups.append(contentsOf: mapped)
-            
+        }
+        
+        // 🔹 Exposure
+        await MainActor.run { progress(.exposure) }
+        if !exposureAssets.isEmpty {
+            for asset in exposureAssets.prefix(limit) {
+                if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
+                   let issue = await ExposureService.detectExposureIssueOnImage(image: image, asset: asset) {
+                    exposureIssues.append(issue)
+                }
+                else {
+                    // Record in cache as analyzed with no issues
+                    PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: .exposure)
+                    
+                }
+            }
         }
 
-        // 2.- Detect Similars
-       await MainActor.run { progress(.similars) }
-        if let similars = try? await DuplicateService.detectDuplicates(for: true, assets: assets, threshold: 0.8, limit: 50) {
-            
-            let mapped = similars.map { sim in
-                PhotoGroup(images: sim.images, score: sim.score, category: .similars)
-            }
-            
-            groups.append(contentsOf: mapped)
-        }
-        
-        
-        var faceIssues: [ImageInfo] = []
-        var exposureIssues: [ImageInfo] = []
-        var blurryIssues: [ImageInfo] = []
-        var orientationIssues: [ImageInfo] = []
-        let records = PhotoAnalysisCloudCache.loadRecords()
-        
-        for index in 0..<min(limit, assets.count) {
-            let asset = assets[index]
-            
-            if let lowQualityImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
-                
-                // Check exposure issues
-                if index == Int(assets.count / 5) {
-                    await MainActor.run { progress(.exposure) }
+        // 🔹 Faces
+        await MainActor.run { progress(.faces) }
+        if !faceAssets.isEmpty {
+            for asset in faceAssets.prefix(limit) {
+                if let image = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)),
+                   let issue = await FaceQualityService.detectBadFaceOnImage(image, asset: asset) {
+                    faceIssues.append(issue)
                 }
-                
-                if let exposureIssue = await ExposureService.detectExposureIssueOnImage(image: lowQualityImage, asset: asset) {
-                    exposureIssues.append(exposureIssue)
-                }
-                
-               
-                //Check orientation issues
-                if index == Int(assets.count * 4 / 5) {
-                    await MainActor.run { progress(.orientation) }
-                }
+                else {
+                    // Record in cache as analyzed with no issues
+                    PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: .faces)
                     
-                if let orientationIssue = await OrientationService.detectMisalignment(in: lowQualityImage, asset: asset, records: records) {
-                    orientationIssues.append(orientationIssue)
                 }
             }
-            
-            if let mediumQualityImage = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)) {
-                
-                if index == 0 {
-                    await MainActor.run { progress(.faces) }
+        }
+
+        // 🔹 Orientation
+        await MainActor.run { progress(.orientation) }
+        if !orientationAssets.isEmpty {
+            for asset in orientationAssets.prefix(limit) {
+                if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
+                   let issue = await OrientationService.detectMisalignment(in: image, asset: asset) {
+                    orientationIssues.append(issue)
                 }
-                
-                // Chaeck face quality
-                if let faceIssue = await FaceQualityService.detectBadFaceOnImage(mediumQualityImage, asset: asset) {
-                    faceIssues.append(faceIssue)
-                }
-                
-                // Check Blurriness
-                if index == Int(assets.count * 3 / 5) {
-                    await MainActor.run { progress(.blurry) }
-                }
+                else {
+                    // Record in cache as analyzed with no issues
+                    PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: .orientation)
                     
-                if let blurryIssue = await BlurryPhotosService.detectBlurriness(in: mediumQualityImage, asset: asset) {
-                    blurryIssues.append(blurryIssue)
                 }
             }
-            
         }
         
-        if !faceIssues.isEmpty {
-           
-            groups.append(groupImages(faceIssues, by: .faces))
-        }
-        
-        if !exposureIssues.isEmpty {
-           
-            groups.append(groupImages(exposureIssues, by: .exposure))
-        }
-        
-        if !blurryIssues.isEmpty {
-          
-            groups.append(groupImages(blurryIssues, by: .blurry))
-        }
-        
-        if !orientationIssues.isEmpty {
-           
-            groups.append(groupImages(orientationIssues, by: .orientation))
-        }
-        
-        // Get Screenshots
-         await MainActor.run { progress(.screenshots) }
-        let screenShots = await ScreenShotService.fetchScreenshotsBatch(limit: limit)
-        if !screenShots.isEmpty {
-            groups.append(groupImages(screenShots, by: .screenshots))
-        }
-        
+        // 6️⃣ Agrupar resultados
+        if !blurryIssues.isEmpty { groups.append(groupImages(blurryIssues, by: .blurry)) }
+        if !exposureIssues.isEmpty { groups.append(groupImages(exposureIssues, by: .exposure)) }
+        if !faceIssues.isEmpty { groups.append(groupImages(faceIssues, by: .faces)) }
+        if !orientationIssues.isEmpty { groups.append(groupImages(orientationIssues, by: .orientation)) }
+      
+
+        // 7️⃣ Screenshots (sin cache)
+        await MainActor.run { progress(.screenshots) }
+        let screenshots = await ScreenShotService.fetchScreenshotsBatch(limit: limit)
+        if !screenshots.isEmpty {groups.append(groupImages(screenshots, by: .screenshots))}
+
         await MainActor.run { progress(.done) }
         
         return groups
@@ -149,7 +171,7 @@ class PhotoLibraryScanner {
         
         // 2.- Detect Similars
        await MainActor.run { progress(.similars) }
-        if let similars = try? await DuplicateService.detectDuplicates(for: true, assets: assets, threshold: 0.5, limit: 50) {
+        if let similars = try? await DuplicateService.detectDuplicates(for: true, assets: assets, threshold: 0.8, limit: 50) {
             
             let mapped = similars.map { sim in
                 PhotoGroup(images: sim.images, score: sim.score, category: .similars)

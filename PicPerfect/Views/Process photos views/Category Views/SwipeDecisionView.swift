@@ -55,6 +55,8 @@ struct SwipeDecisionView: View {
         return id
     }
     
+    let device = DeviceHelper.type
+    
     var body: some View {
         
         GeometryReader { geo in
@@ -282,8 +284,13 @@ struct SwipeDecisionView: View {
                 // Skip screenshots to save time
                 if photoGroups.contains(where: { $0.category == .screenshots }) {break}
                 
+               
                 for (i, imageInfo) in group.enumerated() {
-                    groups[index][i].image = await Service.requestHighResImage(for: imageInfo.asset ?? PHAsset()) ?? PPImage()
+                    
+                    guard let asset = imageInfo.asset else {continue}
+                    guard let image = await Service.requestHighResImage(for: asset) else {continue}
+                    
+                    groups[index][i].image = image
                 }
             }
             

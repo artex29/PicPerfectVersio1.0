@@ -48,171 +48,186 @@ final class DuplicateService {
     }
     
     /// Detecta grupos de duplicados en una colección de PHAsset
-    static func detectDuplicates(
-        for similars: Bool = false,
-        assets: [PHAsset],
-        threshold: Float = 0.2,
-        limit: Int = 100
-    ) async throws -> [PhotoGroup] {
-        var groups: [PhotoGroup] = []
-        
-        // 1. Hash duplicates (exactos)
-        let hashGroups = await detectHashDuplicates(assets: assets, limit: limit)
-        groups.append(contentsOf: hashGroups)
-        
-        var processed: Set<Int> = []
-        let finalThreshold: Float = similars ? 0.5 : threshold
-        // Guardar observaciones y sus imágenes
-        var featurePrints: [VNFeaturePrintObservation?] = []
-        var imageInfos: [ImageInfo?] = []
-        
-        for (index, asset) in assets.enumerated() {
-            guard index < limit else { break }
-                
-            if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
-                let obs = try featurePrint(for: uiImage)
-                featurePrints.append(obs)
-                imageInfos.append(ImageInfo(isIncorrect: false, image: uiImage, asset: asset))
-            } else {
-                featurePrints.append(nil)
-                imageInfos.append(nil)
-            }
-        }
-        
-        // Comparar assets entre sí
-        for i in 0..<min(limit, assets.count) {
-            guard !processed.contains(i),
-                  let basePrint = featurePrints[i],
-                  let baseImage = imageInfos[i] else { continue }
-            
-            var groupImages: [ImageInfo] = [baseImage]
-            var distances: [Float] = []
-            processed.insert(i)
-            
-            for j in (i+1)..<min(limit, assets.count) {
-                guard !processed.contains(j),
-                      let otherPrint = featurePrints[j],
-                      let otherImage = imageInfos[j] else { continue }
-                
-                var distance: Float = 1.0
-                try basePrint.computeDistance(&distance, to: otherPrint)
-                
-                if distance < finalThreshold {
-                    
-                    let asset1 = assets[i]
-                    let asset2 = assets[j]
-                    
-                    guard !groups.map({ $0.images })
-                        .flatMap({ $0 })
-                        .contains(where: {
-                            $0.asset?.localIdentifier == asset1.localIdentifier ||
-                            $0.asset?.localIdentifier == asset2.localIdentifier
-                        }) else {
-                        
-                        continue
-                    }
-                    
-                    groupImages.append(otherImage)
-                    distances.append(distance)
-                    processed.insert(j)
-                }
-            }
-            
-            if groupImages.count > 1 {
-                let avgDistance = distances.isEmpty ? 0.0 : distances.reduce(0,+)/Float(distances.count)
-                groups.append(PhotoGroup(images: groupImages, score: avgDistance, category: .duplicates) )
-            }
-        }
-        
-        // add bursts
-        let bursts = similars ? [] : await getBursts(limit: limit)
-        groups.append(contentsOf: bursts)
-        
-        return groups
-    }
-    
-    private static func getBursts(limit: Int, offset: Int = 0) async -> [PhotoGroup] {
-        var bursts: [PhotoGroup] = []
-        var processedIdentifiers: Set<String> = []
-        
-        let burstsCollections = PHAssetCollection.fetchAssetCollections(
-            with: .smartAlbum,
-            subtype: .smartAlbumBursts,
-            options: nil
-        )
-        
-        guard let collection = burstsCollections.firstObject else {
-            return []
-        }
-        
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        
-        let allBursts = PHAsset.fetchAssets(in: collection, options: fetchOptions)
-        guard allBursts.count > 0 else { return [] }
-        
-        let start = offset
-        let end = min(offset + limit, allBursts.count)
-        guard start < end else { return [] }
-        
-        for index in start..<end {
-            let asset = allBursts.object(at: index)
-            
-            guard let burstID = asset.burstIdentifier,
-                  !processedIdentifiers.contains(burstID) else {
-                continue
-            }
-            
-            let burstFetchOptions = PHFetchOptions()
-            burstFetchOptions.predicate = NSPredicate(format: "burstIdentifier == %@", burstID)
-            let burstAssets = PHAsset.fetchAssets(in: collection, options: burstFetchOptions)
-            
-            var groupImages: [ImageInfo] = []
-            
-            for i in 0..<burstAssets.count {
-                let a = burstAssets.object(at: i)
-                
-                if let image = await Service.requestImage(for: a, size: CGSize(width: 256, height: 256)) {
-                    let info = ImageInfo(isIncorrect: false, image: image, asset: a)
-                    groupImages.append(info)
-                }
-            }
-            
-            if groupImages.count > 1 {
-                bursts.append(PhotoGroup(images: groupImages, score: nil, category: .duplicates))
-            }
-            
-            processedIdentifiers.insert(burstID)
-        }
-        
-        return bursts
-    }
-    
-    /// Detecta duplicados exactos por hash
-    private static func detectHashDuplicates(assets: [PHAsset], limit: Int = 100) async -> [PhotoGroup] {
-        var groups: [PhotoGroup] = []
-        var seen: [String: [ImageInfo]] = [:]
-        
-        for (index, asset) in assets.enumerated() {
-            guard index < limit else { break }
-            
-            if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
-                if let hash = perceptualHash(for: uiImage) {
-                    let info = ImageInfo(isIncorrect: false, image: uiImage, asset: asset)
-                    seen[hash, default: []].append(info)
-                }
-            }
-        }
-        
-        for (_, infos) in seen {
-            if infos.count > 1 {
-                groups.append(PhotoGroup(images: infos, score: 0.0, category: .duplicates))
-            }
-        }
-        
-        return groups
-    }
+    /// Main entry: detects duplicate/similar groups scanning oldest→newest,
+       /// skipping assets already analyzed in the corresponding module cache.
+       static func detectDuplicates(
+           for similars: Bool = false,
+           assets: [PHAsset],
+           threshold: Float = 0.2,
+           limit: Int = 100
+       ) async throws -> [PhotoGroup] {
 
+           // 0) Sort by creationDate ascending (oldest first)
+           let sorted = assets.sorted { (a, b) in
+               (a.creationDate ?? .distantPast) < (b.creationDate ?? .distantPast)
+           }
+
+           // 1) Filter by cache (module-aware)
+           let module: PhotoGroupCategory = similars ? .similars : .duplicates
+           let candidates = sorted.filter { !PhotoAnalysisCloudCache.isAnalyzed($0, module: module) }
+
+           guard !candidates.isEmpty else { return [] }
+
+           // 2) Take oldest chunk up to `limit`
+           let batch = Array(candidates.prefix(limit))
+
+           var groups: [PhotoGroup] = []
+
+           // 3) Hash-based exact duplicates (fast path)
+           let hashGroups = await detectHashDuplicates(assets: batch)
+           groups.append(contentsOf: hashGroups)
+
+           // 4) Vision feature prints for near-duplicates
+           var processed = Set<Int>()
+           let finalThreshold: Float = similars ? 0.8 : threshold
+
+           var featurePrints: [VNFeaturePrintObservation?] = .init(repeating: nil, count: batch.count)
+           var imageInfos: [ImageInfo?] = .init(repeating: nil, count: batch.count)
+
+           
+           for (index, asset) in batch.enumerated() {
+               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
+                   let obs = try featurePrint(for: uiImage)
+                   featurePrints[index] = obs
+                   imageInfos[index] = ImageInfo(isIncorrect: false, image: uiImage, asset: asset)
+               }
+           }
+
+           for i in 0..<batch.count {
+               guard !processed.contains(i),
+                     let basePrint = featurePrints[i],
+                     let baseImage = imageInfos[i] else { continue }
+
+               var groupImages: [ImageInfo] = [baseImage]
+               var distances: [Float] = []
+               processed.insert(i)
+
+               for j in (i+1)..<batch.count {
+                   guard !processed.contains(j),
+                         let otherPrint = featurePrints[j],
+                         let otherImage = imageInfos[j] else { continue }
+
+                   var distance: Float = 1.0
+                   try basePrint.computeDistance(&distance, to: otherPrint)
+
+                   if distance < finalThreshold {
+                       // Evitar que el mismo asset quede en múltiples grupos dentro de esta pasada
+                       let asset1 = batch[i]
+                       let asset2 = batch[j]
+                       let alreadyGrouped = groups
+                           .flatMap { $0.images }
+                           .contains { info in
+                               let id = info.asset?.localIdentifier
+                               return id == asset1.localIdentifier || id == asset2.localIdentifier
+                           }
+                       if alreadyGrouped { continue }
+
+                       groupImages.append(otherImage)
+                       distances.append(distance)
+                       processed.insert(j)
+                   }
+               }
+
+               if groupImages.count > 1 {
+                   let avgDistance = distances.isEmpty ? 0.0 : distances.reduce(0,+) / Float(distances.count)
+                   groups.append(PhotoGroup(images: groupImages, score: avgDistance, category: module))
+               }
+           }
+
+           // 5) Add bursts (also oldest→newest and respecting limit)
+           if !similars {
+               let bursts = await getBursts(limit: limit)
+               groups.append(contentsOf: bursts)
+           }
+
+           if groups.isEmpty {
+               for asset in batch {
+                   PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: module)
+               }
+           }
+
+           return groups
+       }
+
+       // MARK: - Bursts (oldest→newest, cache-aware)
+       private static func getBursts(limit: Int, offset: Int = 0) async -> [PhotoGroup] {
+           var bursts: [PhotoGroup] = []
+           var processedBurstIDs = Set<String>()
+
+           let collections = PHAssetCollection.fetchAssetCollections(with: .smartAlbum,
+                                                                    subtype: .smartAlbumBursts,
+                                                                    options: nil)
+           guard let collection = collections.firstObject else { return [] }
+
+           let fo = PHFetchOptions()
+           fo.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)] // oldest first
+           let allBursts = PHAsset.fetchAssets(in: collection, options: fo)
+           guard allBursts.count > 0 else { return [] }
+
+           let start = offset
+           let end = min(offset + limit, allBursts.count)
+           guard start < end else { return [] }
+
+           for idx in start..<end {
+               let asset = allBursts.object(at: idx)
+               guard let burstID = asset.burstIdentifier,
+                     !processedBurstIDs.contains(burstID) else { continue }
+
+               // Cache skip: si todas las fotos dentro del burst ya están analizadas como duplicates, podemos omitir
+               let burstFo = PHFetchOptions()
+               burstFo.predicate = NSPredicate(format: "burstIdentifier == %@", burstID)
+               let burstAssets = PHAsset.fetchAssets(in: collection, options: burstFo)
+
+               // Ver si hay al menos 2 NO analizadas para que tenga sentido agrupar
+               let unanalysed = (0..<burstAssets.count).compactMap { i -> PHAsset? in
+                   let a = burstAssets.object(at: i)
+                   return PhotoAnalysisCloudCache.isAnalyzed(a, module: .duplicates) ? nil : a
+               }
+               if unanalysed.count < 2 {
+                   processedBurstIDs.insert(burstID)
+                   continue
+               }
+
+               var groupImages: [ImageInfo] = []
+
+               for i in 0..<burstAssets.count {
+                   let a = burstAssets.object(at: i)
+                   if let image = await Service.requestImage(for: a, size: CGSize(width: 256, height: 256)) {
+                       groupImages.append(ImageInfo(isIncorrect: false, image: image, asset: a))
+                      
+                   }
+               }
+               
+               let photoGroup = PhotoGroup(images: groupImages, score: 0.0, category: .duplicates)
+               bursts.append(photoGroup)
+               
+               processedBurstIDs.insert(burstID)
+           }
+
+           return bursts
+       }
+
+       /// Exact duplicates via perceptual hash, oldest→newest, cache-aware (batch already filtered/sorted)
+       private static func detectHashDuplicates(assets: [PHAsset]) async -> [PhotoGroup] {
+           var groups: [PhotoGroup] = []
+           var buckets: [String: [ImageInfo]] = [:]
+
+           for asset in assets {
+               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
+                  let hash = perceptualHash(for: uiImage) {
+                   let info = ImageInfo(isIncorrect: false, image: uiImage, asset: asset)
+                   buckets[hash, default: []].append(info)
+               }
+           }
+
+           for (_, infos) in buckets where infos.count > 1 {
+               groups.append(PhotoGroup(images: infos, score: 0.0, category: .duplicates))
+           }
+
+           return groups
+       }
+    
+    
     private static func perceptualHash(for image: PPImage, size: CGSize = CGSize(width: 8, height: 8)) -> String? {
         
         #if os(iOS)
