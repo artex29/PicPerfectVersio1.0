@@ -11,36 +11,46 @@ import Photos
 class ScreenShotService {
     
     static func fetchScreenshotsBatch(limit: Int, offset: Int = 0) async -> [ImageInfo] {
+        // Cargar registros previos del módulo screenshots
+        let analyzedRecords = PhotoAnalysisCloudCache.loadRecords(for: .screenshots)
+        
+        // Fetch del smart album de screenshots
         let screenshotsCollection = PHAssetCollection.fetchAssetCollections(
             with: .smartAlbum,
             subtype: .smartAlbumScreenshots,
             options: nil
         )
         
-        guard let collection = screenshotsCollection.firstObject else {
-            return []
-        }
+        guard let collection = screenshotsCollection.firstObject else { return [] }
         
         let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        // 🔄 Ahora ordenamos de más viejas a más nuevas
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
         
         let allScreenshots = PHAsset.fetchAssets(in: collection, options: fetchOptions)
-        
         guard allScreenshots.count > 0 else { return [] }
         
-        let start = offset
-        let end = min(offset + limit, allScreenshots.count)
+        // Filtramos las que NO estén analizadas
+        let unprocessed = (0..<allScreenshots.count)
+            .map { allScreenshots.object(at: $0) }
+            .filter { analyzedRecords[$0.localIdentifier] == nil }
         
+        // Aplicamos offset + limit
+        let start = offset
+        let end = min(offset + limit, unprocessed.count)
         guard start < end else { return [] }
         
         var infos: [ImageInfo] = []
         
         for index in start..<end {
-            
-            let asset = allScreenshots.object(at: index)
+            let asset = unprocessed[index]
             if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
-                let info = ImageInfo(isIncorrect: false, image: image, asset: asset)
-                
+                let info = ImageInfo(
+                    isIncorrect: false,
+                    image: image,
+                    asset: asset,
+                    fileSizeInMB: asset.fileSizeInMB
+                )
                 infos.append(info)
             }
         }

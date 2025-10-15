@@ -10,13 +10,16 @@ import SwiftUI
 import Photos
 
 struct ReviewMisalignedPhotos: View {
+    
+    @Environment(PhotoGroupManager.self) var manager
+    
     let images: [ImageInfo]
     @State private var selectedIndices: Set<Int> = []
     @State private var isProcessing = false
     @State private var showConfirmation = false
     @State private var processedImages: [ImageInfo] = []
-
-    @Binding var showingReviewScreen: Bool
+    @Binding var selectedGroup: [PhotoGroup]?
+    @Binding var navigationPath: [NavigationDestination]
     
     let dummyImages = Array(repeating: ImageInfo(isIncorrect: true, image: PPImage(named: "marquee1")!, asset: nil), count: 12)
     
@@ -94,7 +97,7 @@ struct ReviewMisalignedPhotos: View {
                 .disabled(selectedIndices.isEmpty || isProcessing)
                 
                 Button {
-                    showingReviewScreen = false
+                    skipPhotos()
                 } label: {
                     Text("Skip these photos")
                         .font(.title3)
@@ -108,12 +111,27 @@ struct ReviewMisalignedPhotos: View {
             .sheet(isPresented: $showConfirmation, onDismiss: {
                 
             }, content: {
-                FinalSaveView(results: processedImages)
+                FinalSaveView(results: processedImages, selectedGroup: $selectedGroup, navigationPath: $navigationPath)
             })
         }
-        .padding()
+    }
+    
+    private func skipPhotos() {
+        for image in finalImages {
+            let id = image.id
+            manager.processPhoto(withId: id, action: .keep, for: .orientation)
+        }
         
-        
+        if manager.allGroups.isEmpty == false {
+            let groups = manager.allGroups
+            navigationPath.removeAll()
+            selectedGroup = groups.filter { $0.category == groups.first?.category}
+            
+        } else {
+            selectedGroup = nil
+            navigationPath.append(.cleanupView) // Move to cleanup view
+        }
+
     }
 
     func toggleSelection(index: Int) {
@@ -150,5 +168,6 @@ struct ReviewMisalignedPhotos: View {
 
 
 #Preview {
-    ReviewMisalignedPhotos(images: [], showingReviewScreen: .constant(false))
+    ReviewMisalignedPhotos(images: [], selectedGroup: .constant(nil), navigationPath: .constant([]))
+        .environment(PhotoGroupManager())
 }

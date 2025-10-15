@@ -23,7 +23,7 @@ final class FaceQualityService {
     static func detectBadFaceOnImage(_ image: PPImage, asset: PHAsset) async -> ImageInfo? {
         let issues = analyzeFaces(in: image)
         if !issues.isEmpty {
-            var info = ImageInfo(isIncorrect: true, image: image, asset: asset)
+            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, fileSizeInMB: asset.fileSizeInMB)
             info.source = "faceQualityService"
             info.faceIssues = issues
             return info

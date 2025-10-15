@@ -35,11 +35,19 @@ struct CategorySplitView: View {
                                 SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
                             case .orientationView(group: let group):
                                 let images = group.flatMap { $0.images }
-                                ReviewMisalignedPhotos(images: images, showingReviewScreen: .constant(true))
+                                ReviewMisalignedPhotos(images: images, selectedGroup: $selectedGroup, navigationPath: $navigationPath)
+                                    .onAppear {
+                                        selectedGroup = group
+                                    }
                             case .confirmationView(let group):
                                 ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
                             case .saveView:
                                 EmptyView()
+                            case .cleanupView:
+                                CleanupSummaryView(navigationPath: $navigationPath)
+                                    .onDisappear {
+                                        onClose()
+                                    }
                             }
                         }
                 }
@@ -71,9 +79,8 @@ struct CategorySplitView: View {
                                                 EmptyView()
                                             case .swipeDecisionView(_):
                                                 EmptyView()
-                                            case .orientationView(group: let group):
-                                                let images = group.flatMap { $0.images }
-                                                ReviewMisalignedPhotos(images: images, showingReviewScreen: .constant(true))
+                                            case .orientationView(_):
+                                                EmptyView()
                                             case .confirmationView(let group):
                                                 ConfirmationView(navigationPath: $navigationPath, photoGroups:  group)
                                                     .onAppear {
@@ -90,16 +97,20 @@ struct CategorySplitView: View {
                                                     }
                                             case .saveView:
                                                 EmptyView()
-                                                
-                                                
+                                            case .cleanupView:
+                                                CleanupSummaryView(navigationPath: $navigationPath)
+                                                    .onDisappear {
+                                                        onClose()
+                                                    }
                                             }
                                         }
                                         
-                                }else {
+                                } else {
                                     NavigationStack(path: $navigationPath) {
                                         let images = group.flatMap { $0.images }
-                                        ReviewMisalignedPhotos(images: images, showingReviewScreen: .constant(true))
+                                        ReviewMisalignedPhotos(images: images, selectedGroup: $selectedGroup, navigationPath: $navigationPath)
                                             .id(group.first?.id) // Force detail view refresh
+                                        
                                     }
                                 }
                                 

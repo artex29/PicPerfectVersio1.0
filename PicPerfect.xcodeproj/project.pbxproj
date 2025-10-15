@@ -23,6 +23,10 @@
 		FF6F45492E942D2B000FAF9A /* PhotoGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6F45482E942D23000FAF9A /* PhotoGroup.swift */; };
 		FF6F454B2E94311A000FAF9A /* CategoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6F454A2E94311A000FAF9A /* CategoryCard.swift */; };
 		FF6F454D2E9446A1000FAF9A /* CategorySplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6F454C2E9446A1000FAF9A /* CategorySplitView.swift */; };
+		FF75659E2E9E8D5A00260549 /* CleanupSessionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF75659D2E9E8D4700260549 /* CleanupSessionRecord.swift */; };
+		FF7565A02E9E8DC800260549 /* CleanupHistoryCloudStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF75659F2E9E8DBA00260549 /* CleanupHistoryCloudStore.swift */; };
+		FF7565A32E9E921800260549 /* CleanupSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7565A22E9E920200260549 /* CleanupSummaryView.swift */; };
+		FF7565A52E9E969500260549 /* CleanupHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7565A42E9E969500260549 /* CleanupHistoryView.swift */; };
 		FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */; };
 		FFAE17D02E99876B00A83547 /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE17CF2E99875A00A83547 /* TypeAlias.swift */; };
 		FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */; };
@@ -69,6 +73,10 @@
 		FF6F45482E942D23000FAF9A /* PhotoGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroup.swift; sourceTree = "<group>"; };
 		FF6F454A2E94311A000FAF9A /* CategoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCard.swift; sourceTree = "<group>"; };
 		FF6F454C2E9446A1000FAF9A /* CategorySplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySplitView.swift; sourceTree = "<group>"; };
+		FF75659D2E9E8D4700260549 /* CleanupSessionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupSessionRecord.swift; sourceTree = "<group>"; };
+		FF75659F2E9E8DBA00260549 /* CleanupHistoryCloudStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupHistoryCloudStore.swift; sourceTree = "<group>"; };
+		FF7565A22E9E920200260549 /* CleanupSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupSummaryView.swift; sourceTree = "<group>"; };
+		FF7565A42E9E969500260549 /* CleanupHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupHistoryView.swift; sourceTree = "<group>"; };
 		FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligence.swift; sourceTree = "<group>"; };
 		FFAE17CF2E99875A00A83547 /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
 		FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupManager.swift; sourceTree = "<group>"; };
@@ -150,6 +158,15 @@
 			path = "Confirmation views";
 			sourceTree = "<group>";
 		};
+		FF7565A12E9E91B600260549 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				FF7565A42E9E969500260549 /* CleanupHistoryView.swift */,
+				FF7565A22E9E920200260549 /* CleanupSummaryView.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
 		FFD22CCF2E51072300071915 = {
 			isa = PBXGroup;
 			children = (
@@ -172,8 +189,6 @@
 				FF4E7C1A2E789B6A00ABF2B4 /* PicPerfect.entitlements */,
 				FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */,
 				FFD22CF02E510C5600071915 /* Views */,
-				FF6D11912E98379A007EB53A /* Confirmation views */,
-				FF2305042E7C5858000F382D /* ElementsViews */,
 				FFE3F7B22E90634A00A1F3D2 /* ViewModels */,
 				FFD22CF62E5127E200071915 /* Models */,
 				FFD22CED2E510C1A00071915 /* Resources */,
@@ -215,6 +230,7 @@
 				FFD22CF72E5127FB00071915 /* OrientationService.swift */,
 				FFDDD3492E81EB7300ACD669 /* DuplicateService.swift */,
 				FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */,
+				FF75659F2E9E8DBA00260549 /* CleanupHistoryCloudStore.swift */,
 				FFD22CF42E511FA100071915 /* Localizable.xcstrings */,
 			);
 			path = Services;
@@ -223,6 +239,7 @@
 		FFD22CF62E5127E200071915 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FF75659D2E9E8D4700260549 /* CleanupSessionRecord.swift */,
 				FF6D118F2E983264007EB53A /* ConfirmationAction.swift */,
 				FF6F45482E942D23000FAF9A /* PhotoGroup.swift */,
 				FFE0D8552E8F08BD00CBA5A6 /* PhotoSummary.swift */,
@@ -240,6 +257,9 @@
 				FFD3550A2E6F4D3800BEB236 /* ScanLibraryView.swift */,
 				FFDFDA612E8460BA00367F43 /* Category Views */,
 				FF36CD822E873152005BB5CA /* Components */,
+				FF6D11912E98379A007EB53A /* Confirmation views */,
+				FF2305042E7C5858000F382D /* ElementsViews */,
+				FF7565A12E9E91B600260549 /* Stats */,
 			);
 			path = "Process photos views";
 			sourceTree = "<group>";
@@ -343,17 +363,20 @@
 				FF4E7C1E2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel in Sources */,
 				FF6F454B2E94311A000FAF9A /* CategoryCard.swift in Sources */,
 				FF4E7C192E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift in Sources */,
+				FF75659E2E9E8D5A00260549 /* CleanupSessionRecord.swift in Sources */,
 				FF36CD842E8731CE005BB5CA /* DecisionMenuView.swift in Sources */,
 				FFAF02972E83280400CBF98B /* Enums.swift in Sources */,
 				FF6F45472E942C8A000FAF9A /* CategoryView.swift in Sources */,
 				FFD355092E6F474800BEB236 /* PhotoLibraryScanner.swift in Sources */,
 				FFE0D8542E8EF2FA00CBA5A6 /* ImageInfo.swift in Sources */,
+				FF7565A52E9E969500260549 /* CleanupHistoryView.swift in Sources */,
 				FF6F45432E94213C000FAF9A /* RootView.swift in Sources */,
 				FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */,
 				FFE0D8582E8F0F9600CBA5A6 /* ScreenShotService.swift in Sources */,
 				FFAE17D02E99876B00A83547 /* TypeAlias.swift in Sources */,
 				FFFB6FFF2E9547E800D56BA3 /* DeviceHelper.swift in Sources */,
 				FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */,
+				FF7565A32E9E921800260549 /* CleanupSummaryView.swift in Sources */,
 				FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */,
 				FF6D11902E98326F007EB53A /* ConfirmationAction.swift in Sources */,
 				FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */,
@@ -367,6 +390,7 @@
 				FFD3550D2E6F4D7100BEB236 /* ReviewMisalignedPhotos.swift in Sources */,
 				FF6739DC2E6B82C600C7C95A /* Extensions.swift in Sources */,
 				FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */,
+				FF7565A02E9E8DC800260549 /* CleanupHistoryCloudStore.swift in Sources */,
 				FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */,
 				FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */,
 				FFD3550B2E6F4D3800BEB236 /* ScanLibraryView.swift in Sources */,

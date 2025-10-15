@@ -32,6 +32,7 @@ struct PicPerfectApp: App {
                     // Sincronizar al volver al foreground
                     NSUbiquitousKeyValueStore.default.synchronize()
 //                    PhotoAnalysisCloudCache.clearAllRecords()
+//                    CleanupHistoryCloudStore.clearAll()
                 }
         }
     }

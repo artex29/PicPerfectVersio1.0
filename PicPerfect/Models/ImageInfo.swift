@@ -26,6 +26,7 @@ struct ImageInfo: Hashable, Identifiable {
     var rotationAngle: CGFloat? = nil
     var confidence: Float? = nil
     var source: String? = nil
+    var fileSizeInMB: Double? = nil
     
     // Exposure analysis result (dark, bright, or normal)
     var exposure: ExposureCategory? = nil

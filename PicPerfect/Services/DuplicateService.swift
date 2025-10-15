@@ -89,7 +89,7 @@ final class DuplicateService {
                if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
                    let obs = try featurePrint(for: uiImage)
                    featurePrints[index] = obs
-                   imageInfos[index] = ImageInfo(isIncorrect: false, image: uiImage, asset: asset)
+                   imageInfos[index] = ImageInfo(isIncorrect: false, image: uiImage, asset: asset, fileSizeInMB: asset.fileSizeInMB)
                }
            }
 
@@ -193,7 +193,7 @@ final class DuplicateService {
                for i in 0..<burstAssets.count {
                    let a = burstAssets.object(at: i)
                    if let image = await Service.requestImage(for: a, size: CGSize(width: 256, height: 256)) {
-                       groupImages.append(ImageInfo(isIncorrect: false, image: image, asset: a))
+                       groupImages.append(ImageInfo(isIncorrect: false, image: image, asset: a, fileSizeInMB: a.fileSizeInMB))
                       
                    }
                }
@@ -215,7 +215,7 @@ final class DuplicateService {
            for asset in assets {
                if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
                   let hash = perceptualHash(for: uiImage) {
-                   let info = ImageInfo(isIncorrect: false, image: uiImage, asset: asset)
+                   let info = ImageInfo(isIncorrect: false, image: uiImage, asset: asset, fileSizeInMB: asset.fileSizeInMB)
                    buckets[hash, default: []].append(info)
                }
            }

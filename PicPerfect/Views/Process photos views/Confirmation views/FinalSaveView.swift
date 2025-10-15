@@ -17,7 +17,10 @@ struct FinalSaveView: View {
     @State private var deleteOriginals = false
     @State private var selectedIndices: Set<Int> = []
    
-    @Environment(ContentModel.self) var model
+    @Environment(PhotoGroupManager.self) var manager
+    
+    @Binding var selectedGroup: [PhotoGroup]?
+    @Binding var navigationPath: [NavigationDestination]
     
     var body: some View {
         ZStack {
@@ -115,6 +118,7 @@ struct FinalSaveView: View {
         
         await Service.saveAndReplace(results: selectedResults) { saved in
             if saved {
+                nextStep()
                 dismiss()
                 print("Photos saved successfully")
             } else {
@@ -122,6 +126,28 @@ struct FinalSaveView: View {
             }
         }
        
+    }
+    
+    private func nextStep() {
+        
+        for group in selectedGroup ?? [] {
+            for image in group.images {
+                let id = image.id
+                manager.processPhoto(withId: id, action: .delete, for: .orientation)
+            }
+        }
+        
+        if manager.allGroups.isEmpty == false {
+            let groups = manager.allGroups
+            
+            selectedGroup = groups.filter { $0.category == groups.first?.category}
+            navigationPath.removeAll()
+        } else {
+            selectedGroup = nil
+            navigationPath.append(.cleanupView) // Move to cleanup view
+        }
+        
+        
     }
     
     func toggleSelection(index: Int) {
@@ -135,6 +161,6 @@ struct FinalSaveView: View {
 
 
 #Preview {
-    FinalSaveView(results: [])
-        .environment(ContentModel())
+    FinalSaveView(results: [], selectedGroup: .constant(nil), navigationPath: .constant([]))
+        .environment(PhotoGroupManager())
 }

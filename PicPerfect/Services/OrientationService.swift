@@ -30,7 +30,7 @@ class OrientationService {
         let isIncorrect = await isImageIncorrectlyOriented(in: lowResImage)
         
         if isIncorrect {
-            var result = ImageInfo(isIncorrect: true, image: image, asset: asset)
+            var result = ImageInfo(isIncorrect: true, image: image, asset: asset, fileSizeInMB: asset.fileSizeInMB)
             result.source = "orientationService"
             return result
         }

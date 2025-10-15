@@ -14,6 +14,7 @@ enum NavigationDestination: Hashable {
     case swipeDecisionView(group:[PhotoGroup])
     case confirmationView(group: [PhotoGroup])
     case saveView
+    case cleanupView
 }
 
 struct CategoryView: View {

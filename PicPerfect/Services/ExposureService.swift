@@ -27,7 +27,7 @@ final class ExposureService {
         let result = analyzeExposure(for: image, darkThreshold: darkTreshold, brightThreshold: brightTreshold)
         
         if result != .normal {
-            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, exposure: result)
+            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, fileSizeInMB: asset.fileSizeInMB, exposure: result)
             info.source = "exposureService"
             return info
         }

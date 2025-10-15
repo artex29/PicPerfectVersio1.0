@@ -162,20 +162,31 @@ struct ConfirmationView: View {
     private func cleanUp() {
         // Implement cleanup logic here
         
-        let assets = actionsArray.filter({ $0.action == .delete }).map({ $0.imageInfo.asset }).compactMap({ $0 })
+        let assetsToDelete = actionsArray.filter({ $0.action == .delete }).map({ $0.imageInfo.asset }).compactMap({ $0 })
         
-        if !assets.isEmpty {
-            Service.deleteAssets(assets) { success in
-                if success {
-                    manager.confirmationActions.removeAll(where: { assets.contains($0.imageInfo.asset ?? PHAsset()) })
-                   // showingConfirmationView = false
-                }
+        if !assetsToDelete.isEmpty {
+            Service.deleteAssets(assetsToDelete) { success in
+                endCleanUp()
             }
         }
         else {
-            navigationPath.removeAll()
+            endCleanUp()
         }
         
+        func endCleanUp() {
+            for action in actionsArray {
+                if let asset = action.imageInfo.asset {
+                    PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: action.category)
+                }
+            }
+            
+            if manager.allGroups.isEmpty {
+                navigationPath.append(.cleanupView)
+            }
+            else {
+                navigationPath.removeAll()
+            }
+        }
     }
     
 }

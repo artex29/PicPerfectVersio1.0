@@ -7,19 +7,49 @@
 
 //import UIKit
 import SwiftUI
+import Photos
 
 
 extension PPImage {
-
+    
+    
+    var uniqueIdentifier: String {
+#if os(iOS)
+        return "\(size)\(scale)\(imageOrientation.rawValue)\(size.height > size.width)"
+#elseif os(macOS)
+        let rep = representations.first
+        let width = rep?.pixelsWide ?? Int(size.width)
+        let height = rep?.pixelsHigh ?? Int(size.height)
+        let orientation = height > width ? "portrait" : "landscape"
+        return "\(width)x\(height)_\(orientation)"
+#endif
+    }
+    
+    
+    
+    
+#if os(iOS)
+    /// iOS: accept PPImage.Orientation (UIImage.Orientation)
+    static func exifOrientation(for orientation: PPImage.Orientation) -> Int {
+        return Int(CGImagePropertyOrientation(orientation).rawValue)
+    }
+#else
+    /// macOS: NSImage has no Orientation type; accept CGImagePropertyOrientation
+    static func exifOrientation(for orientation: CGImagePropertyOrientation) -> Int {
+        return Int(orientation.rawValue)
+    }
+#endif
+    
+    
     // MARK: - Fix Orientation
     func fixedOrientation() -> PPImage {
-        #if os(iOS)
+#if os(iOS)
         // --- iOS implementation ---
         guard let cgImage = self.cgImage else { return self }
         if self.imageOrientation == .up { return self }
-
+        
         var transform = CGAffineTransform.identity
-
+        
         switch self.imageOrientation {
         case .down, .downMirrored:
             transform = transform.translatedBy(x: size.width, y: size.height)
@@ -33,7 +63,7 @@ extension PPImage {
         default:
             break
         }
-
+        
         switch self.imageOrientation {
         case .upMirrored, .downMirrored:
             transform = transform.translatedBy(x: size.width, y: 0)
@@ -44,7 +74,7 @@ extension PPImage {
         default:
             break
         }
-
+        
         guard let colorSpace = cgImage.colorSpace,
               let context = CGContext(
                 data: nil,
@@ -55,24 +85,24 @@ extension PPImage {
                 space: colorSpace,
                 bitmapInfo: cgImage.bitmapInfo.rawValue
               ) else { return self }
-
+        
         context.concatenate(transform)
-
+        
         let drawRect: CGRect = self.isPortrait
-            ? CGRect(x: 0, y: 0, width: size.height, height: size.width)
-            : CGRect(x: 0, y: 0, width: size.width, height: size.height)
-
+        ? CGRect(x: 0, y: 0, width: size.height, height: size.width)
+        : CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        
         context.draw(cgImage, in: drawRect)
         guard let newCGImage = context.makeImage() else { return self }
         return UIImage(cgImage: newCGImage)
         
-        #elseif os(macOS)
+#elseif os(macOS)
         // --- macOS implementation ---
         guard let tiffData = self.tiffRepresentation,
               let bitmap = NSBitmapImageRep(data: tiffData) else { return self }
-
+        
         guard let cgImage = bitmap.cgImage else { return self }
-
+        
         // En macOS no hay "orientación" como tal, pero podemos normalizar
         let newImage = NSImage(size: self.size)
         newImage.lockFocus()
@@ -80,31 +110,31 @@ extension PPImage {
         NSGraphicsContext.current?.cgContext.draw(cgImage, in: rect)
         newImage.unlockFocus()
         return newImage
-        #endif
+#endif
     }
-
+    
     // MARK: - Resize
     func resized(maxDimension: CGFloat = 1024) -> PPImage {
-        #if os(iOS)
+#if os(iOS)
         let originalSize = self.size
         let scale = min(maxDimension / originalSize.width,
                         maxDimension / originalSize.height,
                         1.0)
         let newSize = CGSize(width: originalSize.width * scale,
                              height: originalSize.height * scale)
-
+        
         let renderer = UIGraphicsImageRenderer(size: newSize)
         return renderer.image { _ in
             self.draw(in: CGRect(origin: .zero, size: newSize))
         }
-        #elseif os(macOS)
+#elseif os(macOS)
         let originalSize = self.size
         let scale = min(maxDimension / originalSize.width,
                         maxDimension / originalSize.height,
                         1.0)
         let newSize = CGSize(width: originalSize.width * scale,
                              height: originalSize.height * scale)
-
+        
         let newImage = NSImage(size: newSize)
         newImage.lockFocus()
         self.draw(in: CGRect(origin: .zero, size: newSize),
@@ -113,23 +143,34 @@ extension PPImage {
                   fraction: 1.0)
         newImage.unlockFocus()
         return newImage
-        #endif
+#endif
     }
-
+    
     // MARK: - Orientation helpers
     var isPortrait: Bool {
-        #if os(iOS)
+#if os(iOS)
         return self.imageOrientation == .left ||
-               self.imageOrientation == .leftMirrored ||
-               self.imageOrientation == .right ||
-               self.imageOrientation == .rightMirrored
-        #elseif os(macOS)
+        self.imageOrientation == .leftMirrored ||
+        self.imageOrientation == .right ||
+        self.imageOrientation == .rightMirrored
+#elseif os(macOS)
         return self.size.height > self.size.width
-        #endif
+#endif
     }
     
-    
-       
+}
+
+extension PHAsset {
+    var fileSizeInMB: Double {
+        let resources = PHAssetResource.assetResources(for: self)
+        guard let resource = resources.first else { return 0.0 }
+        
+        if let unsignedInt64 = resource.value(forKey: "fileSize") as? CLong {
+            return Double(unsignedInt64) / (1024.0 * 1024.0)
+        }
+        
+        return 0.0
+    }
 }
 
 
@@ -184,52 +225,6 @@ extension View {
     }
 }
 
-//extension Image {
-//    func toUIImage() -> UIImage {
-//        let controller = UIHostingController(rootView: self)
-//        let view = controller.view
-//        
-//        let targetSize = controller.view.intrinsicContentSize
-//        view?.bounds = CGRect(origin: .zero, size: targetSize)
-//        view?.backgroundColor = .clear
-//        
-//        let renderer = UIGraphicsImageRenderer(size: targetSize)
-//        return renderer.image { _ in
-//            view?.drawHierarchy(in: view!.bounds, afterScreenUpdates: true)
-//        }
-//    }
-//}
-
-
-
-extension PPImage {
-    var uniqueIdentifier: String {
-        #if os(iOS)
-        return "\(size)\(scale)\(imageOrientation.rawValue)\(size.height > size.width)"
-        #elseif os(macOS)
-        let rep = representations.first
-        let width = rep?.pixelsWide ?? Int(size.width)
-        let height = rep?.pixelsHigh ?? Int(size.height)
-        let orientation = height > width ? "portrait" : "landscape"
-        return "\(width)x\(height)_\(orientation)"
-        #endif
-    }
-}
-
-extension PPImage {
-
-    #if os(iOS)
-    /// iOS: accept PPImage.Orientation (UIImage.Orientation)
-    static func exifOrientation(for orientation: PPImage.Orientation) -> Int {
-        return Int(CGImagePropertyOrientation(orientation).rawValue)
-    }
-    #else
-    /// macOS: NSImage has no Orientation type; accept CGImagePropertyOrientation
-    static func exifOrientation(for orientation: CGImagePropertyOrientation) -> Int {
-        return Int(orientation.rawValue)
-    }
-    #endif
-}
 
 #if os(iOS)
 extension CGImagePropertyOrientation {

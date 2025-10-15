@@ -22,7 +22,7 @@ class BlurryPhotosService {
         let isBlurry = isBlurry(image, laplacianThreshold: laplacianThreshold, faceThreshold: faceTreshold)
         
         if isBlurry.0 {
-            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, blurScore: isBlurry.1)
+            var info = ImageInfo(isIncorrect: true, image: image, asset: asset, fileSizeInMB: asset.fileSizeInMB, blurScore: isBlurry.1)
             info.source = "blurryPhotosService"
             return info
         }

@@ -196,4 +196,12 @@ final class PhotoGroupManager {
         
     }
     
+    func deleteActions(for category: PhotoGroupCategory) {
+        confirmationActions.removeAll(where: { $0.category == category })
+    }
+    
+    func deleteAllActions(for asset: PHAsset) {
+        confirmationActions.removeAll(where: { $0.imageInfo.asset == asset })
+    }
+    
 }
