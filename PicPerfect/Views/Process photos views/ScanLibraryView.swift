@@ -19,8 +19,6 @@ struct ScanLibraryView: View {
     
     @State private var permisionAlertPresented = false
     
-    @State private var showProcessedPhotos = false
-    
     @State private var progress: AnalysisProgress = .starting
     
     var onFinished:([PhotoGroup]) -> Void
@@ -30,7 +28,7 @@ struct ScanLibraryView: View {
             
             PicPerfectTheme.Colors.background.ignoresSafeArea()
             
-            MainViewMarquee(showProcessedPhotos: $showProcessedPhotos)
+            MainViewMarquee()
             
             VStack(spacing: 20) {
                 
@@ -49,8 +47,6 @@ struct ScanLibraryView: View {
                     
                     
                 } else {
-                    
-                    ProcessedPhotos(showPhotos: $showProcessedPhotos)
                     
                     Spacer()
                     

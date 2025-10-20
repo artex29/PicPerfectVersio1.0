@@ -15,6 +15,7 @@ struct CleanupSummaryView: View {
         self._navigationPath = navigationPath
     }
     
+    @Environment(ContentModel.self) var model
     @Environment(PhotoGroupManager.self) private var manager
     @Environment(\.dismiss) private var dismiss
     
@@ -72,6 +73,7 @@ struct CleanupSummaryView: View {
                 
                 Button("View History") {
                     // navigation to CleanupHistoryView
+                    done(viewHistory: true)
                 }
                 .ifAvailableGlassButtonStyle()
                 
@@ -126,16 +128,36 @@ struct CleanupSummaryView: View {
         )
         
         CleanupHistoryCloudStore.saveRecord(record)
+        NSUbiquitousKeyValueStore.default.synchronize()
         
         await MainActor.run {
             session = record
         }
     }
     
-    private func done() {
-        manager.confirmationActions.removeAll()
-        navigationPath.removeAll()
-        dismiss()
+    private func done(viewHistory: Bool = false) {
+        
+        Task {
+            await saveProcessedPhotos {
+                manager.confirmationActions.removeAll()
+                navigationPath.removeAll()
+                dismiss()
+                
+                if viewHistory {
+                    model.showHistoryView = true
+                }
+            }
+            
+        }
+    }
+    
+    private func saveProcessedPhotos(completion: @escaping() -> Void) async {
+        let filteredPhotos = manager.confirmationActions.filter({$0.category != .blurry && $0.category != .screenshots && $0.category != .exposure})
+        let processedIds: Set<String> = Set(filteredPhotos.map(\.imageInfo.id))
+        
+        PhotoAnalysisCloudCache.saveProcessedPhotos(Array(processedIds))
+        await model.loadProcessedPhotos()
+        completion()
     }
 }
 
@@ -161,4 +183,5 @@ struct CleanupSummaryView: View {
         )
     )
     .environment(PhotoGroupManager())
+    .environment(ContentModel())
 }

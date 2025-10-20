@@ -52,6 +52,9 @@
 		FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */; };
 		FFE3F7B12E9042B400A1F3D2 /* FaceQualityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */; };
 		FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */; };
+		FFEE33912EA00B4100346333 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFEE33902EA00B4000346333 /* MenuView.swift */; };
+		FFEE33932EA0395600346333 /* DismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFEE33922EA0395600346333 /* DismissButton.swift */; };
+		FFF6F3072EA2DD3B00FAC614 /* SelectedSubgroupThumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF6F3062EA2DD3B00FAC614 /* SelectedSubgroupThumbnails.swift */; };
 		FFFB6FFF2E9547E800D56BA3 /* DeviceHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFB6FFE2E9547E200D56BA3 /* DeviceHelper.swift */; };
 /* End PBXBuildFile section */
 
@@ -103,6 +106,9 @@
 		FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureService.swift; sourceTree = "<group>"; };
 		FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceQualityService.swift; sourceTree = "<group>"; };
 		FFED1D1A2E8DB95F00CB9E89 /* DecisionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionRecord.swift; sourceTree = "<group>"; };
+		FFEE33902EA00B4000346333 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		FFEE33922EA0395600346333 /* DismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissButton.swift; sourceTree = "<group>"; };
+		FFF6F3062EA2DD3B00FAC614 /* SelectedSubgroupThumbnails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedSubgroupThumbnails.swift; sourceTree = "<group>"; };
 		FFFB6FFE2E9547E200D56BA3 /* DeviceHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,6 +138,9 @@
 				FF36CD832E8731CE005BB5CA /* DecisionMenuView.swift */,
 				FF68ACE72E8AD670005A09B4 /* DecisionCard.swift */,
 				FF6F454A2E94311A000FAF9A /* CategoryCard.swift */,
+				FFEE33902EA00B4000346333 /* MenuView.swift */,
+				FFEE33922EA0395600346333 /* DismissButton.swift */,
+				FFF6F3062EA2DD3B00FAC614 /* SelectedSubgroupThumbnails.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -393,13 +402,16 @@
 				FF7565A02E9E8DC800260549 /* CleanupHistoryCloudStore.swift in Sources */,
 				FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */,
 				FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */,
+				FFEE33932EA0395600346333 /* DismissButton.swift in Sources */,
 				FFD3550B2E6F4D3800BEB236 /* ScanLibraryView.swift in Sources */,
 				FFD22CF82E51280900071915 /* OrientationService.swift in Sources */,
 				FFD22CEF2E510C3000071915 /* PicPerfectTheme.swift in Sources */,
 				FF6F45452E942158000FAF9A /* HomeView.swift in Sources */,
+				FFEE33912EA00B4100346333 /* MenuView.swift in Sources */,
 				FFE0D8562E8F08C500CBA5A6 /* PhotoSummary.swift in Sources */,
 				FF68ACE82E8AD670005A09B4 /* DecisionCard.swift in Sources */,
 				FFE3F7B12E9042B400A1F3D2 /* FaceQualityService.swift in Sources */,
+				FFF6F3072EA2DD3B00FAC614 /* SelectedSubgroupThumbnails.swift in Sources */,
 				FFDFDA632E8460D800367F43 /* SwipeDecisionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

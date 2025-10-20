@@ -13,30 +13,55 @@ struct CleanupHistoryView: View {
         records.map(\.totalSpaceFreedMB).reduce(0, +)
     }
     
+    let device = DeviceHelper.type
+    
     var body: some View {
-        VStack {
-            Text("🧾 Cleanup History")
-                .font(.largeTitle.bold())
-                .padding(.top)
+        ZStack {
             
-            Text("Total space saved: \(String(format: "%.2f GB", totalSpaceFreed / 1024))")
-                .foregroundColor(.green)
-                .padding(.bottom, 10)
+            PicPerfectTheme.Colors.background.ignoresSafeArea()
             
-            List(records.sorted(by: { $0.date > $1.date })) { record in
-                VStack(alignment: .leading) {
-                    Text(record.date.formatted(date: .abbreviated, time: .shortened))
-                        .font(.headline)
-                    Text("Deleted \(record.totalDeleted) • Saved \(String(format: "%.2f MB", record.totalSpaceFreedMB))")
-                        .foregroundColor(.secondary)
+            VStack {
+                
+                if device == .mac {
+                    DismissButton()
+               }
+                    
+                
+                Text("🧾 Cleanup History")
+                    .font(.largeTitle.bold())
+                    
+                   
+                
+                Text("Total space saved: \(String(format: "%.2f GB", totalSpaceFreed / 1024))")
+                    .foregroundColor(.green)
+                    .padding(.bottom, 10)
+                
+                ScrollView {
+                    ForEach(records.sorted(by: { $0.date > $1.date })) { record in
+                        VStack(alignment: .leading) {
+                            
+                            Text(record.date.formatted(date: .abbreviated, time: .shortened))
+                                .font(.headline)
+                            
+                            Text("Deleted \(record.totalDeleted) • Saved \(String(format: "%.2f MB", record.totalSpaceFreedMB))")
+                               
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .applyGlassIfAvailable()
+                    }
+                    
+                    
                 }
+              
+                
+                Spacer()
             }
-            
-            
-            Spacer()
+            .foregroundStyle(.white)
+            .padding()
+          
         }
-        .padding()
-        .background(Color(PicPerfectTheme.Colors.background).ignoresSafeArea())
+        
     }
 }
 

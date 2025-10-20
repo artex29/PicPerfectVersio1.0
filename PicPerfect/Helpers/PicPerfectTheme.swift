@@ -41,6 +41,21 @@ extension View {
     }
     
     @ViewBuilder
+    func ifAvailableGlassContainer() -> some View {
+        if #available(iOS 26, macOS 26, watchOS 26, visionOS 26, *) {
+            GlassEffectContainer {
+                self
+                    .glassEffect(.clear)
+                   
+            }
+        }
+        else {
+            self
+                .background(.ultraThinMaterial)
+        }
+    }
+    
+    @ViewBuilder
     func disabledView(_ isDisabled: Bool) -> some View {
         if isDisabled {
             self.opacity(0.5)

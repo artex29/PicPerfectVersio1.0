@@ -13,16 +13,23 @@ import SwiftUI
 class ContentModel {
   
     var processedPhotos: [PPImage] = []
+    var showHistoryView: Bool = false
     
     init() {
-        loadProcessedPhotos()
+        Task {
+            await loadProcessedPhotos()
+        }
     }
     
-    func loadProcessedPhotos() {
+    func loadProcessedPhotos() async {
+        
+        processedPhotos.removeAll()
+        
         let ids = PhotoAnalysisCloudCache.retrieveProcessedPhotos()
         
         PhotoLibraryScanner.shared.fetchProcessedPhotos(with: ids) { images in
-            self.processedPhotos = images
+            self.processedPhotos = images.prefix(10).reversed()
+            
         }
     }
 }

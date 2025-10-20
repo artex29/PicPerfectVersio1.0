@@ -97,6 +97,10 @@ struct SwipeDecisionView: View {
                 
                 VStack {
                     Spacer()
+                    
+                    SelectedSubgroupThumbnails(subGroup: $selectedGroup)
+                        .padding(.horizontal, 10)
+                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             ForEach(groupedImages.indices, id: \.self) { groupIndex in
@@ -115,6 +119,12 @@ struct SwipeDecisionView: View {
                                         .scaledToFill()
                                         .frame(width: 150, height: 150)
                                         .clipShape(RoundedRectangle(cornerRadius: 30))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 30)
+                                                .stroke(selectedGroup.contains(where: { $0.id == group.first?.id }) ? Color.white : Color.clear, lineWidth: 4)
+                                                
+                                        )
+                                        
                                         
                                     
                                     Text("\(group.count)")

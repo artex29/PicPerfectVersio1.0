@@ -172,12 +172,13 @@ class Service {
             options.deliveryMode = .highQualityFormat
             options.isSynchronous = false
 
-            let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
+            let targetSize = CGSize(width: 1024, height: 1024)
 
             manager.requestImage(for: asset,
                                  targetSize: targetSize,
                                  contentMode: .default,
                                  options: options) { image, _ in
+                
                 continuation.resume(returning: image)
             }
         }

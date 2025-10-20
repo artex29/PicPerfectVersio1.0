@@ -25,11 +25,18 @@ struct HomeView: View {
         switch phase {
         case .scan:
             
-            ScanLibraryView(onFinished: {groups in
-                phase = .categories
-                manager.allGroups = groups
-            })
-            
+            ZStack(alignment: .top) {
+                ScanLibraryView(onFinished: {groups in
+                    phase = .categories
+                    manager.allGroups = groups
+                })
+                
+                HStack {
+                    Spacer()
+                    MenuView()
+                }
+                .padding()
+            }
             
         case .categories:
             CategorySplitView(onClose: {

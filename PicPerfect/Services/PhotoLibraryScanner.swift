@@ -209,26 +209,24 @@ class PhotoLibraryScanner {
     }
     
     func fetchProcessedPhotos(with identifiers: [String], completion: @escaping ([PPImage]) -> Void) {
-        // Array donde se guardarán las imágenes recuperadas
         var images: [PPImage] = []
+        let fetchLimit = 10
         
-        // Obtenemos los assets a partir de los identifiers
-        let assets = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+        // Recupera los assets en el mismo orden de los identifiers
+        let assets = identifiers.compactMap { id -> PHAsset? in
+            PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil).firstObject
+        }
         
-        // Configuración para la petición de imagen
+        // Configuración del request
         let imageManager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = false
+        requestOptions.isSynchronous = true
         requestOptions.deliveryMode = .highQualityFormat
         requestOptions.resizeMode = .fast
         
-        let group = DispatchGroup()
-        
-        assets.enumerateObjects { asset, _, _ in
-            group.enter()
-            
-            let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
-            
+        // Pedimos máximo 10 imágenes
+        for asset in assets.prefix(fetchLimit) {
+            let targetSize = CGSize(width: 1024, height: 1024) // más liviano y seguro
             imageManager.requestImage(
                 for: asset,
                 targetSize: targetSize,
@@ -238,11 +236,11 @@ class PhotoLibraryScanner {
                 if let image = image {
                     images.append(image)
                 }
-                group.leave()
             }
         }
         
-        group.notify(queue: .main) {
+        // Llama el completion en el main thread
+        DispatchQueue.main.async {
             completion(images)
         }
     }

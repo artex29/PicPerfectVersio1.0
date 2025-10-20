@@ -33,8 +33,6 @@ struct MainViewMarquee: View {
     @State private var currentIndex = 0
     @State private var foregroundColors: [Color] = [.black.opacity(0.9), .black.opacity(0.5), .clear, .clear, .clear, .clear]
     
-    @Binding var showProcessedPhotos: Bool
-    
     @Environment(ContentModel.self) private var model
     
     var body: some View {
@@ -76,11 +74,12 @@ struct MainViewMarquee: View {
                             }
                         }
                     }
-                    .onReceive(timer) { _ in
+                    .onReceive(timer) { time in
+                        
                         withAnimation(.smooth(duration: 2.0)) {
-                            if showProcessedPhotos == false {
-                                moveToNextElement(proxy: proxy)
-                            }
+                            
+                            moveToNextElement(proxy: proxy)
+                            
                         }
                         
                     }
@@ -117,13 +116,13 @@ struct MainViewMarquee: View {
         var foregroundColors: [Color] = []
         
         withAnimation(.linear(duration: 1.0)) {
-            if showProcessedPhotos {
-                foregroundColors = [.black.opacity(0.9), .black.opacity(0.7)]
-            
-            }
-            else {
+//            if showProcessedPhotos {
+//                foregroundColors = [.black.opacity(0.9), .black.opacity(0.7)]
+//            
+//            }
+//            else {
                 foregroundColors = [.black.opacity(0.9), .black.opacity(0.7), .black.opacity(0.6), .clear, .clear, .clear, .clear]
-            }
+//            }
             
             
         }
@@ -154,7 +153,7 @@ struct MainViewMarquee: View {
 }
 
 #Preview {
-    MainViewMarquee(showProcessedPhotos: .constant(false))
+    MainViewMarquee()
         .environment(ContentModel())
        
 }
