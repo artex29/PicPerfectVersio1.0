@@ -10,14 +10,18 @@ import SwiftUI
 struct RootView: View {
     
     @Environment(ContentModel.self) var model
+    
     var body: some View {
         
-        HomeView()
-            .sheet(isPresented: .constant(model.showHistoryView)) {
-                model.showHistoryView = false
-            } content: {
-                CleanupHistoryView()
-            }
+        ZStack {
+            HomeView()
+                .sheet(isPresented: .constant(model.showHistoryView)) {
+                    model.showHistoryView = false
+                } content: {
+                    CleanupHistoryView()
+                }
+        }
+        .minMacFrame(width: 1200, height: 800)
            
 
     }

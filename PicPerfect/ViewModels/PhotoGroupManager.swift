@@ -11,13 +11,13 @@ import Photos
 @MainActor
 @Observable
 final class PhotoGroupManager {
-    var allGroups: [PhotoGroup]
+    var allGroups: [PhotoGroup] = []
     var decisionHistory:[DecisionRecord] = []
     var confirmationActions: [ConfirmationAction] = []
     
-    init(groups: [PhotoGroup] = []) {
-        self.allGroups = groups
-    }
+//    init(groups: [PhotoGroup] = []) {
+//        self.allGroups = groups
+//    }
     
     //Removes a photo (by id) from all groups whre it appears
     func processPhoto(withId id: String, action: DecisionActions, for category: PhotoGroupCategory) {

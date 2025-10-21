@@ -223,6 +223,24 @@ extension View {
             self.hidden()
         }
     }
+    
+    @ViewBuilder
+    func minMacFrame(width: CGFloat, height: CGFloat) -> some View {
+        #if os(macOS)
+        self.frame(minWidth: width, minHeight: height)
+        #else
+        self
+        #endif
+    }
+    
+    @ViewBuilder
+    func minNoMacFrame(width: CGFloat, height: CGFloat) -> some View {
+        #if os(macOS)
+        self
+        #else
+        self.frame(minWidth: width, minHeight: height)
+        #endif
+    }
 }
 
 

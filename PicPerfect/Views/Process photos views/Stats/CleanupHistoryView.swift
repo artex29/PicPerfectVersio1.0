@@ -7,6 +7,9 @@
 import SwiftUI
 
 struct CleanupHistoryView: View {
+    
+    @Environment(ContentModel.self) var model
+    
     @State private var records: [CleanupSessionRecord] = CleanupHistoryCloudStore.loadRecords()
     
     var totalSpaceFreed: Double {
@@ -23,7 +26,9 @@ struct CleanupHistoryView: View {
             VStack {
                 
                 if device == .mac {
-                    DismissButton()
+                    DismissButton {
+                        model.showHistoryView = false
+                    }
                }
                     
                 
@@ -68,4 +73,5 @@ struct CleanupHistoryView: View {
 
 #Preview {
     CleanupHistoryView()
+        .environment(ContentModel())
 }

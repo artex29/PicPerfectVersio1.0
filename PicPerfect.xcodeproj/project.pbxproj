@@ -48,6 +48,7 @@
 		FFE0D8542E8EF2FA00CBA5A6 /* ImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0D8532E8EF2F200CBA5A6 /* ImageInfo.swift */; };
 		FFE0D8562E8F08C500CBA5A6 /* PhotoSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0D8552E8F08BD00CBA5A6 /* PhotoSummary.swift */; };
 		FFE0D8582E8F0F9600CBA5A6 /* ScreenShotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0D8572E8F0F8D00CBA5A6 /* ScreenShotService.swift */; };
+		FFE2F7392EA6B410003ACCE6 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE2F7382EA6B404003ACCE6 /* PersistenceService.swift */; };
 		FFE3F7AD2E90214000A1F3D2 /* BlurryPhotosService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7AC2E90212E00A1F3D2 /* BlurryPhotosService.swift */; };
 		FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */; };
 		FFE3F7B12E9042B400A1F3D2 /* FaceQualityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */; };
@@ -102,6 +103,7 @@
 		FFE0D8532E8EF2F200CBA5A6 /* ImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageInfo.swift; sourceTree = "<group>"; };
 		FFE0D8552E8F08BD00CBA5A6 /* PhotoSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSummary.swift; sourceTree = "<group>"; };
 		FFE0D8572E8F0F8D00CBA5A6 /* ScreenShotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShotService.swift; sourceTree = "<group>"; };
+		FFE2F7382EA6B404003ACCE6 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
 		FFE3F7AC2E90212E00A1F3D2 /* BlurryPhotosService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurryPhotosService.swift; sourceTree = "<group>"; };
 		FFE3F7AE2E903A2200A1F3D2 /* ExposureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExposureService.swift; sourceTree = "<group>"; };
 		FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceQualityService.swift; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 		FFD22CF32E511F7C00071915 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FFE2F7382EA6B404003ACCE6 /* PersistenceService.swift */,
 				FFD355112E6F61C500BEB236 /* Service.swift */,
 				FFD355082E6F473A00BEB236 /* PhotoLibraryScanner.swift */,
 				FFE3F7B02E9042B400A1F3D2 /* FaceQualityService.swift */,
@@ -391,6 +394,7 @@
 				FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */,
 				FFD3550F2E6F4DA600BEB236 /* FinalSaveView.swift in Sources */,
 				FFE3F7AD2E90214000A1F3D2 /* BlurryPhotosService.swift in Sources */,
+				FFE2F7392EA6B410003ACCE6 /* PersistenceService.swift in Sources */,
 				FFD22CFA2E51293400071915 /* CorrectedPhoto.swift in Sources */,
 				FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */,
 				FF6F454D2E9446A1000FAF9A /* CategorySplitView.swift in Sources */,

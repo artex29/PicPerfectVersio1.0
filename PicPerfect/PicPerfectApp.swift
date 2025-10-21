@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct PicPerfectApp: App {
@@ -28,6 +29,7 @@ struct PicPerfectApp: App {
         WindowGroup {
             RootView()
                 .environment(ContentModel())
+                .environment(PhotoGroupManager())
                 .onAppear {
                     // Sincronizar al volver al foreground
                     NSUbiquitousKeyValueStore.default.synchronize()
@@ -35,5 +37,6 @@ struct PicPerfectApp: App {
 //                    CleanupHistoryCloudStore.clearAll()
                 }
         }
+        .modelContainer(for: PersistentPhotoGroup.self)
     }
 }

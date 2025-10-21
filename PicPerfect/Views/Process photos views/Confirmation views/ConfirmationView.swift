@@ -11,6 +11,7 @@ import Photos
 struct ConfirmationView: View {
     
     @Environment(PhotoGroupManager.self) private var manager
+    @Environment(\.modelContext) private var context
     
 //    @Binding var showingConfirmationView: Bool
     @Binding var navigationPath: [NavigationDestination]
@@ -163,19 +164,24 @@ struct ConfirmationView: View {
         // Implement cleanup logic here
         
         let assetsToDelete = actionsArray.filter({ $0.action == .delete }).map({ $0.imageInfo.asset }).compactMap({ $0 })
+        let category = photoGroups.first?.category ?? .duplicates
         
         if !assetsToDelete.isEmpty {
             Service.deleteAssets(assetsToDelete) { success in
                 endCleanUp()
+                PersistenceService.clearCompletedCategory(context: context, category: category)
             }
         }
         else {
             endCleanUp()
+            PersistenceService.clearCompletedCategory(context: context, category: category)
         }
         
         func endCleanUp() {
             for action in actionsArray {
+                
                 if let asset = action.imageInfo.asset {
+                    
                     PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: action.category)
                 }
             }

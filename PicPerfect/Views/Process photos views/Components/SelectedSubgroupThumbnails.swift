@@ -21,14 +21,14 @@ struct SelectedSubgroupThumbnails: View {
 #if os(iOS)
                         Image(uiImage: image.image)
                             .resizable()
-                            .frame(width: 60, height: 60)
                             .scaledToFill()
+                            .frame(width: 60, height: 60)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
 #elseif os(macOS)
                         Image(nsImage: image.image)
                             .resizable()
-                            .frame(width: 50, height: 50)
                             .scaledToFill()
+                            .frame(width: 50, height: 50)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
 #endif
                     }

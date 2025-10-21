@@ -12,6 +12,7 @@ import Photos
 struct ReviewMisalignedPhotos: View {
     
     @Environment(PhotoGroupManager.self) var manager
+    @Environment(\.modelContext) private var context
     
     let images: [ImageInfo]
     @State private var selectedIndices: Set<Int> = []
@@ -131,6 +132,8 @@ struct ReviewMisalignedPhotos: View {
             selectedGroup = nil
             navigationPath.append(.cleanupView) // Move to cleanup view
         }
+        
+        PersistenceService.clearCompletedCategory(context: context, category: .orientation)
 
     }
 

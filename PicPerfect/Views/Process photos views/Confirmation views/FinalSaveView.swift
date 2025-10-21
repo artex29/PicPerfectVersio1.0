@@ -18,6 +18,7 @@ struct FinalSaveView: View {
     @State private var selectedIndices: Set<Int> = []
    
     @Environment(PhotoGroupManager.self) var manager
+    @Environment(\.modelContext) private var context
     
     @Binding var selectedGroup: [PhotoGroup]?
     @Binding var navigationPath: [NavigationDestination]
@@ -33,6 +34,7 @@ struct FinalSaveView: View {
                     Spacer()
                     Button(action: {
                         dismiss()
+                        PersistenceService.clearCompletedCategory(context: context, category: .orientation)
                     }) {
                         Image(systemName: "xmark")
                             .foregroundColor(.white)
@@ -120,7 +122,7 @@ struct FinalSaveView: View {
             if saved {
                 nextStep()
                 dismiss()
-                print("Photos saved successfully")
+                PersistenceService.clearCompletedCategory(context: context, category: .orientation)
             } else {
                 print("Error saving photos")
             }

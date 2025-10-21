@@ -19,7 +19,7 @@ class PhotoLibraryScanner {
     
     static func analyzeLibraryWithEfficiency(
         assets: [PHAsset],
-        limit: Int = 100,
+        limit: Int = 50,
         progress: @MainActor @escaping (AnalysisProgress) -> Void
     ) async -> [PhotoGroup] {
         
@@ -36,7 +36,7 @@ class PhotoLibraryScanner {
             for: false,
             assets: sortedAssets,
             threshold: 0.2,
-            limit: 50
+            limit: 30
         ) {
             groups.append(contentsOf: duplicates)
         }
@@ -48,7 +48,7 @@ class PhotoLibraryScanner {
             for: true,
             assets: sortedAssets,
             threshold: 0.8,
-            limit: 50
+            limit: 30
         ) {
             groups.append(contentsOf: similars)
         }

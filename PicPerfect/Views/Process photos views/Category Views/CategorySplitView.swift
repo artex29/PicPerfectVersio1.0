@@ -11,6 +11,7 @@ import Photos
 struct CategorySplitView: View {
    
     @Environment(PhotoGroupManager.self) var manager
+    @Environment(\.modelContext) private var context
     
     let onClose: () -> Void
     let device = DeviceHelper.type
@@ -125,7 +126,10 @@ struct CategorySplitView: View {
                 }
                 .navigationSplitViewStyle(.balanced)
                 .toolbar {
-                    Button("Close") { onClose() }
+                    Button("Close") {
+                        onClose()
+                        PersistenceService.savePendingGroups(context: context, from: manager)
+                    }
                 }
             }
         }

@@ -20,6 +20,7 @@ enum NavigationDestination: Hashable {
 struct CategoryView: View {
     
     @Environment(PhotoGroupManager.self) var manager
+    @Environment(\.modelContext) private var context
     
     @Binding var selectedGroup: [PhotoGroup]?
     var photoGroups: [PhotoGroup]
@@ -74,8 +75,11 @@ struct CategoryView: View {
             .navigationTitle(photosToReviewCount)
             .toolbar(content: {
                 
-                Button("X", action: {onClose()})
-                    .ifAvailableGlassButtonStyle()
+                Button("X", action: {
+                    PersistenceService.savePendingGroups(context: context, from: manager)
+                    onClose()
+                })
+                .ifAvailableGlassButtonStyle()
                 
                 
             })

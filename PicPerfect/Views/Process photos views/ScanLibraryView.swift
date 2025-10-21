@@ -11,17 +11,25 @@ import PhotosUI
 
 struct ScanLibraryView: View {
     
+    @Environment(PhotoGroupManager.self) private var manager
+    @Environment(\.modelContext) private var context
+    
     @State private var scannedImages: [ImageInfo] = []
-   // @State private var photoGroups: [[PhotoGroup]] = []
+  
     @State private var showingReviewScreen = false
     @State private var isScanning = false
     @State private var photoAccessGranted = false
     
     @State private var permisionAlertPresented = false
     
-    @State private var progress: AnalysisProgress = .starting
+    @State private var progress: AnalysisProgress = .duplicates
+    
+    @State private var pendingGroups: [PhotoGroup]? = nil
+    
+    @State private var buttonText: String = "🔍 Scan Library"
     
     var onFinished:([PhotoGroup]) -> Void
+    
     
     var body: some View {
         ZStack {
@@ -50,9 +58,15 @@ struct ScanLibraryView: View {
                     
                     Spacer()
                     
-                    Button("🔍 Scan Library") {
-                        Task {
-                            await analyzeLibrary()
+                    Button(buttonText) {
+                        if pendingGroups != nil {
+                            onFinished(pendingGroups!)
+                            
+                        }
+                        else {
+                            Task {
+                                await analyzeLibrary()
+                            }
                         }
                     }
                     .ifAvailableGlassButtonStyle()
@@ -92,6 +106,15 @@ struct ScanLibraryView: View {
                 Text("Please grant photo access in Settings to continue.")
             }
         }
+        .task {
+//            PersistenceService.clearAllPendingGroups(context: context)
+            if manager.allGroups.isEmpty == false {
+                self.pendingGroups = manager.allGroups
+                withAnimation {
+                    buttonText = "✨ Continue Where You Left Off"
+                }
+            }
+        }
 
     }
     
@@ -127,4 +150,5 @@ struct ScanLibraryView: View {
 #Preview {
     ScanLibraryView(onFinished: {_ in })
         .environment(ContentModel())
+        .environment(PhotoGroupManager())
 }

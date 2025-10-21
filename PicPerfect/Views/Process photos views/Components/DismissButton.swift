@@ -9,14 +9,14 @@ import SwiftUI
 
 struct DismissButton: View {
     
-    @Environment(\.dismiss) var dismiss
+    var dismissAction: () -> Void
     
     var body: some View {
         HStack {
             Spacer()
             
             Button {
-                dismiss()
+                dismissAction()
             } label: {
                 Image(systemName: "xmark")
             }
@@ -28,5 +28,5 @@ struct DismissButton: View {
 }
 
 #Preview {
-    DismissButton()
+    DismissButton(dismissAction: {})
 }
