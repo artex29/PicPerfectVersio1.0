@@ -52,6 +52,7 @@ struct HomeView: View {
             }
         }
         .task {
+//            PhotoAnalysisCloudCache.createTestRecord()
             if manager.allGroups.isEmpty {
                 let pendingGroups = await PersistenceService.fetchPendingGroups(context: context)
                 

@@ -12,7 +12,7 @@ class ScreenShotService {
     
     static func fetchScreenshotsBatch(limit: Int, offset: Int = 0) async -> [ImageInfo] {
         // Cargar registros previos del módulo screenshots
-        let analyzedRecords = PhotoAnalysisCloudCache.loadRecords(for: .screenshots)
+        //let analyzedRecords = await PhotoAnalysisCloudCache.loadRecords(for: .screenshots)
         
         // Fetch del smart album de screenshots
         let screenshotsCollection = PHAssetCollection.fetchAssetCollections(
@@ -31,9 +31,12 @@ class ScreenShotService {
         guard allScreenshots.count > 0 else { return [] }
         
         // Filtramos las que NO estén analizadas
+        let analyzedIds = await PhotoAnalysisCloudCache.loadRecords(for: .screenshots)
+            .map { $0.id }
+
         let unprocessed = (0..<allScreenshots.count)
             .map { allScreenshots.object(at: $0) }
-            .filter { analyzedRecords[$0.localIdentifier] == nil }
+            .filter { !analyzedIds.contains($0.localIdentifier) }
         
         // Aplicamos offset + limit
         let start = offset

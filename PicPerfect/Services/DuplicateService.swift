@@ -57,14 +57,17 @@ final class DuplicateService {
            limit: Int = 100
        ) async throws -> [PhotoGroup] {
 
-           // 0) Sort by creationDate ascending (oldest first)
-           let sorted = assets.sorted { (a, b) in
-               (a.creationDate ?? .distantPast) < (b.creationDate ?? .distantPast)
-           }
-
            // 1) Filter by cache (module-aware)
            let module: PhotoGroupCategory = similars ? .similars : .duplicates
-           let candidates = sorted.filter { !PhotoAnalysisCloudCache.isAnalyzed($0, module: module) }
+           //var candidates: [PHAsset] = []
+           
+           let records = await PhotoAnalysisCloudCache.loadRecords(for: .duplicates)
+           
+           let candidates: [PHAsset] = assets.filter { asset in
+               !records.contains { record in
+                   record.id == asset.localIdentifier
+               }
+           }
 
            guard !candidates.isEmpty else { return [] }
 
@@ -139,11 +142,14 @@ final class DuplicateService {
                let bursts = await getBursts(limit: limit)
                groups.append(contentsOf: bursts)
            }
-
+           
            if groups.isEmpty {
-               for asset in batch {
-                   PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: module)
-               }
+               let assetIds = batch.map { $0.localIdentifier }
+               
+               let records = PhotoAnalysisCloudCache.createAssetRecords(for: assetIds, and: module)
+               
+               try await PhotoAnalysisCloudCache.markBatchAsAnalyzed(records)
+
            }
 
            return groups
@@ -179,10 +185,16 @@ final class DuplicateService {
                let burstAssets = PHAsset.fetchAssets(in: collection, options: burstFo)
 
                // Ver si hay al menos 2 NO analizadas para que tenga sentido agrupar
-               let unanalysed = (0..<burstAssets.count).compactMap { i -> PHAsset? in
+               var unanalysed: [PHAsset] = []
+               for i in 0..<burstAssets.count {
                    let a = burstAssets.object(at: i)
-                   return PhotoAnalysisCloudCache.isAnalyzed(a, module: .duplicates) ? nil : a
+                   let analyzed = await PhotoAnalysisCloudCache.isAnalyzed(a, module: .duplicates)
+                   if !analyzed {
+                       unanalysed.append(a)
+                       if unanalysed.count >= 2 { break }
+                   }
                }
+               
                if unanalysed.count < 2 {
                    processedBurstIDs.insert(burstID)
                    continue
@@ -277,5 +289,4 @@ final class DuplicateService {
         return values.map { $0 > avg ? "1" : "0" }.joined()
     }
 }
-
 

@@ -21,8 +21,8 @@ final class ExposureService {
     //Scan a single Image
     static func detectExposureIssueOnImage(image: PPImage,
                                            asset: PHAsset,
-                                           darkTreshold: Float = 0.2,
-                                           brightTreshold: Float = 0.8) async -> ImageInfo? {
+                                           darkTreshold: Float = 0.4,
+                                           brightTreshold: Float = 0.7) async -> ImageInfo? {
         
         let result = analyzeExposure(for: image, darkThreshold: darkTreshold, brightThreshold: brightTreshold)
         
@@ -38,8 +38,8 @@ final class ExposureService {
     /// Escanea múltiples assets y devuelve solo los que están mal expuestos
     static func detectExposureIssues(
         assets: [PHAsset],
-        darkThreshold: Float = 0.2,
-        brightThreshold: Float = 0.8,
+        darkThreshold: Float = 0.4,
+        brightThreshold: Float = 0.7,
         limit: Int = 100
     ) async -> [ImageInfo] {
         var problematic: [ImageInfo] = []
@@ -64,8 +64,8 @@ final class ExposureService {
     
     /// Detecta si una imagen está subexpuesta (oscura) o sobreexpuesta (quemada)
     private static func analyzeExposure(for image: PPImage,
-                                darkThreshold: Float = 0.2,
-                                brightThreshold: Float = 0.8,
+                                darkThreshold: Float = 0.4,
+                                brightThreshold: Float = 0.7,
                                 tolerance: Float = 0.7) -> ExposureCategory {
         
         #if os(iOS)

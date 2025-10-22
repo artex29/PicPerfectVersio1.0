@@ -19,6 +19,8 @@ class ContentModel {
         Task {
             await loadProcessedPhotos()
         }
+        
+//        PhotoAnalysisCloudCache.clearProcessedPhotos()
     }
     
     func loadProcessedPhotos() async {

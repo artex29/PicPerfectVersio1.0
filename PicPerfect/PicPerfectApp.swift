@@ -33,8 +33,12 @@ struct PicPerfectApp: App {
                 .onAppear {
                     // Sincronizar al volver al foreground
                     NSUbiquitousKeyValueStore.default.synchronize()
-//                    PhotoAnalysisCloudCache.clearAllRecords()
-//                    CleanupHistoryCloudStore.clearAll()
+//                    Task {
+//                        await PhotoAnalysisCloudCache.clearAllRecords()
+//                        PhotoAnalysisCloudCache.clearProcessedPhotos()
+//                        CleanupHistoryCloudStore.clearAll()
+//                    }
+                    
                 }
         }
         .modelContainer(for: PersistentPhotoGroup.self)

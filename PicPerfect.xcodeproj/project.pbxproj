@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FF0D2EE62EA7E7D10060384A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF0D2EE52EA7E7D10060384A /* StoreKit.framework */; };
+		FF0D2EE82EA7E9430060384A /* StoreConfig.storekit in Resources */ = {isa = PBXBuildFile; fileRef = FF0D2EE72EA7E9430060384A /* StoreConfig.storekit */; };
 		FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2305072E7C58E5000F382D /* MainViewMarquee.swift */; };
 		FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2305092E7C8AC7000F382D /* ProcessedPhotos.swift */; };
 		FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23050B2E7CB716000F382D /* ContentModel.swift */; };
@@ -31,7 +33,6 @@
 		FFAE17D02E99876B00A83547 /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE17CF2E99875A00A83547 /* TypeAlias.swift */; };
 		FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */; };
 		FFAF02972E83280400CBF98B /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAF02962E83280100CBF98B /* Enums.swift */; };
-		FFCBB3D72E68CFFA00928FA7 /* ReviewAndSaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */; };
 		FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */; };
 		FFD22CEC2E510C0B00071915 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FFD22CE62E510C0B00071915 /* Assets.xcassets */; };
 		FFD22CEF2E510C3000071915 /* PicPerfectTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD22CEE2E510C3000071915 /* PicPerfectTheme.swift */; };
@@ -60,6 +61,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FF0D2EE52EA7E7D10060384A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		FF0D2EE72EA7E9430060384A /* StoreConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreConfig.storekit; sourceTree = "<group>"; };
 		FF2305072E7C58E5000F382D /* MainViewMarquee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewMarquee.swift; sourceTree = "<group>"; };
 		FF2305092E7C8AC7000F382D /* ProcessedPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessedPhotos.swift; sourceTree = "<group>"; };
 		FF23050B2E7CB716000F382D /* ContentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModel.swift; sourceTree = "<group>"; };
@@ -85,7 +88,6 @@
 		FFAE17CF2E99875A00A83547 /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
 		FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupManager.swift; sourceTree = "<group>"; };
 		FFAF02962E83280100CBF98B /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
-		FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewAndSaveView.swift; sourceTree = "<group>"; };
 		FFD22CD82E51072300071915 /* PicPerfect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicPerfect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFD22CE62E510C0B00071915 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FFD22CE82E510C0B00071915 /* PicPerfectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicPerfectApp.swift; sourceTree = "<group>"; };
@@ -119,12 +121,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF0D2EE62EA7E7D10060384A /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FF0D2EE42EA7E7D10060384A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FF0D2EE52EA7E7D10060384A /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FF2305042E7C5858000F382D /* ElementsViews */ = {
 			isa = PBXGroup;
 			children = (
@@ -182,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				FFD22CE92E510C0B00071915 /* PicPerfect */,
+				FF0D2EE42EA7E7D10060384A /* Frameworks */,
 				FFD22CD92E51072300071915 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -206,6 +218,7 @@
 				FF6739DD2E6B82D200C7C95A /* Helpers */,
 				FFD22CF32E511F7C00071915 /* Services */,
 				FFD22CE62E510C0B00071915 /* Assets.xcassets */,
+				FF0D2EE72EA7E9430060384A /* StoreConfig.storekit */,
 			);
 			path = PicPerfect;
 			sourceTree = "<group>";
@@ -223,7 +236,6 @@
 			children = (
 				FF6F45422E94213C000FAF9A /* RootView.swift */,
 				FF6F45442E942158000FAF9A /* HomeView.swift */,
-				FFCBB3D62E68CFFA00928FA7 /* ReviewAndSaveView.swift */,
 				FFD355102E6F4DD500BEB236 /* Process photos views */,
 			);
 			path = Views;
@@ -357,6 +369,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF0D2EE82EA7E9430060384A /* StoreConfig.storekit in Resources */,
 				FFD22CF52E511FA100071915 /* Localizable.xcstrings in Resources */,
 				FFD22CEC2E510C0B00071915 /* Assets.xcassets in Resources */,
 			);
@@ -369,7 +382,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FFCBB3D72E68CFFA00928FA7 /* ReviewAndSaveView.swift in Sources */,
 				FF6D11932E983811007EB53A /* ConfirmationView.swift in Sources */,
 				FFD355122E6F61C900BEB236 /* Service.swift in Sources */,
 				FF4E7C1E2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel in Sources */,

@@ -152,6 +152,9 @@ struct CleanupSummaryView: View {
     }
     
     private func saveProcessedPhotos(completion: @escaping() -> Void) async {
+        
+        PhotoAnalysisCloudCache.clearProcessedPhotos()
+        
         let filteredPhotos = manager.confirmationActions.filter({$0.category != .blurry && $0.category != .screenshots && $0.category != .exposure})
         let processedIds: Set<String> = Set(filteredPhotos.map(\.imageInfo.id))
         

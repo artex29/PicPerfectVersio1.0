@@ -1,0 +1,117 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "A0797E71",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6754286508",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "CRM5WB54PG",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 782759415.65225995,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21812580",
+      "localizations" : [
+
+      ],
+      "name" : "PicPerfect+",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "39.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "6754287043",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full access all year — save over 85%.",
+              "displayName" : "PicPerfect+ Annual Saver",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Acceso total todo el año y ahorra más del 85%",
+              "displayName" : "PicPerfect+ Ahorro Anual",
+              "locale" : "es_MX"
+            }
+          ],
+          "productID" : "PPP_39.99_1y",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "PicPerfect+ Annual Subscription",
+          "subscriptionGroupID" : "21812580",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "5.99",
+          "familyShareable" : true,
+          "groupNumber" : 2,
+          "internalID" : "6754292534",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlock blurry, exposure & face cleanup tools.",
+              "displayName" : "PicPerfect+ Weekly Access",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Desbloquea corrección de caras, enfoque y exposición.",
+              "displayName" : "PicPerfect+ Acceso Semanal",
+              "locale" : "es_MX"
+            }
+          ],
+          "productID" : "ppp_5.99_1w",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "PicPerfect+ Weekly Subscription",
+          "subscriptionGroupID" : "21812580",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

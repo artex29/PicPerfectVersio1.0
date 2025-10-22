@@ -182,7 +182,9 @@ struct ConfirmationView: View {
                 
                 if let asset = action.imageInfo.asset {
                     
-                    PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: action.category)
+                    Task {
+                        try await PhotoAnalysisCloudCache.markAsAnalyzed(asset, module: action.category)
+                    }
                 }
             }
             

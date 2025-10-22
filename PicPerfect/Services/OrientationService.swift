@@ -23,7 +23,7 @@ class OrientationService {
         #elseif os(macOS)
         let orientationValue = 1 // Default to "up" for macOS
         #endif
-        PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue, module: .orientation)
+        try? await PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue, module: .orientation)
         
         let lowResImage = image.resized(maxDimension: 256)
         
@@ -48,9 +48,13 @@ class OrientationService {
 
         let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         
-        let records = PhotoAnalysisCloudCache.loadRecords(for: .orientation)
+        let records = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
         
-        let noAnalyzedAssets = assets.objects(at: IndexSet(integersIn: 0..<assets.count)).filter { records[$0.localIdentifier] == nil }
+        let analyzedRecords = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
+        let analyzedIds = Set(analyzedRecords.map { $0.id })
+
+        let noAnalyzedAssets = assets.objects(at: IndexSet(integersIn: 0..<assets.count))
+            .filter { !analyzedIds.contains($0.localIdentifier) }
 
         for i in 0..<noAnalyzedAssets.count {
             
@@ -68,7 +72,7 @@ class OrientationService {
                 let orientationValue = 1 // Default to "up" for macOS
                 #endif
                 
-                PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue, module: .orientation)
+                try? await PhotoAnalysisCloudCache.markAsAnalyzed(asset, orientation: orientationValue, module: .orientation)
                 
                 let isIncorrect = await OrientationService.isImageIncorrectlyOriented(in: lowResImage)
 

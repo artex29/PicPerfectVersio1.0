@@ -262,3 +262,15 @@ extension CGImagePropertyOrientation {
     }
 }
 #endif
+
+extension Array {
+    /// Splits an array into chunks of the specified size.
+    /// - Parameter size: The maximum number of elements per chunk.
+    /// - Returns: An array of subarrays (chunks), each containing up to `size` elements.
+    func chunked(into size: Int) -> [[Element]] {
+        guard size > 0 else { return [] }
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
+}
