@@ -22,6 +22,12 @@ struct RootView: View {
                 }
         }
         .minMacFrame(width: 1200, height: 800)
+        .sheet(isPresented: .constant(model.showPaywall)) {
+            model.showPaywall = false
+        } content: {
+            PaywallView()
+        }
+        
            
 
     }

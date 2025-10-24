@@ -23,7 +23,7 @@ struct MenuView: View {
                 .ifAvailableGlassButtonStyle()
                 
                 Button("Get PicPerfect+", systemImage: "sparkles") {
-                    
+                    model.showPaywall = true
                 }
                 .ifAvailableGlassButtonStyle()
                 

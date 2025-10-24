@@ -45,7 +45,7 @@ extension View {
         if #available(iOS 26, macOS 26, watchOS 26, visionOS 26, *) {
             GlassEffectContainer {
                 self
-                    .glassEffect(.clear)
+                    .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 10) )
                    
             }
         }
