@@ -13,6 +13,7 @@ struct DecisionMenuView: View {
     var undoAction: () -> Void
     var keepAction: () -> Void
     var decisionHistory: [DecisionRecord]
+    @Binding var swipeInstructions: SwipeInstructions?
     
     var body: some View {
         HStack {
@@ -25,6 +26,7 @@ struct DecisionMenuView: View {
                     .foregroundColor(.red)
             }
             .ifAvailableGlassButtonStyle()
+            .disabled(swipeInstructions != nil && swipeInstructions?.nextAction != .delete)
             
             Spacer()
 
@@ -36,6 +38,8 @@ struct DecisionMenuView: View {
             }
             .ifAvailableGlassButtonStyle()
             .disabledView(decisionHistory.isEmpty)
+            .disabled(swipeInstructions != nil && swipeInstructions?.nextAction != .undo)
+            
             Spacer()
             
             Button {
@@ -45,6 +49,7 @@ struct DecisionMenuView: View {
                     .foregroundStyle(.green)
             }
             .ifAvailableGlassButtonStyle()
+            .disabled(swipeInstructions != nil && swipeInstructions?.nextAction != .keep)
             
             
         }
@@ -55,5 +60,5 @@ struct DecisionMenuView: View {
 }
 
 #Preview {
-    DecisionMenuView(deleteAction: {}, undoAction: {}, keepAction: {}, decisionHistory: [])
+    DecisionMenuView(deleteAction: {}, undoAction: {}, keepAction: {}, decisionHistory: [], swipeInstructions: .constant(nil))
 }

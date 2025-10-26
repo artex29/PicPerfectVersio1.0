@@ -33,7 +33,7 @@ struct CategorySplitView: View {
                             case .categoryView:
                                 EmptyView()
                             case .swipeDecisionView(let group):
-                                SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                                SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath, swipeInstructions: .constant(nil))
                             case .orientationView(group: let group):
                                 let images = group.flatMap { $0.images }
                                 ReviewMisalignedPhotos(images: images, selectedGroup: $selectedGroup, navigationPath: $navigationPath)
@@ -72,7 +72,7 @@ struct CategorySplitView: View {
                         if let group = selectedGroup {
                             NavigationStack(path: $navigationPath) {
                                 if group.first?.category != .orientation {
-                                    SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath)
+                                    SwipeDecisionView(photoGroups: group, navigationPath: $navigationPath, swipeInstructions: .constant(nil))
                                         .id(group.first?.id) // Force detail view refresh
                                         .navigationDestination(for: NavigationDestination.self) { destination in
                                             switch destination {

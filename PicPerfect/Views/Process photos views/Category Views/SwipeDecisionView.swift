@@ -49,6 +49,9 @@ struct SwipeDecisionView: View {
     
     @Binding var navigationPath: [NavigationDestination]
     
+    // Binding for optional swipe instructions; do not provide a default for a Binding
+    @Binding var swipeInstructions: SwipeInstructions?
+    
     var selectedIDImage: String {
         let id = selectedGroup.reversed().first?.id ?? ""
         print("Selected ID Image: \(id)")
@@ -100,6 +103,7 @@ struct SwipeDecisionView: View {
                     
                     SelectedSubgroupThumbnails(subGroup: $selectedGroup)
                         .padding(.horizontal, 10)
+                        .isPresent(swipeInstructions == nil)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
@@ -146,12 +150,14 @@ struct SwipeDecisionView: View {
                         .padding()
                         
                     }
+                    .isPresent(swipeInstructions == nil)
                     
                     DecisionMenuView(
                         deleteAction: {handleDecisionAction(for: .delete)},
                         undoAction: {handleDecisionAction(for: .undo)},
                         keepAction: {handleDecisionAction(for: .keep)},
-                        decisionHistory: decisionHistory
+                        decisionHistory: decisionHistory,
+                        swipeInstructions: $swipeInstructions
                     )
                 }
                 .padding(.bottom, 30)
@@ -163,6 +169,16 @@ struct SwipeDecisionView: View {
                 }
             }
             .navigationTitle(photoGroups.first?.category.displayName ?? "Duplicates")
+            .onAppear {
+                if swipeInstructions != nil {
+                    isPileExpanded = true
+                }
+            }
+            .onChange(of: swipeInstructions?.nextAction) { oldValue, newValue in
+                if newValue != nil {
+                    isPileExpanded = true
+                }
+            }
             
         }
         .ignoresSafeArea(SafeAreaRegions.all, edges: .vertical)
@@ -205,7 +221,14 @@ struct SwipeDecisionView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
                 deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
                     
-                    manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+                    if swipeInstructions == nil {
+                        manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+                    }
+                    else {
+                        withAnimation {
+                            swipeInstructions?.nextAction = .undo
+                        }
+                    }
                    
                     selectNextGroup(nextIndex: nextIndex,
                                     selectedGroup: &selectedGroup,
@@ -225,7 +248,17 @@ struct SwipeDecisionView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
                 deleteFromGroup(image: resultedImage, allGroups: &groupedImages) { nextIndex, returningGroups in
-                    manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+                    
+                    if swipeInstructions == nil {
+                        manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+                    }
+                    else {
+                        withAnimation {
+                            swipeInstructions?.nextAction = .delete
+                        }
+                       
+                    }
+                    
                     selectNextGroup(nextIndex: nextIndex,
                                     selectedGroup: &selectedGroup,
                                     allGroups: returningGroups ?? [])
@@ -237,7 +270,16 @@ struct SwipeDecisionView: View {
         case .undo:
             decisionAction = .undo
             
-            manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+            if swipeInstructions == nil {
+                manager.processPhoto(withId: resultedImage.id, action: decision, for: category)
+            }
+            else {
+                withAnimation {
+                    swipeInstructions?.nextAction = nil
+                }
+                
+            }
+            
             undoLastAction()
             
         }
@@ -444,7 +486,7 @@ struct PhotosPile: View {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            selectedGroup.removeAll { $0.id == identifier } 
+            selectedGroup.removeAll { $0.id == identifier }
             decisionAction = nil
         }
     }
@@ -516,7 +558,7 @@ struct PhotosPile: View {
 }
 
 #Preview {
-    SwipeDecisionView(photoGroups: [], navigationPath: .constant([]))
+    SwipeDecisionView(photoGroups: [], navigationPath: .constant([]), swipeInstructions: .constant(nil))
         .environment(PhotoGroupManager())
 }
 

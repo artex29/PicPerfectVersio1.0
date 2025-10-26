@@ -76,7 +76,9 @@ struct HomeView: View {
                         }
                     }
                 }
-                else {
+            }
+            else {
+                 if newValue == .background || newValue == .inactive {
                     // App moved to background
                     // Save any pending groups to Core Data
                     PersistenceService.savePendingGroups(context: context, from: manager)

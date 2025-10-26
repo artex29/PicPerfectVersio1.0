@@ -12,15 +12,20 @@ import RevenueCat
 
 @Observable
 class ContentModel {
-  
+    
+    @AppStorage("useCounter") static var useCounter: Int = 0
+   
     var processedPhotos: [PPImage] = []
     var showHistoryView: Bool = false
+    var onboardingPresent = false
     
     //Purchases properties
     var showPaywall: Bool = false
     private let purchaseManager = PurchaseService.shared
     var isProUser: Bool = false
     var offerings: Offering? = nil
+    
+    
     
     init() {
         Task {
@@ -73,5 +78,18 @@ class ContentModel {
     
     func getOfferings() async -> Offering? {
         return await purchaseManager.fetchOfferings()
+    }
+    
+    //MARK: Premissions methods
+    func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
+        Service.requestPhotoLibraryAccessIfNeeded { granted in
+            completion(granted)
+        }
+    }
+    
+    func reuqestNotificacionPermission(completion: @escaping(Bool) -> Void) {
+        NotificationsService.requestNotificationAccess { granted in
+            completion(granted)
+        }
     }
 }

@@ -241,6 +241,29 @@ extension View {
         self.frame(minWidth: width, minHeight: height)
         #endif
     }
+    
+    @ViewBuilder
+    func customDeviceSheet(isPresented: Binding<Bool>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> some View) -> some View {
+        
+        #if os(iOS)
+        self
+            .fullScreenCover(isPresented: isPresented) {
+                onDismiss?()
+            } content: {
+                content()
+            }
+
+        #elseif os(macOS)
+        self
+            .sheet(isPresented: isPresented) {
+                onDismiss?()
+            } content: {
+                content()
+            }
+
+        
+        #endif
+    }
 }
 
 
@@ -274,3 +297,4 @@ extension Array {
         }
     }
 }
+

@@ -12,12 +12,18 @@
 		FF1593702EAA581700C8AD02 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF15936F2EAA581700C8AD02 /* PaywallView.swift */; };
 		FF1593722EAA6EB900C8AD02 /* LanguageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1593712EAA6EB300C8AD02 /* LanguageHelper.swift */; };
 		FF1593742EAA7D1600C8AD02 /* BenefitCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1593732EAA7D1600C8AD02 /* BenefitCards.swift */; };
+		FF1A9D142EABC2B800262EC9 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1A9D132EABC2AF00262EC9 /* OnboardingView.swift */; };
+		FF1A9D172EABC2FE00262EC9 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1A9D162EABC2FE00262EC9 /* WelcomeView.swift */; };
+		FF1A9D192EABE95400262EC9 /* IntelligentDetectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1A9D182EABE95400262EC9 /* IntelligentDetectionView.swift */; };
+		FF1A9D1B2EAC093800262EC9 /* KeepOrDeleteInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1A9D1A2EAC093800262EC9 /* KeepOrDeleteInstructions.swift */; };
 		FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2305072E7C58E5000F382D /* MainViewMarquee.swift */; };
 		FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2305092E7C8AC7000F382D /* ProcessedPhotos.swift */; };
 		FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23050B2E7CB716000F382D /* ContentModel.swift */; };
 		FF36CD842E8731CE005BB5CA /* DecisionMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF36CD832E8731CE005BB5CA /* DecisionMenuView.swift */; };
 		FF4E7C192E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */; };
 		FF4E7C1E2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = FF4E7C1D2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel */; };
+		FF57ABBF2EAD14C000128E40 /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF57ABBE2EAD14C000128E40 /* PermissionsView.swift */; };
+		FF57ABC12EAD19EA00128E40 /* NotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF57ABC02EAD19DE00128E40 /* NotificationsService.swift */; };
 		FF5F27DD2EA96D4300755E90 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = FF5F27DC2EA96D4300755E90 /* RevenueCat */; };
 		FF5F27E32EA96E5400755E90 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5F27E22EA96E5000755E90 /* Constants.swift */; };
 		FF5F27E72EA9700C00755E90 /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5F27E62EA96FFF00755E90 /* PurchaseService.swift */; };
@@ -72,6 +78,10 @@
 		FF15936F2EAA581700C8AD02 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		FF1593712EAA6EB300C8AD02 /* LanguageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageHelper.swift; sourceTree = "<group>"; };
 		FF1593732EAA7D1600C8AD02 /* BenefitCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitCards.swift; sourceTree = "<group>"; };
+		FF1A9D132EABC2AF00262EC9 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		FF1A9D162EABC2FE00262EC9 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		FF1A9D182EABE95400262EC9 /* IntelligentDetectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntelligentDetectionView.swift; sourceTree = "<group>"; };
+		FF1A9D1A2EAC093800262EC9 /* KeepOrDeleteInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepOrDeleteInstructions.swift; sourceTree = "<group>"; };
 		FF2305072E7C58E5000F382D /* MainViewMarquee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewMarquee.swift; sourceTree = "<group>"; };
 		FF2305092E7C8AC7000F382D /* ProcessedPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessedPhotos.swift; sourceTree = "<group>"; };
 		FF23050B2E7CB716000F382D /* ContentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModel.swift; sourceTree = "<group>"; };
@@ -79,6 +89,8 @@
 		FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAnalysisCloudCache.swift; sourceTree = "<group>"; };
 		FF4E7C1A2E789B6A00ABF2B4 /* PicPerfect.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PicPerfect.entitlements; sourceTree = "<group>"; };
 		FF4E7C1D2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = PicPerfectOrientationClassifier.mlmodel; sourceTree = "<group>"; };
+		FF57ABBE2EAD14C000128E40 /* PermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsView.swift; sourceTree = "<group>"; };
+		FF57ABC02EAD19DE00128E40 /* NotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsService.swift; sourceTree = "<group>"; };
 		FF5F27E22EA96E5000755E90 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		FF5F27E62EA96FFF00755E90 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
 		FF6739DB2E6B82C000C7C95A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -155,6 +167,26 @@
 				FF1593732EAA7D1600C8AD02 /* BenefitCards.swift */,
 			);
 			path = PaywallViews;
+			sourceTree = "<group>";
+		};
+		FF1A9D122EABC29300262EC9 /* OnboardingViews */ = {
+			isa = PBXGroup;
+			children = (
+				FF1A9D132EABC2AF00262EC9 /* OnboardingView.swift */,
+				FF1A9D152EABC2C200262EC9 /* OnboardingScreens */,
+			);
+			path = OnboardingViews;
+			sourceTree = "<group>";
+		};
+		FF1A9D152EABC2C200262EC9 /* OnboardingScreens */ = {
+			isa = PBXGroup;
+			children = (
+				FF1A9D162EABC2FE00262EC9 /* WelcomeView.swift */,
+				FF1A9D182EABE95400262EC9 /* IntelligentDetectionView.swift */,
+				FF1A9D1A2EAC093800262EC9 /* KeepOrDeleteInstructions.swift */,
+				FF57ABBE2EAD14C000128E40 /* PermissionsView.swift */,
+			);
+			path = OnboardingScreens;
 			sourceTree = "<group>";
 		};
 		FF2305042E7C5858000F382D /* ElementsViews */ = {
@@ -283,6 +315,7 @@
 			isa = PBXGroup;
 			children = (
 				FF6F45422E94213C000FAF9A /* RootView.swift */,
+				FF1A9D122EABC29300262EC9 /* OnboardingViews */,
 				FF6F45442E942158000FAF9A /* HomeView.swift */,
 				FFD355102E6F4DD500BEB236 /* Process photos views */,
 				FF15936E2EAA572800C8AD02 /* PaywallViews */,
@@ -293,6 +326,7 @@
 		FFD22CF32E511F7C00071915 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FF57ABC02EAD19DE00128E40 /* NotificationsService.swift */,
 				FF5F27E62EA96FFF00755E90 /* PurchaseService.swift */,
 				FF5F27E42EA96FAC00755E90 /* PhotoServices */,
 				FF5F27E52EA96FD400755E90 /* StorageServices */,
@@ -435,18 +469,22 @@
 				FF6F454B2E94311A000FAF9A /* CategoryCard.swift in Sources */,
 				FF4E7C192E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift in Sources */,
 				FF75659E2E9E8D5A00260549 /* CleanupSessionRecord.swift in Sources */,
+				FF57ABC12EAD19EA00128E40 /* NotificationsService.swift in Sources */,
 				FF36CD842E8731CE005BB5CA /* DecisionMenuView.swift in Sources */,
 				FFAF02972E83280400CBF98B /* Enums.swift in Sources */,
 				FF6F45472E942C8A000FAF9A /* CategoryView.swift in Sources */,
 				FFD355092E6F474800BEB236 /* PhotoLibraryScanner.swift in Sources */,
 				FFE0D8542E8EF2FA00CBA5A6 /* ImageInfo.swift in Sources */,
 				FF7565A52E9E969500260549 /* CleanupHistoryView.swift in Sources */,
+				FF1A9D192EABE95400262EC9 /* IntelligentDetectionView.swift in Sources */,
+				FF1A9D1B2EAC093800262EC9 /* KeepOrDeleteInstructions.swift in Sources */,
 				FF6F45432E94213C000FAF9A /* RootView.swift in Sources */,
 				FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */,
 				FFE0D8582E8F0F9600CBA5A6 /* ScreenShotService.swift in Sources */,
 				FFAE17D02E99876B00A83547 /* TypeAlias.swift in Sources */,
 				FF1593702EAA581700C8AD02 /* PaywallView.swift in Sources */,
 				FFFB6FFF2E9547E800D56BA3 /* DeviceHelper.swift in Sources */,
+				FF57ABBF2EAD14C000128E40 /* PermissionsView.swift in Sources */,
 				FFED1D1B2E8DB96600CB9E89 /* DecisionRecord.swift in Sources */,
 				FF7565A32E9E921800260549 /* CleanupSummaryView.swift in Sources */,
 				FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */,
@@ -458,6 +496,7 @@
 				FFE2F7392EA6B410003ACCE6 /* PersistenceService.swift in Sources */,
 				FFD22CFA2E51293400071915 /* CorrectedPhoto.swift in Sources */,
 				FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */,
+				FF1A9D172EABC2FE00262EC9 /* WelcomeView.swift in Sources */,
 				FF1593742EAA7D1600C8AD02 /* BenefitCards.swift in Sources */,
 				FF6F454D2E9446A1000FAF9A /* CategorySplitView.swift in Sources */,
 				FF6F45492E942D2B000FAF9A /* PhotoGroup.swift in Sources */,
@@ -466,6 +505,7 @@
 				FF6739DC2E6B82C600C7C95A /* Extensions.swift in Sources */,
 				FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */,
 				FF7565A02E9E8DC800260549 /* CleanupHistoryCloudStore.swift in Sources */,
+				FF1A9D142EABC2B800262EC9 /* OnboardingView.swift in Sources */,
 				FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */,
 				FFE3F7AF2E903A2200A1F3D2 /* ExposureService.swift in Sources */,
 				FFEE33932EA0395600346333 /* DismissButton.swift in Sources */,

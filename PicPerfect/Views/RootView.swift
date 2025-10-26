@@ -10,6 +10,7 @@ import SwiftUI
 struct RootView: View {
     
     @Environment(ContentModel.self) var model
+    @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
         
@@ -21,15 +22,37 @@ struct RootView: View {
                     CleanupHistoryView()
                 }
         }
+        .onAppear(perform: {
+            
+            activateOnboarding()
+        })
         .minMacFrame(width: 1200, height: 800)
+        .onChange(of: scenePhase) { oldValue, newValue in
+            if newValue == .active {
+                ContentModel.useCounter += 1
+                print("App launched \(ContentModel.useCounter) times")
+            }
+        }
+        
         .sheet(isPresented: .constant(model.showPaywall)) {
             model.showPaywall = false
         } content: {
             PaywallView()
         }
-        
-           
+        .customDeviceSheet(isPresented: .constant(model.onboardingPresent)) {
+            model.onboardingPresent = false
+        } content: {
+            OnboardingView()
+        }
 
+
+        
+    }
+    
+    private func activateOnboarding() {
+        if ContentModel.useCounter <= 1 {
+            model.onboardingPresent = true
+        }
     }
 }
 
