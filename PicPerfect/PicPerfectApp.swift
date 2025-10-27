@@ -25,10 +25,27 @@ struct PicPerfectApp: App {
             print("☁️ iCloud store updated: \(note.userInfo ?? [:])")
         }
         
+        print("URL.applicationSupportDirectory", URL.applicationSupportDirectory
+                   .path(percentEncoded: false))
+        
         // Configure RevenueCat
         Purchases.logLevel = .debug
         Purchases.configure(withAPIKey: Constants.rcAPIKey)
     }
+    
+    let container: ModelContainer = {
+        let schema = Schema([PersistentPhotoGroup.self])
+        let config = ModelConfiguration(isStoredInMemoryOnly: false)
+        
+        do {
+            let container = try ModelContainer(for: schema, configurations: config)
+            print("📂 Store URL:", container.configurations.first?.url ?? .init(string: "nil")!)
+            return container
+        }
+        catch {
+            fatalError("❌ Error creating ModelContainer: \(error)")
+        }
+    }()
     
     var body: some Scene {
         WindowGroup {
@@ -46,6 +63,7 @@ struct PicPerfectApp: App {
                     
                 }
         }
-        .modelContainer(for: PersistentPhotoGroup.self)
+        .modelContainer(container)
+        
     }
 }

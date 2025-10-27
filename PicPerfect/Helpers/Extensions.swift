@@ -298,3 +298,42 @@ extension Array {
     }
 }
 
+extension [PersistentPhotoGroup] {
+    func toPhotoGroups() async -> [PhotoGroup] {
+        
+        var restoredGroups: [PhotoGroup] = []
+        
+        for group in self {
+            var images: [ImageInfo] = []
+            for id in group.imageIds {
+                let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
+                if let asset = fetch.firstObject {
+                    if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
+                        let info = ImageInfo(
+                            isIncorrect: false,
+                            image: image,
+                            asset: asset,
+                            summary: nil,
+                            imageType: nil,
+                            orientation: nil,
+                            rotationAngle: nil,
+                            confidence: nil,
+                            source: nil,
+                            fileSizeInMB: asset.fileSizeInMB,
+                            exposure: nil,
+                            blurScore: nil,
+                            faceIssues: nil
+                        )
+                        images.append(info)
+                    }
+                }
+            }
+            let category = PhotoGroupCategory(rawValue: group.category) ?? .duplicates
+            let photoGroup = PhotoGroup(images: images, score: group.score, category: category)
+            restoredGroups.append(photoGroup)
+        }
+        
+        return restoredGroups
+    }
+}
+

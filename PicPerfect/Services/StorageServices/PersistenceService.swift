@@ -26,8 +26,15 @@ class PersistenceService {
                 isPending: true
             )
             context.insert(persistent)
+            
         }
-        try? context.save()
+        do {
+            try context.save()
+            let count = try? context.fetchCount(FetchDescriptor<PersistentPhotoGroup>())
+            print("💾 Objects in store:", count ?? 0)
+        } catch {
+            print("❌ Error saving pending groups: \(error)")
+        }
     }
     
     static func fetchPendingGroups(context: ModelContext) async -> [PhotoGroup] {

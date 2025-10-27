@@ -9,7 +9,9 @@ import Foundation
 import SwiftData
 
 struct PhotoGroup: Identifiable, Hashable {
-    let id = UUID()
+    var id: String {
+        images.map { $0.id }.joined(separator: "-")
+    }
     var images: [ImageInfo]
     let score: Float?    // optional, for duplicates similarity or blur avg
     let category: PhotoGroupCategory // e.g. "Duplicates", "Blurry", "Exposure", "Faces"
@@ -17,15 +19,15 @@ struct PhotoGroup: Identifiable, Hashable {
 
 
 @Model
-final class PersistentPhotoGroup {
-    @Attribute(.unique) var id: UUID
-    var imageIds: [String]
-    var score: Float?
-    var category: String
-    var isPending: Bool
-    var dateSaved: Date
+class PersistentPhotoGroup {
+    var id: String = UUID().uuidString
+    var imageIds: [String] = []
+    var score: Float? = nil
+    var category: String = ""
+    var isPending: Bool = true
+    var dateSaved: Date = Date()
     
-    init(id: UUID = UUID(),
+    init(id: String,
          imageIds: [String],
          score: Float? = nil,
          category: String,

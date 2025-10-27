@@ -64,8 +64,12 @@ struct ScanLibraryView: View {
                             
                         }
                         else {
-                            Task {
-                                await analyzeLibrary()
+                            
+                            Service.requestPhotoLibraryAccessIfNeeded { granted in
+                                photoAccessGranted = granted
+                                Task {
+                                    await analyzeLibrary()
+                                }
                             }
                         }
                     }
@@ -74,13 +78,6 @@ struct ScanLibraryView: View {
                 }
             }
             .padding()
-            .onAppear {
-                
-                
-                Service.requestPhotoLibraryAccessIfNeeded { granted in
-                    photoAccessGranted = granted
-                }
-            }
             .alert("Permission Required", isPresented: $permisionAlertPresented) {
                 
                 Button("Open Settings") {

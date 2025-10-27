@@ -12,6 +12,8 @@ struct RootView: View {
     @Environment(ContentModel.self) var model
     @Environment(\.scenePhase) var scenePhase
     
+    private var manager = PhotoGroupManager()
+    
     var body: some View {
         
         ZStack {

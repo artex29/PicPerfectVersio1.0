@@ -15,8 +15,8 @@ enum AppPhase {
 
 struct HomeView: View {
     
-    private var manager = PhotoGroupManager()
-    
+   
+   @Environment(PhotoGroupManager.self) var manager
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var context
     @State private var groups:[[PhotoGroup]] = []
@@ -49,17 +49,6 @@ struct HomeView: View {
                     phase = .scan
                 })
                 .environment(manager)
-            }
-        }
-        .task {
-//            PhotoAnalysisCloudCache.createTestRecord()
-            if manager.allGroups.isEmpty {
-                let pendingGroups = await PersistenceService.fetchPendingGroups(context: context)
-                
-                if !pendingGroups.isEmpty {
-                    manager.allGroups = pendingGroups
-                    phase = .categories
-                }
             }
         }
         .onChange(of: scenePhase) { oldValue, newValue in
