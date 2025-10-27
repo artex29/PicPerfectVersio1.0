@@ -91,7 +91,7 @@ struct CategorySplitView: View {
                                                         if manager.allGroups.isEmpty == false {
                                                             sideBarVisibility = .all
                                                             
-                                                            let groups = manager.allGroups
+                                                            let groups = manager.allGroups.sortByCategory()
                                                             
                                                             selectedGroup = groups.filter { $0.category == groups.first?.category}
                                                         }

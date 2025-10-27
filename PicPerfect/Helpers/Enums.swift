@@ -45,7 +45,7 @@ enum PhotoGroupCategory: String, CaseIterable, Codable {
         case .exposure:
             return "Exposure Issues"
         case .faces:
-            return "Closed Eyes / Blurry Faces"
+            return "Closed Eyes / Bad Framing"
         case .orientation:
             return "Orientation Issues"
         case .screenshots:

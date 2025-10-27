@@ -118,7 +118,7 @@ struct CategoryView: View {
     
     private func reGroupByCategory() -> [[PhotoGroup]] {
         let categories = Dictionary(grouping: photoGroups, by: { $0.category })
-        let sortOrder: [PhotoGroupCategory] = [.duplicates, .similars, .blurry, .exposure, .faces, .screenshots, .orientation]
+        let sortOrder: [PhotoGroupCategory] = [.duplicates, .similars, .screenshots, .faces, .blurry, .exposure]
         
         return categories.values.map { Array($0) }.sorted { first, second in
             guard let firstCategory = first.first?.category,

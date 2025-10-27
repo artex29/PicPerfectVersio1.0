@@ -12,7 +12,9 @@ import Photos
 import Vision
 import CloudKit
 
-
+#if os(macOS)
+import AppKit
+#endif
 
 class PhotoLibraryScanner {
     static let shared = PhotoLibraryScanner()
@@ -58,18 +60,18 @@ class PhotoLibraryScanner {
         let blurryRecords = await PhotoAnalysisCloudCache.loadRecords(for: .blurry)
         let exposureRecords = await PhotoAnalysisCloudCache.loadRecords(for: .exposure)
         let faceRecords = await PhotoAnalysisCloudCache.loadRecords(for: .faces)
-        let orientationRecords = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
+//        let orientationRecords = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
 
         // Convert to simple sets of analyzed IDs for faster lookup
         let blurryAnalyzedIDs = Set(blurryRecords.map { $0.id })
         let exposureAnalyzedIDs = Set(exposureRecords.map { $0.id })
         let faceAnalyzedIDs = Set(faceRecords.map { $0.id })
-        let orientationAnalyzedIDs = Set(orientationRecords.map { $0.id })
+//        let orientationAnalyzedIDs = Set(orientationRecords.map { $0.id })
         
         let allAnalyzedIDs = blurryAnalyzedIDs
             .union(exposureAnalyzedIDs)
             .union(faceAnalyzedIDs)
-            .union(orientationAnalyzedIDs)
+//            .union(orientationAnalyzedIDs)
         
         let allNoAnalyzedAssets = sortedAssets.filter { !allAnalyzedIDs.contains($0.localIdentifier) }
 
@@ -83,13 +85,13 @@ class PhotoLibraryScanner {
         var blurryIssues: [ImageInfo] = []
         var exposureIssues: [ImageInfo] = []
         var faceIssues: [ImageInfo] = []
-        var orientationIssues: [ImageInfo] = []
+//        var orientationIssues: [ImageInfo] = []
         
         //Records to save
         var blurryIdsToRecord:[String] = []
         var exposureIdsToRecord:[String] = []
         var faceIdsToRecord:[String] = []
-        var orientationIdsToRecord:[String] = []
+//        var orientationIdsToRecord:[String] = []
         
         if !allNoAnalyzedAssets.isEmpty {
             for (index, asset) in (allNoAnalyzedAssets.prefix(limit)).enumerated() {
@@ -110,7 +112,7 @@ class PhotoLibraryScanner {
                     
                     
                     // Exposure
-                    if index == Int(Double(limit) * 0.25) {
+                    if index == Int(Double(limit) * 0.50) {
                         await MainActor.run { progress(.exposure) }
                     }
                     
@@ -123,7 +125,7 @@ class PhotoLibraryScanner {
                     }
                     
                     // Faces
-                    if index == Int(Double(limit) * 0.5) {
+                    if index == Int(Double(limit) * 0.75) {
                         await MainActor.run { progress(.faces) }
                     }
                     
@@ -135,19 +137,19 @@ class PhotoLibraryScanner {
                         faceIdsToRecord.append(identifier)
                     }
                     
-                    // Orientation
-                    if index == Int(Double(limit) * 0.75) {
-                        await MainActor.run { progress(.orientation) }
-                    }
-                    
-                    if let orientationIssue = await OrientationService.detectMisalignment(in: image, asset: asset) {
-                        orientationIssues.append(orientationIssue)
-                    }
-                    else {
-                        let identifier = asset.localIdentifier
-                        orientationIdsToRecord.append(identifier)
-                        
-                    }
+                    // Orientation, not present in this version due to performance issues
+//                    if index == Int(Double(limit) * 0.75) {
+//                        await MainActor.run { progress(.orientation) }
+//                    }
+//                    
+//                    if let orientationIssue = await OrientationService.detectMisalignment(in: image, asset: asset) {
+//                        orientationIssues.append(orientationIssue)
+//                    }
+//                    else {
+//                        let identifier = asset.localIdentifier
+//                        orientationIdsToRecord.append(identifier)
+//                        
+//                    }
                 }
             }
         }
@@ -224,12 +226,12 @@ class PhotoLibraryScanner {
         if !blurryIssues.isEmpty { groups.append(groupImages(blurryIssues, by: .blurry)) }
         if !exposureIssues.isEmpty { groups.append(groupImages(exposureIssues, by: .exposure)) }
         if !faceIssues.isEmpty { groups.append(groupImages(faceIssues, by: .faces)) }
-        if !orientationIssues.isEmpty { groups.append(groupImages(orientationIssues, by: .orientation)) }
+//        if !orientationIssues.isEmpty { groups.append(groupImages(orientationIssues, by: .orientation)) }
       
 
         // 7️⃣ Screenshots (sin cache)
         await MainActor.run { progress(.screenshots) }
-        let screenshots = await ScreenShotService.fetchScreenshotsBatch(limit: limit)
+        let screenshots = await ScreenShotService.fetchScreenshotsBatch(limit: 30)
         if !screenshots.isEmpty {groups.append(groupImages(screenshots, by: .screenshots))}
 
         await MainActor.run { progress(.done) }
@@ -239,11 +241,12 @@ class PhotoLibraryScanner {
             let blurryRecords = await PhotoAnalysisCloudCache.createAssetRecords(for: blurryIdsToRecord, and: .blurry)
             let exposureRecords = await PhotoAnalysisCloudCache.createAssetRecords(for: exposureIdsToRecord, and: .exposure)
             let faceRecords = await PhotoAnalysisCloudCache.createAssetRecords(for: faceIdsToRecord, and: .faces)
-            let orientationRecords = await PhotoAnalysisCloudCache.createAssetRecords(for: orientationIdsToRecord, and: .orientation)
+//            let orientationRecords = await PhotoAnalysisCloudCache.createAssetRecords(for: orientationIdsToRecord, and: .orientation)
             
             do {
-                let allRecords = blurryRecords + exposureRecords + faceRecords + orientationRecords
-                print("☁️ Uploading \(allRecords.count) analysis records to iCloud...")
+                let allRecordsSet:Set<CKRecord> = Set(blurryRecords + exposureRecords + faceRecords)// + orientationRecords)
+                print("☁️ Uploading \(allRecordsSet.count) analysis records to iCloud...")
+                let allRecords = Array(allRecordsSet)
                 let chunks = await allRecords.chunked(into: 100)
                 for chunk in chunks {
                     try await PhotoAnalysisCloudCache.markBatchAsAnalyzed(chunk)
@@ -277,6 +280,7 @@ class PhotoLibraryScanner {
         requestOptions.isSynchronous = true
         requestOptions.deliveryMode = .highQualityFormat
         requestOptions.resizeMode = .fast
+        requestOptions.isNetworkAccessAllowed = true
         
         // Pedimos máximo 10 imágenes
         for asset in assets.prefix(fetchLimit) {
@@ -289,6 +293,13 @@ class PhotoLibraryScanner {
             ) { image, _ in
                 if let image = image {
                     images.append(image)
+                }
+                else {
+                    imageManager.requestImageDataAndOrientation(for: asset, options: requestOptions) { data, _, _, _ in
+                        if let data = data, let img = PPImage(data: data) {
+                            images.append(img)
+                        }
+                    }
                 }
             }
         }

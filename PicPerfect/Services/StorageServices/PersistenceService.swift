@@ -51,7 +51,7 @@ class PersistenceService {
             for id in group.imageIds {
                 let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
                 if let asset = fetch.firstObject {
-                    if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
+                    if let image = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)) {
                         let info = ImageInfo(
                             isIncorrect: false,
                             image: image,

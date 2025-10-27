@@ -47,6 +47,8 @@ struct SwipeDecisionView: View {
     
     @State private var isPileExpanded = false
     
+    @State private var loadingPhotos = false
+    
     @Binding var navigationPath: [NavigationDestination]
     
     // Binding for optional swipe instructions; do not provide a default for a Binding
@@ -66,6 +68,17 @@ struct SwipeDecisionView: View {
             ZStack {
                 
                 PicPerfectTheme.Colors.background
+                
+                ProgressView {
+                    Text("Loading photos...")
+                        
+                }
+                .foregroundStyle(.white)
+                .padding()
+                .tint(.white)
+                .ifAvailableGlassContainer()
+                .isPresent(loadingPhotos)
+                
                 
                 VStack {
                     
@@ -96,6 +109,7 @@ struct SwipeDecisionView: View {
                     Spacer()
                 }
                 .frame(width: geo.size.width, height: geo.size.height)
+                .isPresent(loadingPhotos == false)
                
                 
                 VStack {
@@ -161,10 +175,13 @@ struct SwipeDecisionView: View {
                     )
                 }
                 .padding(.bottom, 30)
+                .isPresent(loadingPhotos == false)
                 .task {
+                    loadingPhotos = true
                     await getGroups {
                         selectedGroup = groupedImages.first?.reversed() ?? []
                         setHistory()
+                        loadingPhotos = false
                     }
                 }
             }
@@ -333,9 +350,6 @@ struct SwipeDecisionView: View {
             
             
             for (index, group) in groups.enumerated() {
-                // Skip screenshots to save time
-                if photoGroups.contains(where: { $0.category == .screenshots }) {break}
-                
                
                 for (i, imageInfo) in group.enumerated() {
                     
@@ -348,7 +362,7 @@ struct SwipeDecisionView: View {
             
         }
         else {
-            // If no duplicate groups, create dummy groups from local images
+            // If no photo groups, create dummy groups from local images
             let chunkSize = 3
             for i in stride(from: 0, to: images.count, by: chunkSize) {
                 

@@ -148,38 +148,85 @@ class Service {
         }
     }
     
-    static func requestImage(for asset: PHAsset, size: CGSize = CGSize(width: 1024, height: 1024)) async -> PPImage? {
+    static func requestImage(for asset: PHAsset,
+                             size: CGSize = CGSize(width: 512, height: 512),
+                             contentMode: PHImageContentMode = .aspectFit) async -> PPImage? {
         await withCheckedContinuation { continuation in
-            
+            let manager = PHImageManager.default()
             let options = PHImageRequestOptions()
-            options.isSynchronous = true
+            options.isNetworkAccessAllowed = true
+            options.isSynchronous = false
             options.deliveryMode = .highQualityFormat
             options.resizeMode = .fast
-            
-            PHImageManager.default().requestImage(for: asset,
-                                                  targetSize: size,
-                                                  contentMode: .aspectFit,
-                                                  options: options) { image, _ in
-                continuation.resume(returning: image)
+
+            var didResume = false
+
+            manager.requestImage(for: asset,
+                                 targetSize: size,
+                                 contentMode: contentMode,
+                                 options: options) { image, info in
+                // Rechazar si el request fue cancelado
+                if let canceled = info?[PHImageCancelledKey] as? Bool, canceled {
+                    guard !didResume else { return }
+                    didResume = true
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                if let image = image {
+                    guard !didResume else { return }
+                    didResume = true
+                    print("✅ Fetched image (\(Int(size.width))px) for asset: \(asset.localIdentifier)")
+                    continuation.resume(returning: image)
+                } else {
+                    print("⚠️ requestImage returned nil for \(asset.localIdentifier). Trying full data...")
+                    manager.requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                        guard !didResume else { return }
+                        didResume = true
+                        if let data = data, let img = PPImage(data: data) {
+                            print("✅ Fetched full imageData for asset: \(asset.localIdentifier)")
+                            continuation.resume(returning: img)
+                        } else {
+                            print("❌ Failed to fetch any image for asset: \(asset.localIdentifier)")
+                            continuation.resume(returning: nil)
+                        }
+                    }
+                }
             }
         }
     }
     
     static func requestHighResImage(for asset: PHAsset) async -> PPImage? {
         await withCheckedContinuation { continuation in
-            let manager = PHCachingImageManager()
+            let manager = PHImageManager.default()
             let options = PHImageRequestOptions()
             options.deliveryMode = .highQualityFormat
+            options.isNetworkAccessAllowed = true
             options.isSynchronous = false
+            options.resizeMode = .fast
 
-            let targetSize = CGSize(width: 1024, height: 1024)
+            let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
 
             manager.requestImage(for: asset,
                                  targetSize: targetSize,
-                                 contentMode: .default,
-                                 options: options) { image, _ in
-                
-                continuation.resume(returning: image)
+                                 contentMode: .aspectFit,
+                                 options: options) { image, info in
+                if let image = image {
+                    print("✅ Fetched high-res image for asset: \(asset.localIdentifier)")
+                    continuation.resume(returning: image)
+                } else {
+                    print("⚠️ requestImage returned nil for \(asset.localIdentifier). Trying full data...")
+                    // 🔁 Fallback a imageData
+                    manager.requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                        if let data = data, let img = PPImage(data: data) {
+                            print("✅ Fetched full imageData for asset: \(asset.localIdentifier)")
+                            continuation.resume(returning: img)
+                        } else {
+                            print("❌ Failed to fetch any image for asset: \(asset.localIdentifier)")
+                            continuation.resume(returning: nil)
+                        }
+                    }
+                }
             }
         }
     }

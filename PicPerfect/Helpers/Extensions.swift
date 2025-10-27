@@ -308,7 +308,7 @@ extension [PersistentPhotoGroup] {
             for id in group.imageIds {
                 let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
                 if let asset = fetch.firstObject {
-                    if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
+                    if let image = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)) {
                         let info = ImageInfo(
                             isIncorrect: false,
                             image: image,
@@ -334,6 +334,23 @@ extension [PersistentPhotoGroup] {
         }
         
         return restoredGroups
+    }
+}
+
+extension [PhotoGroup] {
+    func sortByCategory() -> [PhotoGroup] {
+        
+        let sortOrder: [PhotoGroupCategory] = [.duplicates, .similars, .screenshots, .faces, .blurry, .exposure]
+        
+        let sorted = self.sorted { first, second in
+            guard let firstIndex = sortOrder.firstIndex(of: first.category),
+                  let secondIndex = sortOrder.firstIndex(of: second.category) else {
+                return false
+            }
+            return firstIndex < secondIndex
+        }
+        
+        return sorted
     }
 }
 
