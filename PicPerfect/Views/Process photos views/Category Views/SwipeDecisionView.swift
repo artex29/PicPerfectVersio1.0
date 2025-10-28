@@ -16,6 +16,7 @@ enum DecisionActions: Int {
 
 struct SwipeDecisionView: View {
     
+    @Environment(ContentModel.self) var model
     @Environment(PhotoGroupManager.self) var manager
     
     var photoGroups: [PhotoGroup]
@@ -48,6 +49,8 @@ struct SwipeDecisionView: View {
     @State private var isPileExpanded = false
     
     @State private var loadingPhotos = false
+    
+    @State private var subscriptionAlertPresent = false
     
     @Binding var navigationPath: [NavigationDestination]
     
@@ -167,9 +170,42 @@ struct SwipeDecisionView: View {
                     .isPresent(swipeInstructions == nil)
                     
                     DecisionMenuView(
-                        deleteAction: {handleDecisionAction(for: .delete)},
-                        undoAction: {handleDecisionAction(for: .undo)},
-                        keepAction: {handleDecisionAction(for: .keep)},
+                        deleteAction: {
+                            Task {
+                                await grantAction(completion: { actionGranted in
+                                    if actionGranted {
+                                        handleDecisionAction(for: .delete)
+                                    }
+                                    else {
+                                        model.showPaywall = true
+                                    }
+                                })
+                            }
+                        },
+                        undoAction: {
+                            Task {
+                                await grantAction(completion: { actionGranted in
+                                    if actionGranted {
+                                        handleDecisionAction(for: .undo)
+                                    }
+                                    else {
+                                        model.showPaywall = true
+                                    }
+                                })
+                            }
+                        },
+                        keepAction: {
+                            Task {
+                                await grantAction(completion: { actionGranted in
+                                    if actionGranted {
+                                        handleDecisionAction(for: .keep)
+                                    }
+                                    else {
+                                        model.showPaywall = true
+                                    }
+                                })
+                            }
+                        },
                         decisionHistory: decisionHistory,
                         swipeInstructions: $swipeInstructions
                     )
@@ -190,6 +226,15 @@ struct SwipeDecisionView: View {
                 if swipeInstructions != nil {
                     isPileExpanded = true
                 }
+                else {
+                    Task {
+                        await grantAction { isUserSubscribed in
+                            if isUserSubscribed == false {
+                                subscriptionAlertPresent = true
+                            }
+                        }
+                    }
+                }
             }
             .onChange(of: swipeInstructions?.nextAction) { oldValue, newValue in
                 if newValue != nil {
@@ -204,9 +249,26 @@ struct SwipeDecisionView: View {
                 navigationPath.append(.confirmationView(group: photoGroups))
             }
         })
+        .alert("✨ Go Premium with PicPerfect+", isPresented: $subscriptionAlertPresent, actions: {
+            Button("Subscribe Now") {model.showPaywall = true}
+            
+            let text = device != .iPhone ? "Cancel" : "Back"
+            Button(text) {navigationPath.removeAll()}
+            
+        }, message: {
+            Text("Subscribe to unlock this feature and enjoy unlimited access to all premium tools!")
+        })
         
-
-        
+    }
+    
+    private func grantAction(completion: @escaping (Bool) -> Void) async  {
+        if let category = photoGroups.first?.category,
+           await model.isSubscriptionRequired(for: category) {
+            completion(model.isUserSubscribed)
+        }
+        else {
+            completion(true)
+        }
     }
     
     private func setHistory() {
@@ -574,6 +636,7 @@ struct PhotosPile: View {
 #Preview {
     SwipeDecisionView(photoGroups: [], navigationPath: .constant([]), swipeInstructions: .constant(nil))
         .environment(PhotoGroupManager())
+        .environment(ContentModel())
 }
 
 fileprivate func deleteFromGroup(image: ImageInfo,

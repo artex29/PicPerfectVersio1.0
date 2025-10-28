@@ -9,7 +9,10 @@ import SwiftUI
 
 struct CategoryCard: View {
     
+    @Environment(ContentModel.self) var model
+    
     @Binding var selectedGroup: [PhotoGroup]?
+    
     var group: [PhotoGroup]
     
     let device = DeviceHelper.type
@@ -17,10 +20,38 @@ struct CategoryCard: View {
     var body: some View {
         if device == .iPhone {
             iPhoneCategoryCard(group: group)
+                .overlay {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            PicPerfectPlusIcon()
+                                .frame(height: 20)
+                        }
+                    }
+                    .padding(15)
+                    .opacity(0.8)
+                    .isPresent(model.plusCategories.contains(where: { group.first?.category == $0 }) )
+                    
+                }
                 
         }
         else {
             iPadCategoryCard(selectedGroup: $selectedGroup, group: group)
+                .overlay {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            PicPerfectPlusIcon()
+                                .frame(height: 20)
+                        }
+                    }
+                    .padding(15)
+                    .opacity(0.8)
+                    .isPresent(model.plusCategories.contains(where: { group.first?.category == $0 }) )
+                    
+                }
         }
     }
 }
@@ -140,4 +171,5 @@ struct iPadCategoryCard: View {
     CategoryCard(selectedGroup: .constant(nil),
                  group: [])
     .environment(PhotoGroupManager())
+    .environment(ContentModel())
 }

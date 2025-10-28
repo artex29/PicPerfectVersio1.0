@@ -22,9 +22,11 @@ class ContentModel {
     //Purchases properties
     var showPaywall: Bool = false
     private let purchaseManager = PurchaseService.shared
-    var isProUser: Bool = false
+    var isUserSubscribed: Bool = false
     var offerings: Offering? = nil
     
+    
+    let plusCategories: [PhotoGroupCategory] = [.blurry, .exposure]
     
     
     init() {
@@ -51,7 +53,7 @@ class ContentModel {
     
     //MARK: Purchases methods
     func refreshSubscriptionStatus() async {
-        isProUser = await purchaseManager.isProUser()
+        isUserSubscribed = await purchaseManager.isProUser()
     }
     
     func purchase(package: Package, completion: @escaping(Bool) -> Void) async {
@@ -78,6 +80,16 @@ class ContentModel {
     
     func getOfferings() async -> Offering? {
         return await purchaseManager.fetchOfferings()
+    }
+    
+    //MARK: Subscription methods
+    func isSubscriptionRequired(for category: PhotoGroupCategory) async -> Bool {
+        if plusCategories.contains(category) {
+            await refreshSubscriptionStatus()
+            return !isUserSubscribed
+        }
+        
+        return false
     }
     
     //MARK: Premissions methods

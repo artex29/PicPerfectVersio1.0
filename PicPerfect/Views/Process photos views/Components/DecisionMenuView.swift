@@ -53,7 +53,6 @@ struct DecisionMenuView: View {
             
             
         }
-        
         .padding()
         .padding(.horizontal)
     }

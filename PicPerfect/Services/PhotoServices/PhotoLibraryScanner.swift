@@ -14,6 +14,8 @@ import CloudKit
 
 #if os(macOS)
 import AppKit
+#elseif os(iOS)
+import UIKit
 #endif
 
 class PhotoLibraryScanner {
@@ -23,6 +25,7 @@ class PhotoLibraryScanner {
     static func analyzeLibraryWithEfficiency(
         assets: [PHAsset],
         limit: Int = 50,
+        isUserSubscribed: Bool,
         progress: @MainActor @escaping (AnalysisProgress) -> Void
     ) async -> [PhotoGroup] {
         
@@ -57,9 +60,16 @@ class PhotoLibraryScanner {
         }
         
         // 3️⃣ Load analyzed records for each module from CloudKit
-        let blurryRecords = await PhotoAnalysisCloudCache.loadRecords(for: .blurry)
-        let exposureRecords = await PhotoAnalysisCloudCache.loadRecords(for: .exposure)
         let faceRecords = await PhotoAnalysisCloudCache.loadRecords(for: .faces)
+        
+        var blurryRecords:[PhotoAnalysisRecord] = []
+        var exposureRecords:[PhotoAnalysisRecord] = []
+        
+        if isUserSubscribed {
+            blurryRecords = await PhotoAnalysisCloudCache.loadRecords(for: .blurry)
+            exposureRecords = await PhotoAnalysisCloudCache.loadRecords(for: .exposure)
+        }
+        
 //        let orientationRecords = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
 
         // Convert to simple sets of analyzed IDs for faster lookup
@@ -106,8 +116,10 @@ class PhotoLibraryScanner {
                         blurryIssues.append(blurryIssue)
                     }
                     else {
-                        let identifier = asset.localIdentifier
-                        blurryIdsToRecord.append(identifier)
+                        if isUserSubscribed {
+                            let identifier = asset.localIdentifier
+                            blurryIdsToRecord.append(identifier)
+                        }
                     }
                     
                     
@@ -120,8 +132,10 @@ class PhotoLibraryScanner {
                         exposureIssues.append(exposureIssue)
                     }
                     else {
-                        let identifier = asset.localIdentifier
-                        exposureIdsToRecord.append(identifier)
+                        if isUserSubscribed {
+                            let identifier = asset.localIdentifier
+                            exposureIdsToRecord.append(identifier)
+                        }
                     }
                     
                     // Faces
@@ -153,74 +167,6 @@ class PhotoLibraryScanner {
                 }
             }
         }
-        
-//        // 🔹 Blurry
-//        await MainActor.run { progress(.blurry) }
-//        if !blurryAssets.isEmpty {
-//            for asset in blurryAssets.prefix(limit) {
-//                if let image = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)),
-//                   let issue = await BlurryPhotosService.detectBlurriness(in: image, asset: asset) {
-//                    blurryIssues.append(issue)
-//                }
-//                else {
-//                    // Record in cache as analyzed with no issues
-//                    let identifier = asset.localIdentifier
-//                    blurryIdsToRecord.append(identifier)
-//                    
-//                }
-//            }
-//        }
-//        
-//        // 🔹 Exposure
-//        await MainActor.run { progress(.exposure) }
-//        if !exposureAssets.isEmpty {
-//            for asset in exposureAssets.prefix(limit) {
-//                if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
-//                   let issue = await ExposureService.detectExposureIssueOnImage(image: image, asset: asset) {
-//                    exposureIssues.append(issue)
-//                }
-//                else {
-//                    // Record in cache as analyzed with no issues
-//                    let identifier = asset.localIdentifier
-//                    exposureIdsToRecord.append(identifier)
-//
-//                }
-//            }
-//        }
-//
-//        // 🔹 Faces
-//        await MainActor.run { progress(.faces) }
-//        if !faceAssets.isEmpty {
-//            for asset in faceAssets.prefix(limit) {
-//                if let image = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)),
-//                   let issue = await FaceQualityService.detectBadFaceOnImage(image, asset: asset) {
-//                    faceIssues.append(issue)
-//                }
-//                else {
-//                    // Record in cache as analyzed with no issues
-//                    let identifier = asset.localIdentifier
-//                    faceIdsToRecord.append(identifier)
-//                    
-//                }
-//            }
-//        }
-//
-//        // 🔹 Orientation
-//        await MainActor.run { progress(.orientation) }
-//        if !orientationAssets.isEmpty {
-//            for asset in orientationAssets.prefix(limit) {
-//                if let image = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
-//                   let issue = await OrientationService.detectMisalignment(in: image, asset: asset) {
-//                    orientationIssues.append(issue)
-//                }
-//                else {
-//                    // Record in cache as analyzed with no issues
-//                    let identifier = asset.localIdentifier
-//                    orientationIdsToRecord.append(identifier)
-//                    
-//                }
-//            }
-//        }
         
         // 6️⃣ Agrupar resultados
         if !blurryIssues.isEmpty { groups.append(groupImages(blurryIssues, by: .blurry)) }

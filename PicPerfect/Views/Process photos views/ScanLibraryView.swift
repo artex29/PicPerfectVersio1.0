@@ -11,6 +11,7 @@ import PhotosUI
 
 struct ScanLibraryView: View {
     
+    @Environment(ContentModel.self) private var model
     @Environment(PhotoGroupManager.self) private var manager
     @Environment(\.modelContext) private var context
     
@@ -121,10 +122,13 @@ struct ScanLibraryView: View {
             Task {
                 
                 let assets =  await Service.getLibraryAssets()
-                let results = await PhotoLibraryScanner.analyzeLibraryWithEfficiency(assets: assets) { prog in
+                let results = await PhotoLibraryScanner.analyzeLibraryWithEfficiency(assets: assets,
+                                                                                     isUserSubscribed: model.isUserSubscribed) { prog in
                     print("Progress: \(prog.description) - \(Int(prog.percentage * 100))%")
                     
-                    progress = prog
+                    DispatchQueue.main.async {
+                        progress = prog
+                    }
                     
                 }
                 

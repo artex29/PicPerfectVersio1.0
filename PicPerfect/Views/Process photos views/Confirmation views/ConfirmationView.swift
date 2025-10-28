@@ -10,6 +10,7 @@ import Photos
 
 struct ConfirmationView: View {
     
+    @Environment(ContentModel.self) private var model
     @Environment(PhotoGroupManager.self) private var manager
     @Environment(\.modelContext) private var context
     
@@ -192,7 +193,19 @@ struct ConfirmationView: View {
                 navigationPath.append(.cleanupView)
             }
             else {
-                navigationPath.removeAll()
+                
+                Task {
+                    await model.refreshSubscriptionStatus()
+                    let remainingCategories = Set(manager.allGroups.map { $0.category })
+                    let filteredCategories = remainingCategories.filter({model.plusCategories.contains($0) == false})
+                    
+                    if filteredCategories.isEmpty && model.isUserSubscribed == false {
+                        navigationPath.append(.cleanupView)
+                    }
+                    else {
+                        navigationPath.removeAll()
+                    }
+                }
             }
         }
     }
@@ -203,4 +216,5 @@ struct ConfirmationView: View {
 #Preview {
     ConfirmationView(navigationPath: .constant([]), photoGroups: [])
         .environment(PhotoGroupManager())
+        .environment(ContentModel())
 }

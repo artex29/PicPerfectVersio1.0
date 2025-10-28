@@ -17,6 +17,7 @@ struct CleanupSummaryView: View {
     
     @Environment(ContentModel.self) var model
     @Environment(PhotoGroupManager.self) private var manager
+    @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
     @State private var session: CleanupSessionRecord? = nil
@@ -140,6 +141,8 @@ struct CleanupSummaryView: View {
         Task {
             await saveProcessedPhotos {
                 manager.confirmationActions.removeAll()
+                manager.allGroups.removeAll()
+                PersistenceService.clearAllPendingGroups(context: context)
                 navigationPath.removeAll()
                 dismiss()
                 
@@ -153,12 +156,14 @@ struct CleanupSummaryView: View {
     
     private func saveProcessedPhotos(completion: @escaping() -> Void) async {
         
-        PhotoAnalysisCloudCache.clearProcessedPhotos()
-        
         let filteredPhotos = manager.confirmationActions.filter({$0.category != .blurry && $0.category != .screenshots && $0.category != .exposure})
         let processedIds: Set<String> = Set(filteredPhotos.map(\.imageInfo.id))
         
-        PhotoAnalysisCloudCache.saveProcessedPhotos(Array(processedIds))
+        if !processedIds.isEmpty {
+            PhotoAnalysisCloudCache.clearProcessedPhotos()
+            PhotoAnalysisCloudCache.saveProcessedPhotos(Array(processedIds))
+        }
+       
         await model.loadProcessedPhotos()
         completion()
     }
