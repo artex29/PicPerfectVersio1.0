@@ -71,6 +71,8 @@ class PersistenceService {
                     }
                 }
             }
+            
+            if images.isEmpty { continue }
             let category = PhotoGroupCategory(rawValue: group.category) ?? .duplicates
             let photoGroup = PhotoGroup(images: images, score: group.score, category: category)
             restoredGroups.append(photoGroup)

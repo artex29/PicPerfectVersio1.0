@@ -9,11 +9,13 @@ import Foundation
 import Photos
 import SwiftUI
 import RevenueCat
+import Playgrounds
 
 @Observable
 class ContentModel {
     
     @AppStorage("useCounter") static var useCounter: Int = 0
+    @AppStorage("nextScanDate") static var nextScanDate: Double = 0.0
    
     var processedPhotos: [PPImage] = []
     var showHistoryView: Bool = false
@@ -34,6 +36,7 @@ class ContentModel {
             await loadProcessedPhotos()
             await refreshSubscriptionStatus()
             offerings = await getOfferings()
+            await activatePaywall()
         }
         
 //        PhotoAnalysisCloudCache.clearProcessedPhotos()
@@ -104,4 +107,57 @@ class ContentModel {
             completion(granted)
         }
     }
+    
+    func canScanLibrary() -> Bool {
+        
+        Task {
+            await refreshSubscriptionStatus()
+        }
+        
+        if isUserSubscribed {
+            return true
+        } else {
+            let now = Date()
+            
+            // Calculamos tiempo restante
+            let nextDate = Date(timeIntervalSince1970: ContentModel.nextScanDate)
+            if now < nextDate {
+                let remaining = nextDate.timeIntervalSince(now)
+                let hours = Int(remaining) / 3600
+                let minutes = (Int(remaining) % 3600) / 60
+                let seconds = Int(remaining) % 60
+                print("⏳ Next scan available in \(hours)h \(minutes)m \(seconds)s")
+                return false
+            } else {
+                // Ya pasó el tiempo, se permite escanear
+                return true
+            }
+        }
+    }
+
+    func calculateNextScanDate() async {
+        await refreshSubscriptionStatus()
+        
+        if isUserSubscribed {
+            ContentModel.nextScanDate = 0.0
+        } else {
+            let now = Date()
+            ContentModel.nextScanDate = now.timeIntervalSince1970 + 8 * 3600
+            let nextDate = Date(timeIntervalSince1970: ContentModel.nextScanDate)
+            let formatter = DateFormatter()
+            formatter.timeStyle = .medium
+            formatter.dateStyle = .medium
+            formatter.timeZone = .current
+            print("🕒 Next scan date (local): \(formatter.string(from: nextDate))")
+        }
+    }
+    
+    private func activatePaywall() async  {
+        if !isUserSubscribed && ContentModel.useCounter % 5 == 0 && ContentModel.useCounter != 0 {
+           showPaywall = true
+        }
+    }
+    
 }
+
+

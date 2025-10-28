@@ -13,7 +13,8 @@ struct PicPerfectPlusIcon: View {
     
     var body: some View {
         
-        Text("✨")
+        Image(systemName: "sparkles")
+            .foregroundStyle(.yellow.gradient)
             .scaleEffect(scale)
             .font(.system(size: 30))
             .onAppear {

@@ -139,6 +139,8 @@ struct CleanupSummaryView: View {
     private func done(viewHistory: Bool = false) {
         
         Task {
+            await model.calculateNextScanDate()
+            
             await saveProcessedPhotos {
                 manager.confirmationActions.removeAll()
                 manager.allGroups.removeAll()

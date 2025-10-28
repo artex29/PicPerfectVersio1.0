@@ -37,7 +37,7 @@ struct CleanupHistoryView: View {
                     
                    
                 
-                Text("Total space saved: \(String(format: "%.2f GB", totalSpaceFreed / 1024))")
+                Text("Total space saved: \(String(format: "%.2f MB", totalSpaceFreed))")
                     .foregroundColor(.green)
                     .padding(.bottom, 10)
                 

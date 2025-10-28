@@ -43,6 +43,7 @@
 		FF7565A52E9E969500260549 /* CleanupHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7565A42E9E969500260549 /* CleanupHistoryView.swift */; };
 		FF7AB1CA2EAFF3ED00EA0119 /* PicPerfectPlusIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7AB1C92EAFF3ED00EA0119 /* PicPerfectPlusIcon.swift */; };
 		FF879D2B2E7AFFEB00BE8CED /* AppleIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */; };
+		FF92E4682EB1429D0096409D /* ScanLibraryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF92E4672EB1429D0096409D /* ScanLibraryButton.swift */; };
 		FFAE17D02E99876B00A83547 /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE17CF2E99875A00A83547 /* TypeAlias.swift */; };
 		FFAE99D62E96B8D90073F70C /* PhotoGroupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */; };
 		FFAF02972E83280400CBF98B /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAF02962E83280100CBF98B /* Enums.swift */; };
@@ -110,6 +111,7 @@
 		FF7565A42E9E969500260549 /* CleanupHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupHistoryView.swift; sourceTree = "<group>"; };
 		FF7AB1C92EAFF3ED00EA0119 /* PicPerfectPlusIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicPerfectPlusIcon.swift; sourceTree = "<group>"; };
 		FF879D2A2E7AFFE200BE8CED /* AppleIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligence.swift; sourceTree = "<group>"; };
+		FF92E4672EB1429D0096409D /* ScanLibraryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanLibraryButton.swift; sourceTree = "<group>"; };
 		FFAE17CF2E99875A00A83547 /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
 		FFAE99D52E96B8D10073F70C /* PhotoGroupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGroupManager.swift; sourceTree = "<group>"; };
 		FFAF02962E83280100CBF98B /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 				FFEE33922EA0395600346333 /* DismissButton.swift */,
 				FFF6F3062EA2DD3B00FAC614 /* SelectedSubgroupThumbnails.swift */,
 				FF7AB1C92EAFF3ED00EA0119 /* PicPerfectPlusIcon.swift */,
+				FF92E4672EB1429D0096409D /* ScanLibraryButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -508,6 +511,7 @@
 				FF6739DC2E6B82C600C7C95A /* Extensions.swift in Sources */,
 				FFD22CEB2E510C0B00071915 /* PicPerfectApp.swift in Sources */,
 				FF7565A02E9E8DC800260549 /* CleanupHistoryCloudStore.swift in Sources */,
+				FF92E4682EB1429D0096409D /* ScanLibraryButton.swift in Sources */,
 				FF7AB1CA2EAFF3ED00EA0119 /* PicPerfectPlusIcon.swift in Sources */,
 				FF1A9D142EABC2B800262EC9 /* OnboardingView.swift in Sources */,
 				FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */,

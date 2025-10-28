@@ -25,7 +25,6 @@ struct RootView: View {
                 }
         }
         .onAppear(perform: {
-            
             activateOnboarding()
         })
         .minMacFrame(width: 1200, height: 800)
@@ -38,6 +37,9 @@ struct RootView: View {
         
         .sheet(isPresented: .constant(model.showPaywall)) {
             model.showPaywall = false
+            if model.isUserSubscribed {
+                ContentModel.nextScanDate = 0.0
+            }
         } content: {
             PaywallView()
         }
@@ -61,4 +63,5 @@ struct RootView: View {
 #Preview {
     RootView()
         .environment(ContentModel())
+        .environment(PhotoGroupManager())
 }

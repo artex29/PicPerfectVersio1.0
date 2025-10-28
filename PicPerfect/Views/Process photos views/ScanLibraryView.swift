@@ -59,22 +59,29 @@ struct ScanLibraryView: View {
                     
                     Spacer()
                     
-                    Button(buttonText) {
+                    Button {
                         if pendingGroups != nil {
                             onFinished(pendingGroups!)
                             
                         }
                         else {
-                            
-                            Service.requestPhotoLibraryAccessIfNeeded { granted in
-                                photoAccessGranted = granted
-                                Task {
-                                    await analyzeLibrary()
+                            if model.canScanLibrary() {
+                                Service.requestPhotoLibraryAccessIfNeeded { granted in
+                                    photoAccessGranted = granted
+                                    Task {
+                                        await analyzeLibrary()
+                                    }
                                 }
                             }
+                            else {
+                                model.showPaywall = true
+                            }
                         }
+                    } label: {
+                        ScanLibraryButton()
                     }
                     .ifAvailableGlassButtonStyle()
+                   
                     
                 }
             }

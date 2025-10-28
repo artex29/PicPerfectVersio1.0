@@ -283,7 +283,7 @@ struct SwipeDecisionView: View {
     private func handleDecisionAction(for decision: DecisionActions) {
        
         print("Handling action: \(decision)")
-        let resultedImage = selectedGroup.reversed().first!
+        guard let resultedImage = selectedGroup.reversed().first else {return}
         
         let category = photoGroups.first?.category ?? .duplicates
         

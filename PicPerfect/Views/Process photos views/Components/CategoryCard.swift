@@ -26,7 +26,7 @@ struct CategoryCard: View {
                         HStack {
                             Spacer()
                             PicPerfectPlusIcon()
-                                .frame(height: 20)
+                                
                         }
                     }
                     .padding(15)
@@ -44,7 +44,6 @@ struct CategoryCard: View {
                         HStack {
                             Spacer()
                             PicPerfectPlusIcon()
-                                .frame(height: 20)
                         }
                     }
                     .padding(15)

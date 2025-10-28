@@ -145,6 +145,7 @@ struct ConfirmationView: View {
             }
             
         }
+        .navigationBarBackButtonHidden()
         
        
     }
@@ -169,8 +170,10 @@ struct ConfirmationView: View {
         
         if !assetsToDelete.isEmpty {
             Service.deleteAssets(assetsToDelete) { success in
-                endCleanUp()
-                PersistenceService.clearCompletedCategory(context: context, category: category)
+                if success {
+                    endCleanUp()
+                    PersistenceService.clearCompletedCategory(context: context, category: category)
+                }
             }
         }
         else {
