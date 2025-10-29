@@ -63,16 +63,19 @@ final class DuplicateService {
            
            let records = await PhotoAnalysisCloudCache.loadRecords(for: module)
            
-           let candidates: [PHAsset] = assets.filter { asset in
-               !records.contains { record in
-                   record.id == asset.localIdentifier
-               }
-           }
-
-           guard !candidates.isEmpty else { return [] }
+           let mappedRecords = Set(records.map { $0.id })
+           
+           let mappedAssets = assets.map { $0.localIdentifier }
+           
+           let candidateIds = mappedAssets.filter({!mappedRecords.contains($0)})//Set(mappedAssets).subtracting(mappedRecords)
+           
+           guard !candidateIds.isEmpty else { return [] }
+           
+           let candidatesBatch = candidateIds.prefix(limit)
 
            // 2) Take oldest chunk up to `limit`
-           let batch = Array(candidates.prefix(limit))
+           let batch = Array(assets.filter({candidatesBatch.contains($0.localIdentifier)}))
+               
 
            var groups: [PhotoGroup] = []
 
@@ -89,7 +92,7 @@ final class DuplicateService {
 
            
            for (index, asset) in batch.enumerated() {
-               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)) {
+               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
                    let obs = try featurePrint(for: uiImage)
                    featurePrints[index] = obs
                    imageInfos[index] = ImageInfo(isIncorrect: false, image: uiImage, asset: asset, fileSizeInMB: asset.fileSizeInMB)
@@ -204,7 +207,7 @@ final class DuplicateService {
 
                for i in 0..<burstAssets.count {
                    let a = burstAssets.object(at: i)
-                   if let image = await Service.requestImage(for: a, size: CGSize(width: 512, height: 512)) {
+                   if let image = await Service.requestImage(for: a, size: CGSize(width: 256, height: 256)) {
                        groupImages.append(ImageInfo(isIncorrect: false, image: image, asset: a, fileSizeInMB: a.fileSizeInMB))
                       
                    }
@@ -225,7 +228,7 @@ final class DuplicateService {
            var buckets: [String: [ImageInfo]] = [:]
 
            for asset in assets {
-               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)),
+               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)),
                   let hash = perceptualHash(for: uiImage) {
                    let info = ImageInfo(isIncorrect: false, image: uiImage, asset: asset, fileSizeInMB: asset.fileSizeInMB)
                    buckets[hash, default: []].append(info)

@@ -148,8 +148,14 @@ struct CleanupSummaryView: View {
                 navigationPath.removeAll()
                 dismiss()
                 
+                
+                
                 if viewHistory {
                     model.showHistoryView = true
+                    model.requestAppReview(afterCleanupHistory: true)
+                }
+                else {
+                    model.requestAppReview()
                 }
             }
             

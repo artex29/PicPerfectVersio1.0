@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct RootView: View {
     
@@ -20,6 +21,10 @@ struct RootView: View {
             HomeView()
                 .sheet(isPresented: .constant(model.showHistoryView)) {
                     model.showHistoryView = false
+                    if model.activateAppReview {
+                        model.requestAppReviewPresent = true
+                        model.activateAppReview = false
+                    }
                 } content: {
                     CleanupHistoryView()
                 }
@@ -34,7 +39,17 @@ struct RootView: View {
                 print("App launched \(ContentModel.useCounter) times")
             }
         }
-        
+        .alert("Are you liking PicPerfect", isPresented: .constant(model.requestAppReviewPresent), actions: {
+            Button("No it needs impovements") {
+                model.requestAppReviewPresent = false
+                
+            }
+            
+            Button("Yes I love it 💛") {
+                model.requestAppReviewPresent = false
+                showAppStoreReviewAlert()
+            }
+        })
         .sheet(isPresented: .constant(model.showPaywall)) {
             model.showPaywall = false
             if model.isUserSubscribed {
@@ -57,6 +72,17 @@ struct RootView: View {
         if ContentModel.useCounter <= 1 {
             model.onboardingPresent = true
         }
+    }
+    
+    private func showAppStoreReviewAlert() {
+#if os(macOS)
+        SKStoreReviewController.requestReview()
+        
+#else
+        guard let scene = UIApplication.shared.connectedScenes.first(where: {$0.activationState == .foregroundActive}) as? UIWindowScene else {return}
+        
+        SKStoreReviewController.requestReview(in: scene)
+#endif
     }
 }
 

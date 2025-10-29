@@ -26,6 +26,7 @@ struct MenuView: View {
                     model.showPaywall = true
                 }
                 .ifAvailableGlassButtonStyle()
+                .isPresent(!model.isUserSubscribed)
                 
                 Button("Rate the App", systemImage: "star.bubble.fill") {
                     

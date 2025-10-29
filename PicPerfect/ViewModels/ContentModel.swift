@@ -16,6 +16,7 @@ class ContentModel {
     
     @AppStorage("useCounter") static var useCounter: Int = 0
     @AppStorage("nextScanDate") static var nextScanDate: Double = 0.0
+    @AppStorage("currentAppVersion") static var currentAppVersion = ""
    
     var processedPhotos: [PPImage] = []
     var showHistoryView: Bool = false
@@ -27,6 +28,8 @@ class ContentModel {
     var isUserSubscribed: Bool = false
     var offerings: Offering? = nil
     
+    var requestAppReviewPresent = false
+    var activateAppReview = false
     
     let plusCategories: [PhotoGroupCategory] = [.blurry, .exposure]
     
@@ -156,6 +159,25 @@ class ContentModel {
         if !isUserSubscribed && ContentModel.useCounter % 5 == 0 && ContentModel.useCounter != 0 {
            showPaywall = true
         }
+    }
+     
+    
+    //MARK: Ask for review
+    func requestAppReview(afterCleanupHistory: Bool = false) {
+        let appBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "N/A"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "N/A"
+        let thisVersion = "\(appVersion) Build: \(appBuild)"
+        
+        if ContentModel.currentAppVersion != thisVersion {
+            ContentModel.currentAppVersion = thisVersion
+            if afterCleanupHistory {
+                activateAppReview = true
+            }
+            else {
+                requestAppReviewPresent = true
+            }
+        }
+       
     }
     
 }
