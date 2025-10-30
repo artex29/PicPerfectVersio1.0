@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct SelectedSubgroupThumbnails: View {
     @Binding var subGroup:[ImageInfo]
@@ -39,6 +40,7 @@ struct SelectedSubgroupThumbnails: View {
                     .onTapGesture {
                         selectedImage = image
                         showSelectedImage()
+                        Analytics.logEvent("selected_group_thumbnail_tapped", parameters: nil)
                     }
                 }
             }

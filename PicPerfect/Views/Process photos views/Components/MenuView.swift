@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct MenuView: View {
     
@@ -17,24 +18,28 @@ struct MenuView: View {
             
             Group {
                 
-                Button("Cleanup Stats", systemImage: "chart.bar.xaxis") {
+                Button("Cleanup History", systemImage: "chart.bar.xaxis") {
                     model.showHistoryView = true
+                    Analytics.logEvent("tap_cleanup_history", parameters: nil)
                 }
                 .ifAvailableGlassButtonStyle()
                 
                 Button("Get PicPerfect+", systemImage: "sparkles") {
                     model.showPaywall = true
+                    Analytics.logEvent("tap_get_picperfect_plus", parameters: nil)
                 }
                 .ifAvailableGlassButtonStyle()
                 .isPresent(!model.isUserSubscribed)
                 
                 Button("Rate the App", systemImage: "star.bubble.fill") {
                     model.requestAppReviewPresent = true
+                    Analytics.logEvent("tap_rate_app", parameters: nil)
                 }
                 .ifAvailableGlassButtonStyle()
                 
                 Button("Contact us", systemImage: "slider.horizontal.3") {
                     model.feedbackFormPresent = true
+                    Analytics.logEvent("tap_contact_us", parameters: nil)
                 }
                 .ifAvailableGlassButtonStyle()
               

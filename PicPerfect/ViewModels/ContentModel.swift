@@ -149,8 +149,12 @@ class ContentModel {
             ContentModel.nextScanDate = 0.0
         } else {
             let now = Date()
-            ContentModel.nextScanDate = now.timeIntervalSince1970 + 8 * 3600
+            ContentModel.nextScanDate = now.timeIntervalSince1970 + 6 * 3600
             let nextDate = Date(timeIntervalSince1970: ContentModel.nextScanDate)
+            
+            await NotificationsService.scheduleNextScan(for: nextDate)
+           let pending =  await NotificationsService.pendingRequests()
+            print("📬 Pending notifications: \(pending.map { $0.identifier })")
             let formatter = DateFormatter()
             formatter.timeStyle = .medium
             formatter.dateStyle = .medium

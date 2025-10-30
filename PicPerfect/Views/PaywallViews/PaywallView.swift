@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RevenueCat
+import FirebaseAnalytics
 
 struct PaywallView: View {
     
@@ -84,6 +85,7 @@ struct PaywallView: View {
                     .padding(5)
                     .onTapGesture {
                         selectedPackage = package
+                        Analytics.logEvent("select_store_package", parameters: ["package_id": package.identifier])
                     }
                     
                     
@@ -104,6 +106,8 @@ struct PaywallView: View {
                                     isPurchasing = false
                                     purchaseErroAlertPresent = true
                                 }
+                                
+                                Analytics.logEvent("tap_purchase", parameters: ["with_success": success] )
                             }
                         }
                     }
@@ -127,6 +131,8 @@ struct PaywallView: View {
                                         isPurchasing = false
                                         purchaseErroAlertPresent = true
                                     }
+                                   
+                                   Analytics.logEvent("tap_purchase_retry", parameters: ["with_success": success])
                                 }
                             }
                         }
@@ -137,7 +143,7 @@ struct PaywallView: View {
                     }
                 }
                 
-                HStack {
+                HStack(alignment: .top) {
                     Button("Restore Purchases") {
                         isPurchasing = true
                         Task {
@@ -151,6 +157,8 @@ struct PaywallView: View {
                                     restoreErrorAlertPresent = true
                                 }
                             }
+                            
+                            Analytics.logEvent("tap_restore_purchase", parameters: ["is_subscribed": model.isUserSubscribed])
                         }
 
                     }
@@ -163,7 +171,10 @@ struct PaywallView: View {
                     
                     Spacer()
                     
-                    Link("Privacy Policy", destination: URL(string: "https://picperfectapp.com/terms")!)
+                    if let url = URL(string: "https://www.artexcomputer.net/picperfectterms") {
+                        Link("Privacy Policy & Terms of Service", destination: url)
+                    }
+                    
                 }
                 .padding(.horizontal, 40)
                 .foregroundStyle(.white)
@@ -203,6 +214,9 @@ struct PaywallView: View {
         .onAppear {
             selectedPackage = model.offerings?.availablePackages.first(where: {$0.packageType == .annual})
         }
+        .analyticsScreen(name: "PaywallView", class: "paywall_view", extraParameters: [
+            "device_type": device.rawValue
+        ])
         
     }
     

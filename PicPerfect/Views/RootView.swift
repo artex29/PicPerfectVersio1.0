@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StoreKit
+import FirebaseAnalytics
 
 struct RootView: View {
     
@@ -33,6 +34,12 @@ struct RootView: View {
         }
         .onAppear(perform: {
             activateOnboarding()
+            NotificationsService.clearBadgeCount()
+            
+            Analytics.logEvent("app_opened", parameters: [
+                "use_counter": ContentModel.useCounter,
+                "is_subscribed": model.isUserSubscribed
+            ])
         })
         .minMacFrame(width: 1200, height: 800)
         .onChange(of: scenePhase) { oldValue, newValue in
@@ -45,11 +52,13 @@ struct RootView: View {
             Button("No it needs impovements") {
                 model.requestAppReviewPresent = false
                 model.feedbackFormPresent = true
+                Analytics.logEvent("did_not_like_pic_perfect", parameters: nil)
             }
             
             Button("Yes I love it 💛") {
                 model.requestAppReviewPresent = false
                 showAppStoreReviewAlert()
+                Analytics.logEvent("like_pic_perfect", parameters: nil)
             }
         })
         .alert("Thank you for your feedback", isPresented: $feedbackSent, actions: {

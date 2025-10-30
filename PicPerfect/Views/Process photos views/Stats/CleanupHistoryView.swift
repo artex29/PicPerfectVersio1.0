@@ -5,6 +5,7 @@
 //  Created by ANGEL RAMIREZ on 10/14/25.
 //
 import SwiftUI
+import FirebaseAnalytics
 
 struct CleanupHistoryView: View {
     
@@ -66,6 +67,11 @@ struct CleanupHistoryView: View {
             .padding()
           
         }
+        .analyticsScreen(name: "CleanupHistoryView", class: "clean_upc_history_view", extraParameters: [
+            "total_space_freed_mb": totalSpaceFreed,
+            "record_count": records.count
+        ])
+        
         
     }
 }

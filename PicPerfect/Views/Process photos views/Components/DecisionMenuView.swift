@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct DecisionMenuView: View {
     
@@ -21,6 +22,7 @@ struct DecisionMenuView: View {
             
             Button {
                 deleteAction()
+                Analytics.logEvent("delete_button_tapped", parameters: nil)
             } label: {
                 Image(systemName: "trash.slash.fill")
                     .foregroundColor(.red)
@@ -32,6 +34,7 @@ struct DecisionMenuView: View {
 
             Button {
                 undoAction()
+                Analytics.logEvent("undo_button_tapped", parameters: nil)
             } label: {
                 Image(systemName: "arrow.uturn.backward")
                     .foregroundStyle(.blue)
@@ -44,6 +47,7 @@ struct DecisionMenuView: View {
             
             Button {
                 keepAction()
+                Analytics.logEvent("keep_button_tapped", parameters: nil)
             } label: {
                 Image(systemName: "hand.thumbsup.fill")
                     .foregroundStyle(.green)

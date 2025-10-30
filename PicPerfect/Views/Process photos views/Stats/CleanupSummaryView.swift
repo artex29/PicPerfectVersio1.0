@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Photos
+import FirebaseAnalytics
 
 struct CleanupSummaryView: View {
     
@@ -92,6 +93,13 @@ struct CleanupSummaryView: View {
         .padding()
         .foregroundStyle(.white)
         .background(PicPerfectTheme.Colors.background.ignoresSafeArea())
+        .analyticsScreen(name: "CleanupSummaryView", class: "cleanup_summary_view", extraParameters: [
+            "total_analyzed": session?.totalAnalyzed ?? 0,
+            "total_deleted": session?.totalDeleted ?? 0,
+            "total_kept": session?.totalKept ?? 0,
+            "total_corrected": session?.totalCorrected ?? 0,
+            "total_space_freed_mb": session?.totalSpaceFreedMB ?? 0.0
+        ])
     }
     
     // MARK: - Generate Session Record

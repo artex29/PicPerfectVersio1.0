@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Photos
+import FirebaseAnalytics
 
 enum NavigationDestination: Hashable {
     case categoryView
@@ -86,6 +87,12 @@ struct CategoryView: View {
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
+            .analyticsScreen(name: "CategoryView", class: "category_view", extraParameters: [
+                "categories": Set(photoGroups.map { $0.category }),
+                "photos_to_review_count": photosToReviewCount
+                
+            ])
+            
               
             
         }

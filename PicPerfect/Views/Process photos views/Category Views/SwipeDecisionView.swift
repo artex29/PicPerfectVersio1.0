@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Photos
+import FirebaseAnalytics
 
 enum DecisionActions: Int {
     case delete
@@ -242,6 +243,7 @@ struct SwipeDecisionView: View {
                 }
             }
             
+            
         }
         .ignoresSafeArea(SafeAreaRegions.all, edges: .vertical)
         .onChange(of: groupedImages, { oldValue, newValue in
@@ -258,6 +260,12 @@ struct SwipeDecisionView: View {
         }, message: {
             Text("Subscribe to unlock this feature and enjoy unlimited access to all premium tools!")
         })
+        .analyticsScreen(name: "SwipeDecisionView", class: "swipe_view", extraParameters: [
+            "category": photoGroups.first?.category.rawValue ?? "unknown",
+            "photo_count": photoGroups.first?.images.count ?? 0
+        ])
+        
+
         
     }
     
@@ -369,6 +377,10 @@ struct SwipeDecisionView: View {
     private func undoLastAction() {
         guard let last = decisionHistory.popLast() else { return }
         guard decisionAction != nil else { return }
+        
+//        Analytics.logEvent("undo_decision", parameters: [
+//            "category": last.category.rawValue
+//        ])
         
         // 2) Buscar el grupo original (sin la imagen removida)
         let remainingIds = Set(last.originalGroupIds.filter { $0 != last.image.id })
@@ -612,10 +624,14 @@ struct PhotosPile: View {
                                                     dragRotations[imageIdentifier] = 15
                                                     decisionAction = .keep
                                                     
+                                                    Analytics.logEvent("keep_swiping", parameters: nil)
+                                                    
                                                 } else if angle < -10 {
                                                     // delete
                                                     dragRotations[imageIdentifier] = -15
                                                     decisionAction = .delete
+                                                    
+                                                    Analytics.logEvent("delete_swiping", parameters: nil)
 
                                                 } else {
                                                     // get it back to center

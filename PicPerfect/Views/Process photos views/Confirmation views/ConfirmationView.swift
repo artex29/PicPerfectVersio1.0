@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Photos
+import FirebaseAnalytics
 
 struct ConfirmationView: View {
     
@@ -151,6 +152,11 @@ struct ConfirmationView: View {
     }
     
     private func toggleAction(for action: ConfirmationAction) {
+        
+        Analytics.logEvent("toggled_confirmation_action", parameters: [
+            "category": action.category.rawValue,
+            "new_action": action.action == .keep ? "delete" : "keep"
+        ])
         
         if let index = manager.confirmationActions.firstIndex(where: { $0.id == action.id }) {
             var updatedAction = action

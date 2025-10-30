@@ -88,6 +88,7 @@ struct FeedbackFormView: View {
             .padding()
           
         }
+        .analyticsScreen(name: "FeedbackFormView", class: "feedback_form_view")
     }
 
     private var isFormValid: Bool {
@@ -115,16 +116,19 @@ struct FeedbackFormView: View {
 
         do {
             try await db.collection("feedbacks").addDocument(data: feedback)
-            Analytics.logEvent("user_feedback_sent", parameters: [
-                "category": category,
-                "message_length": message.count
-            ])
+            
             sent = true
             clearForm()
             messageSent = true
             dismiss()
+            
+            Analytics.logEvent("feedback_form_submitted", parameters: feedback)
+            
         } catch {
             print("❌ Error sending feedback: \(error.localizedDescription)")
+            Analytics.logEvent("user_feedback_failed", parameters: [
+                "error": error.localizedDescription
+            ])
         }
 
         isSending = false

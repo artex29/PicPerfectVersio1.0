@@ -5,6 +5,9 @@
 //  Created by ANGEL RAMIREZ on 10/24/25.
 //
 
+import FirebaseAnalytics
+import SwiftUI
+
 enum OnboardingSteps: Int, CaseIterable {
     case welcome
     case intelligentDetection
@@ -13,7 +16,7 @@ enum OnboardingSteps: Int, CaseIterable {
 }
     
 
-import SwiftUI
+
 struct OnboardingView: View {
     
     @Environment(ContentModel.self) var model
@@ -69,6 +72,7 @@ struct OnboardingView: View {
             }
         }
         .minMacFrame(width: 500, height: 700)
+        .analyticsScreen(name: "OnboardingView", class: "onboarding_view")
     }
     
     private func nextButtonText() -> String {

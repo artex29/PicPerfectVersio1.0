@@ -5,7 +5,7 @@
 //  Created by ANGEL RAMIREZ on 10/7/25.
 //
 
-enum  DeviceType {
+enum  DeviceType: String {
     case iPhone
     case iPad
     case mac

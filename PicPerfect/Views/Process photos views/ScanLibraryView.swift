@@ -8,6 +8,7 @@
 
 import SwiftUI
 import PhotosUI
+import FirebaseAnalytics
 
 struct ScanLibraryView: View {
     
@@ -120,6 +121,8 @@ struct ScanLibraryView: View {
                 }
             }
         }
+        .analyticsScreen(name: "ScanLibraryView", class: "ScanLibraryView")
+        
 
     }
     
@@ -145,6 +148,8 @@ struct ScanLibraryView: View {
                 print("➡️ Navigating to CategoryView with \(results.count) groups.")
                 
                // showingReviewScreen = true
+                Analytics.logEvent("scanning_library", parameters: ["assets_scanned": assets.count,
+                                                                   "groups_found": results.count])
                 onFinished(results)
             }
         }
