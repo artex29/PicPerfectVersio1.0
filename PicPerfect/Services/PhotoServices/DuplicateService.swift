@@ -79,10 +79,6 @@ final class DuplicateService {
 
            var groups: [PhotoGroup] = []
 
-           // 3) Hash-based exact duplicates (fast path)
-           let hashGroups = await detectHashDuplicates(assets: batch)
-           groups.append(contentsOf: hashGroups)
-
            // 4) Vision feature prints for near-duplicates
            var processed = Set<Int>()
            let finalThreshold: Float = similars ? 0.8 : threshold
@@ -92,7 +88,7 @@ final class DuplicateService {
 
            
            for (index, asset) in batch.enumerated() {
-               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 256, height: 256)) {
+               if let uiImage = await Service.requestImage(for: asset, size: CGSize(width: 512, height: 512)) {
                    let obs = try featurePrint(for: uiImage)
                    featurePrints[index] = obs
                    imageInfos[index] = ImageInfo(isIncorrect: false, image: uiImage, asset: asset, fileSizeInMB: asset.fileSizeInMB)
@@ -144,6 +140,10 @@ final class DuplicateService {
            if !similars {
                let bursts = await getBursts(limit: limit)
                groups.append(contentsOf: bursts)
+               
+               // 3) Hash-based exact duplicates (fast path)
+               let hashGroups = await detectHashDuplicates(assets: batch)
+               groups.append(contentsOf: hashGroups)
            }
            
            if groups.isEmpty {

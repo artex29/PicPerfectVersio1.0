@@ -80,14 +80,14 @@ final class FaceQualityService {
             return issues
         }
         
-        // 2. Check blur/quality
-        let qualityRequest = VNDetectFaceCaptureQualityRequest()
-        try? handler.perform([qualityRequest])
-        if let q = (qualityRequest.results?.first as? VNFaceObservation)?.faceCaptureQuality {
-            if q < blurThreshold {
-                issues.append(.blurry)
-            }
-        }
+//        // 2. Check blur/quality
+//        let qualityRequest = VNDetectFaceCaptureQualityRequest()
+//        try? handler.perform([qualityRequest])
+//        if let q = (qualityRequest.results?.first as? VNFaceObservation)?.faceCaptureQuality {
+//            if q < blurThreshold {
+//                issues.append(.blurry)
+//            }
+//        }
         
         // 3. Check eyes closed
         let landmarkRequest = VNDetectFaceLandmarksRequest()

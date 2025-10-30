@@ -10,6 +10,7 @@ import Photos
 import SwiftUI
 import RevenueCat
 import Playgrounds
+import FirebaseAuth
 
 @Observable
 class ContentModel {
@@ -33,9 +34,12 @@ class ContentModel {
     
     let plusCategories: [PhotoGroupCategory] = [.blurry, .exposure]
     
+    var feedbackFormPresent: Bool = false
+    
     
     init() {
         Task {
+            await signInAnonymouslyIfNeeded()
             await loadProcessedPhotos()
             await refreshSubscriptionStatus()
             offerings = await getOfferings()
@@ -178,6 +182,20 @@ class ContentModel {
             }
         }
        
+    }
+    
+    //MARK: Sign in methods
+    private func signInAnonymouslyIfNeeded() async {
+        if let currentUser = Auth.auth().currentUser {
+            print("✅ Already signed in as \(currentUser.uid)")
+            return
+        }
+        do {
+            let result = try await Auth.auth().signInAnonymously()
+            print("✅ Signed in anonymously as \(result.user.uid)")
+        } catch {
+            print("❌ Anonymous sign-in failed: \(error.localizedDescription)")
+        }
     }
     
 }

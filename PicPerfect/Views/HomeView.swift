@@ -52,7 +52,8 @@ struct HomeView: View {
             }
         }
         .onChange(of: scenePhase) { oldValue, newValue in
-//            ContentModel.currentAppVersion = "" // Reset app version 
+         //   ContentModel.nextScanDate = 0.0 // Reset next scan date
+//            ContentModel.currentAppVersion = "" // Reset app version
 //            PersistenceService.clearAllPendingGroups(context: context)
             if manager.allGroups.isEmpty {
                 if newValue == .active && phase != .categories {

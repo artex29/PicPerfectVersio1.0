@@ -15,6 +15,8 @@ struct RootView: View {
     
     private var manager = PhotoGroupManager()
     
+    @State private var feedbackSent: Bool = false
+    
     var body: some View {
         
         ZStack {
@@ -42,12 +44,17 @@ struct RootView: View {
         .alert("Are you liking PicPerfect", isPresented: .constant(model.requestAppReviewPresent), actions: {
             Button("No it needs impovements") {
                 model.requestAppReviewPresent = false
-                
+                model.feedbackFormPresent = true
             }
             
             Button("Yes I love it 💛") {
                 model.requestAppReviewPresent = false
                 showAppStoreReviewAlert()
+            }
+        })
+        .alert("Thank you for your feedback", isPresented: $feedbackSent, actions: {
+            Button("You're welcome") {
+                feedbackSent = false
             }
         })
         .sheet(isPresented: .constant(model.showPaywall)) {
@@ -63,6 +70,12 @@ struct RootView: View {
         } content: {
             OnboardingView()
         }
+        .sheet(isPresented: .constant(model.feedbackFormPresent)) {
+            model.feedbackFormPresent = false
+        } content: {
+            FeedbackFormView(messageSent: $feedbackSent)
+        }
+
 
 
         

@@ -29,12 +29,12 @@ struct MenuView: View {
                 .isPresent(!model.isUserSubscribed)
                 
                 Button("Rate the App", systemImage: "star.bubble.fill") {
-                    
+                    model.requestAppReviewPresent = true
                 }
                 .ifAvailableGlassButtonStyle()
                 
-                Button("Preferences", systemImage: "slider.horizontal.3") {
-                    
+                Button("Contact us", systemImage: "slider.horizontal.3") {
+                    model.feedbackFormPresent = true
                 }
                 .ifAvailableGlassButtonStyle()
               

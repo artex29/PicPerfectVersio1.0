@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftData
 import RevenueCat
+import FirebaseAuth
+import FirebaseCore
+import FirebaseAnalytics
 
 @main
 struct PicPerfectApp: App {
@@ -31,6 +34,9 @@ struct PicPerfectApp: App {
         // Configure RevenueCat
         Purchases.logLevel = .debug
         Purchases.configure(withAPIKey: Constants.rcAPIKey)
+        
+        FirebaseApp.configure()
+        
     }
     
     let container: ModelContainer = {
