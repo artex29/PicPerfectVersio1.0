@@ -19,6 +19,8 @@ struct CleanupHistoryView: View {
     
     let device = DeviceHelper.type
     
+    let language = LanguageHelper.language()
+    
     var body: some View {
         ZStack {
             
@@ -49,7 +51,10 @@ struct CleanupHistoryView: View {
                             Text(record.date.formatted(date: .abbreviated, time: .shortened))
                                 .font(.headline)
                             
-                            Text("Deleted \(record.totalDeleted) • Saved \(String(format: "%.2f MB", record.totalSpaceFreedMB))")
+                            let deleted = language == .english ? "Deleted" : "Eliminados"
+                            let saved = language == .english ? "Saved" : "Ahorrados"
+                            
+                            Text("\(deleted) \(record.totalDeleted) • \(saved) \(String(format: "%.2f MB", record.totalSpaceFreedMB))")
                                
                         }
                         .padding()

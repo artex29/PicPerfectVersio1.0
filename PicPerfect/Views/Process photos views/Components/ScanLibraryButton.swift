@@ -15,7 +15,7 @@ struct ScanLibraryButton: View {
     @State private var remainingTime: TimeInterval = 0
     @State private var timer: Timer?
     
-    @State private var buttonText: String = "🔍 Scan Library"
+    @State private var buttonText: String = LocalizedStringKey("scanLibrary").stringValue
     
     var body: some View {
         
@@ -39,12 +39,12 @@ struct ScanLibraryButton: View {
         else {
             if manager.allGroups.isEmpty {
                 withAnimation {
-                    buttonText = "🔍 Scan Library"
+                    buttonText = LocalizedStringKey("scanLibrary").stringValue
                 }
             }
             else {
                 withAnimation {
-                    buttonText = "✨ Continue Where You Left Off"
+                    buttonText = LocalizedStringKey("continueWhereLeftOff").stringValue
                 }
             }
         }
@@ -71,9 +71,13 @@ struct ScanLibraryButton: View {
             let seconds = totalSeconds % 60
             
             if hours > 0 {
-                return String(format: "Next scan in %02dh %02dm %02ds", hours, minutes, seconds)
+                return String(
+                    format: "\(LocalizedStringKey("nextScanIn").stringValue) %02dh %02dm %02ds",
+                    hours, minutes, seconds)
             } else {
-                return String(format: "Next scan in %02dm %02ds", minutes, seconds)
+                return String(
+                    format: "\(LocalizedStringKey("nextScanIn").stringValue) %02dm %02ds",
+                    minutes, seconds)
             }
         }
 }

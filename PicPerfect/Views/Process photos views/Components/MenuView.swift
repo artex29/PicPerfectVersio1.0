@@ -18,7 +18,7 @@ struct MenuView: View {
             
             Group {
                 
-                Button("Cleanup History", systemImage: "chart.bar.xaxis") {
+                Button(.cleanupHistory, systemImage: "chart.bar.xaxis") {
                     model.showHistoryView = true
                     Analytics.logEvent("tap_cleanup_history", parameters: nil)
                 }
@@ -31,13 +31,13 @@ struct MenuView: View {
                 .ifAvailableGlassButtonStyle()
                 .isPresent(!model.isUserSubscribed)
                 
-                Button("Rate the App", systemImage: "star.bubble.fill") {
+                Button(.rateApp, systemImage: "star.bubble.fill") {
                     model.requestAppReviewPresent = true
                     Analytics.logEvent("tap_rate_app", parameters: nil)
                 }
                 .ifAvailableGlassButtonStyle()
                 
-                Button("Contact us", systemImage: "slider.horizontal.3") {
+                Button(.contactUs, systemImage: "slider.horizontal.3") {
                     model.feedbackFormPresent = true
                     Analytics.logEvent("tap_contact_us", parameters: nil)
                 }
@@ -63,6 +63,13 @@ struct MenuView: View {
             }
         }
         .ifAvailableGlassButtonStyle()
+        #if os(macOS)
+        .background(
+           RoundedRectangle(cornerRadius: 10)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.2), radius: 5, x: 2, y: 2)
+        )
+        #endif
         
 
     }

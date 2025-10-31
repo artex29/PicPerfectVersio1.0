@@ -222,7 +222,7 @@ struct SwipeDecisionView: View {
                     }
                 }
             }
-            .navigationTitle(photoGroups.first?.category.displayName ?? "Duplicates")
+            .navigationTitle(photoGroups.first?.category.displayName ?? LocalizedStringKey("duplicates").stringValue)
             .onAppear {
                 if swipeInstructions != nil {
                     isPileExpanded = true
@@ -252,9 +252,10 @@ struct SwipeDecisionView: View {
             }
         })
         .alert("✨ Go Premium with PicPerfect+", isPresented: $subscriptionAlertPresent, actions: {
-            Button("Subscribe Now") {model.showPaywall = true}
+            Button(.subscribeNow) {model.showPaywall = true}
             
-            let text = device != .iPhone ? "Cancel" : "Back"
+            let text = device != .iPhone ?
+            LocalizedStringKey("cancel").stringValue : LocalizedStringKey("back").stringValue
             Button(text) {navigationPath.removeAll()}
             
         }, message: {

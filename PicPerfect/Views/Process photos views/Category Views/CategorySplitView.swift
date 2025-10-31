@@ -60,7 +60,7 @@ struct CategorySplitView: View {
                 
                 NavigationSplitView(columnVisibility: $sideBarVisibility) {
                     CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()}, navigationPath: .constant([]))
-                        .navigationTitle("Categories")
+                        .navigationTitle(.categories)
                         .navigationSplitViewColumnWidth(min: 400, ideal: 400)
                        
                 } detail: {
@@ -126,7 +126,7 @@ struct CategorySplitView: View {
                 }
                 .navigationSplitViewStyle(.balanced)
                 .toolbar {
-                    Button("Close") {
+                    Button(.close) {
                         onClose()
                         PersistenceService.savePendingGroups(context: context, from: manager)
                     }

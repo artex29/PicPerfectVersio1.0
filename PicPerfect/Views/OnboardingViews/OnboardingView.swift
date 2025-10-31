@@ -77,9 +77,9 @@ struct OnboardingView: View {
     
     private func nextButtonText() -> String {
         if currentStep == .startAndPermissions {
-            return "Get Started"
+            return LocalizedStringKey("getStarted").stringValue
         } else {
-            return "Next"
+            return LocalizedStringKey("next").stringValue
         }
     }
     

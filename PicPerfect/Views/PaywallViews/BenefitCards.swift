@@ -22,10 +22,10 @@ struct BenefitCards: View {
    
     
     var benefits: [Benefit] = [
-        Benefit(text: "Priority access to new tools & updates", isLimit: false),
-        Benefit(text: "Unlimited photo scans", isLimit: false),
-        Benefit(text: "Face, blur & exposure analysis", isLimit: false),
-        Benefit(text: "No waiting times between scans", isLimit: true)
+        Benefit(text: LocalizedStringKey("priorityAccess").stringValue, isLimit: false),
+        Benefit(text: LocalizedStringKey("unlimitedScans").stringValue, isLimit: false),
+        Benefit(text: LocalizedStringKey("blurExposureAnalysis").stringValue, isLimit: false),
+        Benefit(text: LocalizedStringKey("noWaitingTimes").stringValue, isLimit: true)
     ]
     
     @State var cardsPositions: [String: CGSize] = [:]

@@ -27,7 +27,9 @@ struct ConfirmationView: View {
     
     var confirmButtonTitle: String {
         let assetsToDelete = actionsArray.filter({ $0.action == .delete }).count
-        return assetsToDelete > 0 ? "📸 Clean Up Now (\(assetsToDelete))" : "Keep All Photos"
+        return assetsToDelete > 0 ?
+        "📸 \(LocalizedStringKey("cleanUpNow").stringValue) (\(assetsToDelete))" :
+        LocalizedStringKey("keepAllPhotos").stringValue
     }
     
     @State var dummyArray:[ConfirmationAction] = [

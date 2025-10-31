@@ -41,7 +41,7 @@ class PhotoLibraryScanner {
         if let duplicates = try? await DuplicateService.detectDuplicates(
             for: false,
             assets: sortedAssets,
-            threshold: 0.2,
+            threshold: 0.5,
             limit: 30
         ) {
             groups.append(contentsOf: duplicates)

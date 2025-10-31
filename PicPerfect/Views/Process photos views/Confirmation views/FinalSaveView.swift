@@ -91,7 +91,7 @@ struct FinalSaveView: View {
                 }
                 .padding()
 
-                Button("💾 Save Selected") {
+                Button("💾 \(LocalizedStringKey("saveSelected").stringValue)") {
                     
                     Task {
                         await savePhotos()

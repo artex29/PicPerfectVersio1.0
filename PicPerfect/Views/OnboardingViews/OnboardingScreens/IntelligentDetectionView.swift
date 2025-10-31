@@ -15,15 +15,15 @@ struct SmartCategories: Identifiable {
     var categoryDisplayName: String {
         switch category {
         case .duplicates:
-            return "🔁 Duplicates"
+            return "🔁 \(LocalizedStringKey("duplicates").stringValue)"
         case .blurry:
-            return "🌫️ Blurry"
+            return "🌫️ \(LocalizedStringKey("blurry").stringValue)"
         case .exposure:
-            return "🔆 Overexposed"
+            return "🔆 \(LocalizedStringKey("overexposed").stringValue)"
         case .screenshots:
-            return "📱 Screenshots"
+            return "📱 \(LocalizedStringKey("screenshots").stringValue)"
         default:
-            return "📷 Other"
+            return "📷 \(LocalizedStringKey("other").stringValue)"
         }
     }
 }

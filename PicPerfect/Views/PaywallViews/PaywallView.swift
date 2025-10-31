@@ -116,8 +116,8 @@ struct PaywallView: View {
                 }
                 .padding()
                 .ifAvailableGlassButtonStyle()
-                .alert("Purchase not completed", isPresented: $purchaseErroAlertPresent) {
-                    Button("Try again") {
+                .alert(.purchaseNotCompleted, isPresented: $purchaseErroAlertPresent) {
+                    Button(.tryAgain) {
                         purchaseErroAlertPresent = false
                         isPurchasing = true
                         if let package = selectedPackage {
@@ -138,13 +138,13 @@ struct PaywallView: View {
                         }
                     }
                     
-                    Button("Cancel") {
+                    Button(.cancel) {
                         model.showPaywall = false
                     }
                 }
                 
                 HStack(alignment: .top) {
-                    Button("Restore Purchases") {
+                    Button(.restorePurchases) {
                         isPurchasing = true
                         Task {
                             await  model.restorePurchases { success in
@@ -163,7 +163,7 @@ struct PaywallView: View {
 
                     }
                     .buttonStyle(.borderless)
-                    .alert("No active subscription.", isPresented: $restoreErrorAlertPresent) {
+                    .alert(.noActiveSubscription, isPresented: $restoreErrorAlertPresent) {
                         Button("ok") {
                             restoreErrorAlertPresent = false
                         }
@@ -171,8 +171,8 @@ struct PaywallView: View {
                     
                     Spacer()
                     
-                    if let url = URL(string: "https://www.artexcomputer.net/picperfectterms") {
-                        Link("Privacy Policy & Terms of Service", destination: url)
+                    if let url = URL(string: "https://www.artexcomputer.net/picperfectprivacy") {
+                        Link(.privacyAndTerms, destination: url)
                     }
                     
                 }

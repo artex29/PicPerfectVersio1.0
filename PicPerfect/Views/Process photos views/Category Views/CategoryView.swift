@@ -32,7 +32,7 @@ struct CategoryView: View {
     
     var photosToReviewCount: String {
         let count = photoGroups.reduce(0) { $0 + $1.images.count }
-        return count > 0 ? "\(count) Photos to review" : ""
+        return count > 0 ? "\(count) \(LocalizedStringKey("photosToReview").stringValue)" : ""
     }
     
     @Binding var navigationPath: [NavigationDestination]

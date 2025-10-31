@@ -48,7 +48,7 @@ class OrientationService {
 
         let assets:PHFetchResult<PHAsset> = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         
-        let records = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
+        //let records = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
         
         let analyzedRecords = await PhotoAnalysisCloudCache.loadRecords(for: .orientation)
         let analyzedIds = Set(analyzedRecords.map { $0.id })

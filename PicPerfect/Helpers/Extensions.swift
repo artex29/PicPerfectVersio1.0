@@ -354,3 +354,30 @@ extension [PhotoGroup] {
     }
 }
 
+extension PicPerfectAppDelegate {
+    func registerForRemoteNotifications() {
+        #if os(iOS)
+        DispatchQueue.main.async {
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+        #elseif os(macOS)
+        NSApplication.shared.registerForRemoteNotifications(matching: [.alert, .sound, .badge])
+        #endif
+    }
+}
+
+extension LocalizedStringKey {
+    /// Returns the resolved localized string value for the current key.
+    var stringValue: String {
+        // Intentamos obtener el "key" interno usando Mirror
+        let mirror = Mirror(reflecting: self)
+        for child in mirror.children {
+            if let label = child.label, label == "key",
+               let key = child.value as? String {
+                return Bundle.main.localizedString(forKey: key, value: nil, table: nil)
+            }
+        }
+        return ""
+    }
+}
+

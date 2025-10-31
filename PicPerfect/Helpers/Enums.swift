@@ -5,6 +5,8 @@
 //  Created by ANGEL RAMIREZ on 9/23/25.
 //
 
+import SwiftUI
+
 enum ImageType: String {
     case face, object, horizon, unknown
 }
@@ -37,19 +39,19 @@ enum PhotoGroupCategory: String, CaseIterable, Codable {
     var displayName: String {
         switch self {
         case .duplicates:
-            return "Duplicate Photos"
+            return LocalizedStringKey("duplicatePhotos").stringValue
         case .similars:
-            return "Similar Photos"
+            return LocalizedStringKey("similarPhotos").stringValue
         case .blurry:
-            return "Blurry Photos"
+            return LocalizedStringKey("blurryPhotos").stringValue
         case .exposure:
-            return "Exposure Issues"
+            return LocalizedStringKey("exposureIssues").stringValue
         case .faces:
-            return "Closed Eyes / Bad Framing"
+            return LocalizedStringKey("closedEyesBadFraming").stringValue
         case .orientation:
-            return "Orientation Issues"
+            return LocalizedStringKey("orientationIssues").stringValue
         case .screenshots:
-            return "Screenshots"
+            return LocalizedStringKey("screenshots").stringValue
         }
     }
     
@@ -87,23 +89,23 @@ enum AnalysisProgress: String {
     var description: String {
         switch self {
         case .starting:
-            return "Starting Analysis"
+            return LocalizedStringKey("startingAnalysis").stringValue
         case .duplicates:
-            return "Detecting Duplicates"
+            return LocalizedStringKey("detectingDuplicates").stringValue
         case .similars:
-            return "Finding Similar Photos"
+            return LocalizedStringKey("findingSimilarPhotos").stringValue
         case .blurry:
-            return "Analyzing for Blurriness"
+            return LocalizedStringKey("analyzingBlurriness").stringValue
         case .exposure:
-            return "Checking Exposure Levels"
+            return LocalizedStringKey("checkingExposureLevels").stringValue
         case .faces:
-            return "Detecting closed eyes"
+            return LocalizedStringKey("detectingClosedEyes").stringValue
         case .orientation:
-            return "Assessing Orientation"
+            return LocalizedStringKey("assessingOrientation").stringValue
         case .screenshots:
-            return "Identifying Screenshots"
+            return LocalizedStringKey("identifyingScreenshots").stringValue
         case .done:
-            return "Analysis Complete"
+            return LocalizedStringKey("analysisComplete").stringValue
         }
     }
 }

@@ -34,7 +34,7 @@ struct CleanupSummaryView: View {
                 
                 ScrollView {
                     VStack(spacing: 8) {
-                        Text("\(session.totalDeleted) photos deleted")
+                        Text("\(session.totalDeleted) \(LocalizedStringKey("photosDeleted").stringValue)")
                             .font(.title2.bold())
                         Text("Freed \(String(format: "%.2f MB", session.totalSpaceFreedMB)) of space")
                             .font(.headline)
@@ -62,7 +62,7 @@ struct CleanupSummaryView: View {
                     Divider()
                     
                     VStack(spacing: 4) {
-                        Text("Total analyzed: \(session.totalAnalyzed)")
+                        Text("\(LocalizedStringKey("totalAnalyzed").stringValue): \(session.totalAnalyzed)")
                             .foregroundColor(.gray)
                         if session.totalCorrected > 0 {
                             Text("Corrected \(session.totalCorrected) photos")
@@ -73,20 +73,20 @@ struct CleanupSummaryView: View {
                 
                 Spacer()
                 
-                Button("View History") {
+                Button(.viewHistory) {
                     // navigation to CleanupHistoryView
                     done(viewHistory: true)
                 }
                 .ifAvailableGlassButtonStyle()
                 
-                Button("Done") {
+                Button(.done) {
                     done()
                 }
                 .foregroundColor(.gray)
                 .ifAvailableGlassButtonStyle()
                 .padding(.bottom)
             } else {
-                ProgressView("Generating report...")
+                ProgressView(.generatingReport)
                     .task { await generateSessionData() }
             }
         }

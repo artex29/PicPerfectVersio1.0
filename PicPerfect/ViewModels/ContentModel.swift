@@ -11,6 +11,7 @@ import SwiftUI
 import RevenueCat
 import Playgrounds
 import FirebaseAuth
+import UserNotifications
 
 @Observable
 class ContentModel {

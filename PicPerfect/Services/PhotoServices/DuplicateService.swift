@@ -53,7 +53,7 @@ final class DuplicateService {
        static func detectDuplicates(
            for similars: Bool = false,
            assets: [PHAsset],
-           threshold: Float = 0.2,
+           threshold: Float = 0.5,
            limit: Int = 100
        ) async throws -> [PhotoGroup] {
 

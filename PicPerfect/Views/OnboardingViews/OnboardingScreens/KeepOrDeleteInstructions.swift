@@ -86,10 +86,10 @@ struct KeepOrDeleteInstructions: View {
             .ifAvailableGlassContainer()
             .onAppear {
                 swipeInstructions = SwipeInstructions(
-                    swipeRightInstructions: "Swipe right or tap the 👍 icon to keep a photo.",
-                    swipeLeftInstructions: "Swipe left or tap the 🗑️ icon to delete it.",
-                    undoInstructions: "Changed your mind? Tap the ⬅️ arrow below to undo.",
-                    finalMessage: "Nice! Now you know how to manage your photos with a simple swipe.",
+                    swipeRightInstructions: LocalizedStringKey("swipeRightInstructions").stringValue,
+                    swipeLeftInstructions: LocalizedStringKey("swipeLeftInstructions").stringValue,
+                    undoInstructions: LocalizedStringKey("undoInstructions").stringValue,
+                    finalMessage: LocalizedStringKey("finalMessage").stringValue,
                     nextAction: .keep
                 )
                 animateHand(geo: geo)

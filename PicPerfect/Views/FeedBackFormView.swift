@@ -12,11 +12,12 @@ import FirebaseAnalytics
 
 struct FeedbackFormView: View {
     
+    @Environment(ContentModel.self) var model
     @Environment(\.dismiss) private var dismiss
     
     @State private var name = ""
     @State private var email = ""
-    @State private var category = "Suggestion"
+    @State private var category = LocalizedStringKey("suggestion").stringValue
     @State private var message = ""
     @State private var isSending = false
     @State private var sent = false
@@ -24,11 +25,21 @@ struct FeedbackFormView: View {
     
     @Binding var messageSent: Bool
 
-    let categories = ["Suggestion", "Problem", "Compliment", "Other"]
+    let categories = [
+        LocalizedStringKey("suggestion").stringValue,
+        LocalizedStringKey("problem").stringValue,
+        LocalizedStringKey("compliment").stringValue,
+        LocalizedStringKey("other").stringValue
+    ]
 
     var body: some View {
         ScrollView {
             VStack(spacing: 18) {
+                
+                DismissButton {
+                    model.feedbackFormPresent = false
+                }
+                
                 Text("We’d love to hear from you 💬")
                     .font(.title2.bold())
                     .multilineTextAlignment(.center)
@@ -45,10 +56,12 @@ struct FeedbackFormView: View {
                     
                     TextField("Email address", text: $email)
                         .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
                         .textFieldStyle(.roundedBorder)
+                    #if os(iOS)
+                        .keyboardType(.emailAddress)
+                    #endif
                     
-                    Picker("Feedback type", selection: $category) {
+                    Picker("", selection: $category) {
                         ForEach(categories, id: \.self) { Text($0)}
                     }
                     .pickerStyle(.segmented)
@@ -61,7 +74,7 @@ struct FeedbackFormView: View {
                                 .stroke(Color.gray.opacity(0.9), lineWidth: 1)
                         )
                     
-                    Toggle("Allow us to contact you about your feedback", isOn: $allowContact)
+                    Toggle(.allowContactUser, isOn: $allowContact)
                 }
 
                 if isSending {
@@ -79,7 +92,7 @@ struct FeedbackFormView: View {
                 }
 
                 if sent {
-                    Label("Thank you! Your feedback has been sent ✅", systemImage: "checkmark.circle.fill")
+                    Label(.thankingForFeedback, systemImage: "checkmark.circle.fill")
                         .foregroundColor(.green)
                         .multilineTextAlignment(.center)
                         .padding(.top)
@@ -137,7 +150,7 @@ struct FeedbackFormView: View {
     private func clearForm() {
         name = ""
         email = ""
-        category = "Suggestion"
+        category = LocalizedStringKey("suggestion").stringValue
         message = ""
     }
 }
@@ -145,4 +158,5 @@ struct FeedbackFormView: View {
 
 #Preview {
     FeedbackFormView(messageSent: .constant(false))
+        .environment(ContentModel())
 }

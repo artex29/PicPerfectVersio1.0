@@ -39,7 +39,7 @@ class Service {
         for result in results {
             guard let asset = result.asset else {continue}
             
-            let highResImage = await Service.requestHighResImage(for: asset)
+            //let highResImage = await Service.requestHighResImage(for: asset)
             
             let identifier = asset.localIdentifier
             

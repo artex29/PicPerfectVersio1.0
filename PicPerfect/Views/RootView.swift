@@ -13,6 +13,7 @@ struct RootView: View {
     
     @Environment(ContentModel.self) var model
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.requestReview) var requestReview
     
     private var manager = PhotoGroupManager()
     
@@ -97,14 +98,7 @@ struct RootView: View {
     }
     
     private func showAppStoreReviewAlert() {
-#if os(macOS)
-        SKStoreReviewController.requestReview()
-        
-#else
-        guard let scene = UIApplication.shared.connectedScenes.first(where: {$0.activationState == .foregroundActive}) as? UIWindowScene else {return}
-        
-        SKStoreReviewController.requestReview(in: scene)
-#endif
+        requestReview()
     }
 }
 

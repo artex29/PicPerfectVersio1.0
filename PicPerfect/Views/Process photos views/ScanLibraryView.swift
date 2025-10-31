@@ -43,7 +43,7 @@ struct ScanLibraryView: View {
             VStack(spacing: 20) {
                 
                 if isScanning {
-                    ProgressView("Scanning Library…")
+                    ProgressView(.scanningLibrary)
                         .tint(.white)
                         .foregroundStyle(.white)
                     
@@ -106,7 +106,7 @@ struct ScanLibraryView: View {
 #endif
                 }
                 
-                Button("Cancel", role: .cancel) {}
+                Button(.cancel, role: .cancel) {}
                 
             } message: {
                 Text("Please grant photo access in Settings to continue.")
