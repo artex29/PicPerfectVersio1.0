@@ -25,6 +25,29 @@ struct CategorySplitView: View {
         Group {
             if device == .iPhone {
                 
+//                let dummyGroups: [PhotoGroup] = {
+//                    var groups: [PhotoGroup] = []
+//                    for category in PhotoGroupCategory.allCases {
+//                        
+//                        guard category != .orientation else { continue }
+//                        var images: [ImageInfo] = []
+//                        for i in 1...4 {
+//                            #if os(iOS)
+//                            let image = UIImage(named: "marquee\(Int.random(in: 1...12))")!
+//                            #elseif os(macOS)
+//                            let image = NSImage(named: "marquee\(Int.random(in: 1...12))")!
+//                            #endif
+//                            let info = ImageInfo(isIncorrect: false, image: image, asset: PHAsset())
+//                            images.append(info)
+//                        }
+//                        let group = PhotoGroup(images: images, score: Float.random(in: 0...1), category: category)
+//                        groups.append(group)
+//                    }
+//                    return groups
+//                }()
+//                
+                
+                
                 NavigationStack(path: $navigationPath) {
                     
                     CategoryView(selectedGroup: $selectedGroup, photoGroups: manager.allGroups, onClose: {onClose()}, navigationPath: $navigationPath)

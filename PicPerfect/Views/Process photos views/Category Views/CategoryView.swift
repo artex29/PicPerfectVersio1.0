@@ -116,6 +116,11 @@ struct CategoryView: View {
                 
             }
             .environment(manager)
+            .analyticsScreen(name: "CategoryView", class: "category_view", extraParameters: [
+                "categories": Set(photoGroups.map { $0.category }),
+                "photos_to_review_count": photosToReviewCount
+                
+            ])
         }
         
        

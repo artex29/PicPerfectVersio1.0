@@ -13,6 +13,10 @@ struct PicPerfectTheme {
         static let accent = Color(hex: "#FFD700")
         static let secondaryBackground = Color(hex: "#1A1A1A")
         static let mutedText = Color(hex: "#D9D9D9")
+        static let picViolet = Color(hex: "#7261D2")
+        static let picLightBlue = Color(hex: "#2E8BC9")
+        static let picDarkViolet = Color(hex: "#562E5F")
+        static let picDarkBlue = Color(hex: "#0E2634")
     }
 
     struct Fonts {
@@ -27,8 +31,9 @@ extension View {
         self
             .foregroundColor(.black)
             .padding()
-            .background(PicPerfectTheme.Colors.accent.opacity(0.5))
+            .background(.ultraThinMaterial)
             .cornerRadius(12)
+        
     }
 
     @ViewBuilder

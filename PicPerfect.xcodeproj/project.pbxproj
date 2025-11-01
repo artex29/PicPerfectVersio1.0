@@ -19,6 +19,7 @@
 		FF2305082E7C58E5000F382D /* MainViewMarquee.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2305072E7C58E5000F382D /* MainViewMarquee.swift */; };
 		FF23050A2E7C8AD8000F382D /* ProcessedPhotos.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2305092E7C8AC7000F382D /* ProcessedPhotos.swift */; };
 		FF23050C2E7CB71D000F382D /* ContentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23050B2E7CB716000F382D /* ContentModel.swift */; };
+		FF2550712EB54BCC009A1B85 /* PicPerfectIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = FF2550702EB54BCC009A1B85 /* PicPerfectIcon.icon */; };
 		FF36CD842E8731CE005BB5CA /* DecisionMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF36CD832E8731CE005BB5CA /* DecisionMenuView.swift */; };
 		FF4E7C192E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */; };
 		FF4E7C1E2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = FF4E7C1D2E78A07F00ABF2B4 /* PicPerfectOrientationClassifier.mlmodel */; };
@@ -93,6 +94,7 @@
 		FF2305072E7C58E5000F382D /* MainViewMarquee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewMarquee.swift; sourceTree = "<group>"; };
 		FF2305092E7C8AC7000F382D /* ProcessedPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessedPhotos.swift; sourceTree = "<group>"; };
 		FF23050B2E7CB716000F382D /* ContentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModel.swift; sourceTree = "<group>"; };
+		FF2550702EB54BCC009A1B85 /* PicPerfectIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = PicPerfectIcon.icon; sourceTree = "<group>"; };
 		FF36CD832E8731CE005BB5CA /* DecisionMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionMenuView.swift; sourceTree = "<group>"; };
 		FF4E7C182E78903B00ABF2B4 /* PhotoAnalysisCloudCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAnalysisCloudCache.swift; sourceTree = "<group>"; };
 		FF4E7C1A2E789B6A00ABF2B4 /* PicPerfect.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PicPerfect.entitlements; sourceTree = "<group>"; };
@@ -317,6 +319,7 @@
 				FF6739DD2E6B82D200C7C95A /* Helpers */,
 				FFD22CF32E511F7C00071915 /* Services */,
 				FFD22CE62E510C0B00071915 /* Assets.xcassets */,
+				FF2550702EB54BCC009A1B85 /* PicPerfectIcon.icon */,
 				FF0D2EE72EA7E9430060384A /* StoreConfig.storekit */,
 			);
 			path = PicPerfect;
@@ -474,6 +477,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF0D2EE82EA7E9430060384A /* StoreConfig.storekit in Resources */,
+				FF2550712EB54BCC009A1B85 /* PicPerfectIcon.icon in Resources */,
 				FFA3125A2EB2946200852EA0 /* GoogleService-Info.plist in Resources */,
 				FFD22CF52E511FA100071915 /* Localizable.xcstrings in Resources */,
 				FFD22CEC2E510C0B00071915 /* Assets.xcassets in Resources */,
@@ -675,7 +679,7 @@
 		FFD22CE42E51072400071915 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = PicPerfectIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = PicPerfect/PicPerfect.entitlements;
@@ -740,7 +744,7 @@
 		FFD22CE52E51072400071915 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = PicPerfectIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = PicPerfect/PicPerfect.entitlements;

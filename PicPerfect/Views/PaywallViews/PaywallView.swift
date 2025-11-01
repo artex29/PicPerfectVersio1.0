@@ -281,15 +281,15 @@ struct AnimatedMesh: View {
                     [0, 1], [2.5, 1], [1, 1]
                 ],
                 colors: [
-                    .black,
-                    .orange.opacity(0.8),
-                    .yellow.opacity(0.7),
-                    .black,
-                    .orange.opacity(0.8),
-                    .yellow.opacity(0.7),
-                    .black,
-                    .orange.opacity(0.8),
-                    .yellow.opacity(0.7)
+                    PicPerfectTheme.Colors.picLightBlue,
+                    PicPerfectTheme.Colors.picViolet.opacity(0.8),
+                    PicPerfectTheme.Colors.picLightBlue.opacity(0.7),
+                    PicPerfectTheme.Colors.picViolet,
+                    PicPerfectTheme.Colors.picDarkViolet.opacity(0.8),
+                    PicPerfectTheme.Colors.picLightBlue.opacity(0.7),
+                    PicPerfectTheme.Colors.picViolet,
+                    PicPerfectTheme.Colors.picDarkViolet.opacity(0.8),
+                    PicPerfectTheme.Colors.picLightBlue.opacity(0.7)
                 ],
                 smoothsColors: true
             )
@@ -303,7 +303,7 @@ struct AnimatedMesh: View {
             }
         } else {
             LinearGradient(
-                colors: [.black, .orange, .yellow, .white],
+                colors: [PicPerfectTheme.Colors.picDarkViolet, PicPerfectTheme.Colors.picViolet, PicPerfectTheme.Colors.picLightBlue, PicPerfectTheme.Colors.picDarkViolet],
                 startPoint: .bottomLeading,
                 endPoint: .topTrailing
             )
@@ -322,15 +322,15 @@ struct AnimatedMesh: View {
                     [0, 1], [2.5, 1], [1, 1]
                 ],
                 colors: [
-                    .black,
-                    .orange.opacity(0.8),
-                    .yellow.opacity(0.7),
-                    .black,
-                    .orange.opacity(0.8),
-                    .yellow.opacity(0.7),
-                    .black,
-                    .orange.opacity(0.8),
-                    .yellow.opacity(0.7)
+                    PicPerfectTheme.Colors.picLightBlue,
+                    PicPerfectTheme.Colors.picViolet.opacity(0.8),
+                    PicPerfectTheme.Colors.picLightBlue.opacity(0.7),
+                    PicPerfectTheme.Colors.picViolet,
+                    PicPerfectTheme.Colors.picDarkViolet.opacity(0.8),
+                    PicPerfectTheme.Colors.picLightBlue.opacity(0.7),
+                    PicPerfectTheme.Colors.picViolet,
+                    PicPerfectTheme.Colors.picDarkViolet.opacity(0.8),
+                    PicPerfectTheme.Colors.picLightBlue.opacity(0.7)
                 ],
                 smoothsColors: true
             )

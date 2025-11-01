@@ -72,15 +72,28 @@ struct iPhoneCategoryCard: View {
                 
                 HStack {
                     
+                    firstGroup.category.icon
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 30)
+                    
                     Text("\(totalCount)")
                     
                     Text(firstGroup.category.displayName)
+                    
+                    let totalSizeMB = group.reduce(0) { $0 + $1.images.reduce(0) { $0 + ($1.fileSizeInMB ?? 0.0)}}
+                    
+                    if totalSizeMB > 0 {
+                        Text(String(format: "- %.2f MB", totalSizeMB))
+                           
+                    }
                     
                     Spacer()
                     
                     Image(systemName: "arrow.right")
                 }
                 .foregroundStyle(.white)
+                .font(.caption)
                 
                 
                 HStack {
@@ -127,16 +140,29 @@ struct iPadCategoryCard: View {
                 
                 HStack {
                     
+                    firstGroup.category.icon
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 24)
+                    
                     Text("\(totalCount)")
                     
                     Text(firstGroup.category.displayName)
-                        .font(.caption)
+                    
+                    let totalSizeMB = group.reduce(0) { $0 + $1.images.reduce(0) { $0 + ($1.fileSizeInMB ?? 0.0)}}
+                    
+                    if totalSizeMB > 0 {
+                        Text(String(format: "- %.2f MB", totalSizeMB))
+                           
+                    }
                     
                     Spacer()
                     
                     Image(systemName: "arrow.right")
                 }
                 .foregroundStyle(.white)
+                .font(.caption)
+                
                 
                 
                 HStack {

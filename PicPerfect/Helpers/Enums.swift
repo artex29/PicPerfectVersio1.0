@@ -55,6 +55,25 @@ enum PhotoGroupCategory: String, CaseIterable, Codable {
         }
     }
     
+    var icon: Image {
+        switch self {
+        case .duplicates:
+            return Image(.duplicatesIcon)
+        case .similars:
+            return Image(.similarsIcon)
+        case .blurry:
+            return Image(.blurryIcon)
+        case .exposure:
+            return Image(.exposureIcon)
+        case .faces:
+            return Image(.closedEyesIcon)
+        case .orientation:
+           return Image("")
+        case .screenshots:
+            return Image(.screenshotsIcon)
+        }
+    }
+    
     var photoAnalysisKey: String {
         "analyzedPhotoRecords_\(self.rawValue)"
     }
