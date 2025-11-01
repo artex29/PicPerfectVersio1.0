@@ -31,7 +31,7 @@ struct CategorySplitView: View {
 //                        
 //                        guard category != .orientation else { continue }
 //                        var images: [ImageInfo] = []
-//                        for i in 1...4 {
+//                        for _ in 1...4 {
 //                            #if os(iOS)
 //                            let image = UIImage(named: "marquee\(Int.random(in: 1...12))")!
 //                            #elseif os(macOS)

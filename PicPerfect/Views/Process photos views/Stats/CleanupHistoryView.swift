@@ -35,35 +35,117 @@ struct CleanupHistoryView: View {
                }
                     
                 
-                Text("🧾 Cleanup History")
-                    .font(.largeTitle.bold())
+                HStack {
+                    
+                    Image(.cleanupHistoryMainIcon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 40)
+                    
+                    Text("Cleanup History")
+                        .font(.largeTitle.bold())
+                }
                     
                    
+                ZStack {
+                    
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(
+                            LinearGradient(colors: [
+                                PicPerfectTheme.Colors.picDarkViolet.opacity(0.8),
+                                PicPerfectTheme.Colors.picLightBlue.opacity(0.8)
+                            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
                 
-                Text("Total space saved: \(String(format: "%.2f MB", totalSpaceFreed))")
-                    .foregroundColor(.green)
-                    .padding(.bottom, 10)
+                    
+                    VStack {
+                        Text("Total Space Saved")
+                            .foregroundColor(.white)
+                            .padding(.bottom, 10)
+                        
+                        Text(String(format: "%.2f MB", totalSpaceFreed))
+                            .font(.largeTitle)
+                            .bold()
+                            .foregroundColor(PicPerfectTheme.Colors.picLightBlue)
+                    }
+                }
+                .frame(height: 120)
+                
+               
                 
                 ScrollView {
                     ForEach(records.sorted(by: { $0.date > $1.date })) { record in
+                        
                         VStack(alignment: .leading) {
+                            HStack(alignment: .top) {
+                                Image(systemName: "calendar")
+                                    .foregroundStyle(PicPerfectTheme.Colors.picLightBlue)
+                                
+                                let date = record.date
+                                
+                                VStack(alignment: .leading) {
+                                    Text(date.formatted(date: .abbreviated, time: .omitted))
+                                        .fontWeight(.semibold)
+                                    Text(date.formatted(date: .omitted, time: .shortened))
+                                        .opacity(0.7)
+                                    
+                                }
+                                
+                                Spacer()
+                            }
                             
-                            Text(record.date.formatted(date: .abbreviated, time: .shortened))
-                                .font(.headline)
-                            
-                            let deleted = language == .english ? "Deleted" : "Eliminados"
-                            let saved = language == .english ? "Saved" : "Ahorrados"
-                            
-                            Text("\(deleted) \(record.totalDeleted) • \(saved) \(String(format: "%.2f MB", record.totalSpaceFreedMB))")
-                               
+                            HStack {
+                                HStack {
+                                    Image(.cleanupHistoryTrashIcon)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 40)
+                                        
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(.photos)
+                                            .font(.callout)
+                                            .opacity(0.8)
+                                        
+                                        Text("\(record.totalDeleted)")
+                                            .fontWeight(.semibold)
+                                        
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                HStack {
+                                    Image(.cleanupHistorySavedIcon)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 40)
+                                        
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(.saved)
+                                            .font(.callout)
+                                            .opacity(0.8)
+                                        
+                                        Text(String(format: "%.2f MB", record.totalSpaceFreedMB))
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.green)
+                                        
+                                    }
+                                }
+                            }
+                            .padding(.top, 10)
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
                         .applyGlassIfAvailable()
+                        
+                        
                     }
                     
                     
                 }
+                .padding(.top)
               
                 
                 Spacer()
